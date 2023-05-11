@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import os
 from data_test import ecg_signal
+from StylesheetFormat import Stylesheet
 Horiz_size = 800
 Vert_size = 480 
 
@@ -64,42 +65,7 @@ class Ui_window(object):
         self.Charge_pushButton.setText(_translate('Form','2 CHARGE '))
         self.Shock_pushButton.setText(_translate('Form','3 SHOCK'))
 
-Stylesheet = """
 
-#Charge_pushButton {
-    color: black; 
-    background-color: lightgray; 
-    border-style: outset; 
-    border-width: 1px; 
-    border-radius: 8px; 
-    border-color: beige; 
-    padding: 5px; 
-    font: bold 11px; 
-    }
-
-#DEFIB_pushButton {
-    color: black; 
-    background-color: lightgray; 
-    border-style: outset; 
-    border-width: 1px; 
-    border-radius: 8px; 
-    border-color: beige; 
-    padding: 5px; 
-    font: bold 11px; 
-    }
-
-#Shock_pushButton {
-    color: black; 
-    background-color: lightgray; 
-    border-style: outset; 
-    border-width: 1px; 
-    border-radius: 8px; 
-    border-color: beige; 
-    padding: 5px; 
-    font: bold 11px; 
-    }
-
-"""
         
 
 if __name__ == "__main__":
