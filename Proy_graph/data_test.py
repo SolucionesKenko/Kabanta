@@ -11,6 +11,7 @@ ecg12 = nk.ecg_simulate(duration=10, method="multileads")
 signal = record.p_signal
 ecg_signal = signal.tolist()
 print(ecg_signal[3])
+#Cambios de Codigo Main, Separacion de StyleSheet, y agregado de Generacion de senales con neurokit
 
 
 
