@@ -3,7 +3,7 @@
 # Informacion 
 # https://www.pythonguis.com/tutorials/plotting-pyqtgraph/
 from PyQt5 import QtWidgets, QtCore
-import pyqtgraph as pg 
+#import pyqtgraph as pg 
 import sys 
 import numpy as np
 import os
@@ -48,9 +48,9 @@ class MainWindow(QtWidgets.QWidget):
         self.der2 = [-2 for i in self.x]
         self.der3 = [-4 for i in self.x]
         #todo pen =
-        self.data_line_der1 = self.ui.pg.plot(self.x,self.der1)
-        self.data_line_der2 = self.ui.pg.plot(self.x,self.der2)
-        self.data_line_der3 = self.ui.pg.plot(self.x,self.der3)
+        self.data_line_der1 = self.ui.plt.plot(self.x,self.der1)
+        self.data_line_der2 = self.ui.plt.plot(self.x,self.der2)
+        self.data_line_der3 = self.ui.plt.plot(self.x,self.der3)
         # User code end Here 
     
 
