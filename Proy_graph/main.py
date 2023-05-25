@@ -6,18 +6,9 @@ from PyQt5 import QtWidgets, QtCore
 #import pyqtgraph as pg 
 import sys 
 import numpy as np
-import os
 from data_test import ecg_signal, ecg12
-from data_gen import gen_ecg_signal, ecg_signals3, gen_ecg_signal2
 from window import Ui_window
 
-Horiz_size = 800
-Vert_size = 480 
-
-# Ejemplo de uso
-duration = 10  # Duración de la señal en segundos
-sampling_rate = 1000  # Frecuencia de muestreo en Hz
-heart_rate = 60  # Frecuencia cardíaca en latidos por minuto
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):

@@ -5,12 +5,9 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 import pyqtgraph as pg 
 import sys 
-import numpy as np
-import os
-from data_test import ecg_signal
 from StylesheetFormat import Stylesheet
-Horiz_size = 800
-Vert_size = 480 
+import pantalla_config
+from samples import RoundButton
 
 
 
@@ -18,21 +15,25 @@ class Ui_window(object):
     def setupUi(self, Form):
         ### Inicio de Configuracion de los Widgets
         Form.setObjectName("Pokemon")
-        Form.resize(Horiz_size, Vert_size)
-        #Widget de Layout vertical para graficas verticales Preconfiguracion
+        Form.resize(pantalla_config.Horiz_size, pantalla_config.Vert_size)
+        #Widget de Layout vertical para la graficacion de senales 
         self.Graph_verticalLayoutWidget = QtWidgets.QWidget(Form)
-        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(15, 50, 550, 350))
+        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.grah_CoordX1,
+                                                                pantalla_config.grah_CoordY1, 
+                                                                pantalla_config.grah_HorizSize, 
+                                                                pantalla_config.grah_VertSize))
         self.Graph_verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
-        self.plt = pg.PlotWidget(title = 'Signo vital 1')
+        self.plt = pg.PlotWidget()
         #self.plt.showGrid(x=True, y=True)
         self.Graph_verticalLayout.addWidget(self.plt)
-        ## todo Verificar que hace estos dos lineas
-        #self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        #self.verticalLayout.setObjectName("verticalLayout")
 
+        ### Widget Layout vertical para botones Defib, Charge, Shock
         self.DCS_verticalLayoutWidget = QtWidgets.QWidget(Form)
-        self.DCS_verticalLayoutWidget.setGeometry(QtCore.QRect(580, 50, 120, 150))
+        self.DCS_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.DCS_CoordX1,
+                                                                pantalla_config.DCS_CoordY1,
+                                                                pantalla_config.DCS_HorizSize,
+                                                                pantalla_config.DCS_VertSize))
         self.DCS_verticalLayoutWidget.setObjectName("DCS_verticalLayoutWidget")
         self.DCS_verticalLayout = QtWidgets.QVBoxLayout(self.DCS_verticalLayoutWidget)
             #Push Button 
@@ -44,13 +45,39 @@ class Ui_window(object):
         self.DCS_verticalLayout.addWidget(self.Charge_pushButton)
         self.Shock_pushButton = QtWidgets.QPushButton(self.DCS_verticalLayoutWidget)
         self.Shock_pushButton.setObjectName("Shock_pushButton")
+        self.DCS_verticalLayout.addWidget(self.Shock_pushButton)
+            #StyleSheet Button
         self.DEFIB_pushButton.setStyleSheet(Stylesheet)
         self.Charge_pushButton.setStyleSheet(Stylesheet)
         self.Shock_pushButton.setStyleSheet(Stylesheet)
         
+        ### Widget Layout Horizontal Play, Pause, Stop, Question
+        self.PPSQ_HorizontalLayoutWidget = QtWidgets.QWidget(Form)
+        self.PPSQ_HorizontalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.PPSQ_CoordX1,
+                                                                pantalla_config.PPSQ_CoordY1, 
+                                                                pantalla_config.PPSQ_HorizSize, 
+                                                                pantalla_config.PPSQ_VertSize))
+        self.PPSQ_HorizontalLayoutWidget.setObjectName("PPSQ_HorizontalLayoutWidget")
+        self.PPSQ_HorizontalLayout = QtWidgets.QHBoxLayout(self.PPSQ_HorizontalLayoutWidget)
+        #self.PPSQ_HorizontalLayout.setContentsMargins
+            #Button
+        self.play_RoundButton = RoundButton()
+        self.play_RoundButton.setObjectName("play_RoundButton")
+        self.PPSQ_HorizontalLayout.addWidget(self.play_RoundButton)
+        self.pause_RoundButton = RoundButton()
+        self.pause_RoundButton.setObjectName("pause_RoundButton")
+        self.PPSQ_HorizontalLayout.addWidget(self.pause_RoundButton)
+        self.stop_RoundButton = RoundButton()
+        self.stop_RoundButton.setObjectName("stop_RoundButton")
+        self.PPSQ_HorizontalLayout.addWidget(self.stop_RoundButton)
+        self.question_RoundButton = RoundButton()
+        self.question_RoundButton.setObjectName("question_RoundButton")
+        self.PPSQ_HorizontalLayout.addWidget(self.question_RoundButton)
+        self.OnOff_RoundButton = RoundButton()
+        self.OnOff_RoundButton.setObjectName("OnOff_RoundButton")
+        self.PPSQ_HorizontalLayout.addWidget(self.question_RoundButton)
+            #StyleSheet
 
-        #self.Shock_pushButton.setback()
-        self.DCS_verticalLayout.addWidget(self.Shock_pushButton)
         ## todo Verificar que hace estos dos lineas
         #self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         #self.verticalLayout.setObjectName("verticalLayout")"""
