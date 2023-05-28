@@ -67,6 +67,12 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der2.setData(self.x, self.der2)
         self.data_line_der3.setData(self.x, self.der3)
 
+main_Stylesheet = """
+#Pokemon {
+    background-color: rgb(209,209,209);
+    }
+
+"""
 
 
 
@@ -75,6 +81,7 @@ class MainWindow(QtWidgets.QWidget):
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyleSheet(main_Stylesheet)
     w = MainWindow()
     w.show()
     sys.exit(app.exec_())

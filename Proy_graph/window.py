@@ -78,6 +78,40 @@ class Ui_window(object):
         self.PPSQ_HorizontalLayout.addWidget(self.question_RoundButton)
             #StyleSheet
 
+        ### Energy Select, Dea and Sync Buttons
+            # Up Energey Select (UES)
+        self.UpEnergySelect_pushButton = QtWidgets.QPushButton(Form)
+        self.UpEnergySelect_pushButton.setGeometry(QtCore.QRect(pantalla_config.UES_CoordX1,
+                                                                pantalla_config.UES_CoordY1,
+                                                                pantalla_config.UES_HorizSize,
+                                                                pantalla_config.UES_VertSize))
+        self.UpEnergySelect_pushButton.setObjectName("UpEnergySelect_pushButton")
+        self.UpEnergySelect_pushButton.setStyleSheet(Stylesheet)
+            # Down Energey Select (DES)
+        self.DownEnergySelect_pushButton = QtWidgets.QPushButton(Form)
+        self.DownEnergySelect_pushButton.setGeometry(QtCore.QRect(pantalla_config.DES_CoordX1,
+                                                                pantalla_config.DES_CoordY1,
+                                                                pantalla_config.DES_HorizSize,
+                                                                pantalla_config.DES_VertSize))
+        self.DownEnergySelect_pushButton.setObjectName("DownEnergySelect_pushButton")
+        self.DownEnergySelect_pushButton.setStyleSheet(Stylesheet)
+            # DEA
+        self.DEA_pushButton = QtWidgets.QPushButton(Form)
+        self.DEA_pushButton.setGeometry(QtCore.QRect(pantalla_config.DEA_CoordX1,
+                                                    pantalla_config.DEA_CoordY1,
+                                                    pantalla_config.DEA_HorizSize,
+                                                    pantalla_config.DEA_VertSize))
+        self.DEA_pushButton.setObjectName("DEA_pushButton")
+        self.DEA_pushButton.setStyleSheet(Stylesheet)
+            #SYNC
+        self.SYNC_pushButton = QtWidgets.QPushButton(Form)
+        self.SYNC_pushButton.setGeometry(QtCore.QRect(pantalla_config.SYNC_CoordX1,
+                                                    pantalla_config.SYNC_CoordY1,
+                                                    pantalla_config.SYNC_HorizSize,
+                                                    pantalla_config.SYNC_VertSize))
+        self.SYNC_pushButton.setObjectName("SYNC_pushButton")
+        self.SYNC_pushButton.setStyleSheet(Stylesheet)
+        
         ## todo Verificar que hace estos dos lineas
         #self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         #self.verticalLayout.setObjectName("verticalLayout")"""
