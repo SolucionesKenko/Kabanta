@@ -5,9 +5,13 @@ import pantalla_config
 import sys
 
 class RoundButton(QtWidgets.QPushButton):
-    def __init__(self, icon,parent=None):
+    def __init__(self,parent=None):
         super(RoundButton, self).__init__(parent)
         self.setFixedSize(pantalla_config.PPSQ_RoundButtonSize, pantalla_config.PPSQ_RoundButtonSize)  # Set the fixed size of the button to make it round
+
+    def setButtonIcon(self,icon):
+        super(RoundButton, self).setIcon(icon)
+        self.update()  # Update the button to reflect the new icon
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -19,11 +23,14 @@ class RoundButton(QtWidgets.QPushButton):
 
         # Draw the rounded button
         painter.drawEllipse(0, 0, self.width(), self.height())
+
+    
+
         
     def sizeHint(self):
         return self.minimumSizeHint()
 
-class UPRoundTriangle(QtWidgets.QWidget):
+class UPRoundTriangle(QtWidgets.QPushButton):
     def __init__(self, parent=None):
         super(UPRoundTriangle, self).__init__(parent)
         self.setFixedSize(pantalla_config.Triangle_RoundButtonSize,pantalla_config.Triangle_RoundButtonSize)
@@ -50,7 +57,7 @@ class UPRoundTriangle(QtWidgets.QWidget):
     def sizeHint(self):
         return self.minimumSizeHint()
 
-class DOWNRoundTriangle(QtWidgets.QWidget):
+class DOWNRoundTriangle(QtWidgets.QPushButton):
     def __init__(self, parent=None):
         super(DOWNRoundTriangle, self).__init__(parent)
         self.setFixedSize(pantalla_config.Triangle_RoundButtonSize,pantalla_config.Triangle_RoundButtonSize)

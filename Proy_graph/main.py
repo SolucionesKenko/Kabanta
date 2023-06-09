@@ -15,6 +15,38 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
+
+        #Button Control
+        self.Ui_window = Ui_window()
+        self.ui.DEFIB_pushButton.pressed.connect(self.displayHello)
+        self.ui.Charge_pushButton.pressed.connect(self.displayHello)
+        self.ui.Shock_pushButton.pressed.connect(self.displayHello)
+        self.ui.DEA_pushButton.pressed.connect(self.displayHello)
+        self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
+        self.ui.confirmMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.returnMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.CPRMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.DPO_pushButton.pressed.connect(self.displayHello)
+        self.ui.DPR_pushButton.pressed.connect(self.displayHello)
+        self.ui.UPO_pushButton.pressed.connect(self.displayHello)
+        self.ui.UPR_pushButton.pressed.connect(self.displayHello)
+        self.ui.config_pushButton.pressed.connect(self.displayHello)
+        self.ui.CPRMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.UpEnergySelect_pushButton.pressed.connect(self.displayHello)
+        self.ui.DownEnergySelect_pushButton.pressed.connect(self.displayHello)
+        self.ui.play_RoundButton.pressed.connect(self.displayHello)
+        self.ui.pause_RoundButton.pressed.connect(self.displayHello)
+        self.ui.stop_RoundButton.pressed.connect(self.displayHello)
+        self.ui.question_RoundButton.pressed.connect(self.displayHello)
+        self.ui.OnOff_RoundButton.pressed.connect(self.displayHello)
+        self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
+        self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
+    
+
         print(type(ecg12))
         ### Final de configuracion de los Widgets
         ### Codigo de main
@@ -24,7 +56,7 @@ class MainWindow(QtWidgets.QWidget):
         self.su = 1
         self.timer = QtCore.QTimer()
         self.timer.setInterval(30)
-        self.timer.timeout.connect(self.Update_Grahp)
+        #self.timer.timeout.connect(self.Update_Grahp)
         self.timer.start()
         
         # User code starts Here 
@@ -66,6 +98,9 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der1.setData(self.x, self.der1)  # Update the data.
         self.data_line_der2.setData(self.x, self.der2)
         self.data_line_der3.setData(self.x, self.der3)
+
+    def displayHello(self):
+        print("Hello")
 
 main_Stylesheet = """
 #Pokemon {
