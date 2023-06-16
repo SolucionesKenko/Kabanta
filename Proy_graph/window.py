@@ -7,7 +7,7 @@ import pyqtgraph as pg
 import sys 
 from StylesheetFormat import Stylesheet
 import pantalla_config
-from samples import UPRoundTriangle, RoundButton, DOWNRoundTriangle
+from samples import UPRoundTriangle, DOWNRoundTriangle
 
 
 

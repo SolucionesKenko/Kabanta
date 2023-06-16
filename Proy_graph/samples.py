@@ -52,18 +52,11 @@ class DOWNRoundTriangle(QtWidgets.QPushButton):
     def sizeHint(self):
         return self.minimumSizeHint()
 
-"""class roundRect(QtWidgets.Qlabel):
-    def __init__(self, parent=None):
-        super(roundRect, self).__init__(parent)
-        self.setFixedSize(pantalla_config.Triangle_RoundButtonSize,pantalla_config.Triangle_RoundButtonSize)"""
-
-
-
     
 
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
-    button = RoundButton()
+    button = UPRoundTriangle()
     button.show()
     sys.exit(app.exec_())
