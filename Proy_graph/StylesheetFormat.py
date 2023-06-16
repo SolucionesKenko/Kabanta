@@ -1,6 +1,6 @@
 Stylesheet = """
 
-#Charge_pushButton,#DEFIB_pushButton, #Shock_pushButton, #UpEnergySelect_pushButton,#DownEnergySelect_pushButton, #DEA_pushButton, #SYNC_pushButton,
+#Charge_pushButton,#DEFIB_pushButton, #Shock_pushButton, #UpEnergySelect_pushButton,#DownEnergySelect_pushButton, 
 #UPO_pushButton, #DPO_pushButton,#UPR_pushButton,#DPR_pushButton
 {
     color: black; 
@@ -12,32 +12,65 @@ Stylesheet = """
     font: bold 11px; 
     }
 
-#confirmMenu_pushButton, #returnMenu_pushButton, #alarmMenu_pushButton, #CPRMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton{
+#DEA_pushButton, #SYNC_pushButton
+{
+    color: black; 
+    background-color: lightgray; 
+    border-width: 1px; 
+    border-radius: 8px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 10px; 
+
+}
+#confirmMenu_pushButton, #returnMenu_pushButton, #CPRMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton
+{
     color: white; 
     background-color: rgb(84,84,84);  
     border-width: 1px; 
     border-radius: 8px; 
     border-color: rgb(84,84,84); 
     padding: 5px; 
-    font: bold 11px; 
+    font: bold 10px; 
     }
+
+ #alarmMenu_pushButton
+{
+    color: white; 
+    background-color: rgb(84,84,84);  
+    border-width: 1px; 
+    border-radius: 8px; 
+    border-color: rgb(84,84,84); 
+    padding: 5px; 
+    font: bold 9px; 
+}
 
 #energySelectLabel_pushButton {
     color: white; 
     background-color: rgb(254,22,27);  
-    border-width: 1px; 
+    border-width: 0px; 
     border-radius: 8px; 
     border-color: rgb(254,22,27); 
     padding: 5px; 
-    font: bold 11px; 
+    font: bold 7px; 
 }
 
-#PPMLabel_pushButton, #mALabel_pushButton, #MARCPLabel_pushButton
+#MARCPLabel_pushButton
 {
     color: white; 
     background-color: rgb(0,127,55);  
     border-width: 1px; 
     border-radius: 8px; 
+    border-color: rgb(0,127,55); 
+    padding: 5px; 
+    font: bold 11px; 
+}
+#PPMLabel_pushButton, #mALabel_pushButton
+{
+    color: white; 
+    background-color: rgb(0,127,55);  
+    border-width: 0px; 
+    border-radius: 3px; 
     border-color: rgb(0,127,55); 
     padding: 5px; 
     font: bold 11px; 
@@ -110,6 +143,15 @@ Stylesheet = """
     background-color: rgb(241,255,255);  
     border-width: 0px; 
     border-radius: 8px; 
+    font: bold 8px; 
+}
+
+#play_RoundButton, #pause_RoundButton, #stop_RoundButton, #question_RoundButton, #OnOff_RoundButton, #config_pushButton
+{
+    color: black; 
+    background-color: rgb(84,84,84);  
+    border-width: 0px; 
+    border-radius: 17px; 
     font: bold 8px; 
 }
 

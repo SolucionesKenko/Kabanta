@@ -244,3 +244,10 @@ roundRectGrah_HorizSize = round(Horiz_size*0.6993)
 roundRectGrah_VertSize = round(Vert_size*0.7721)
 roundRectGrah_CoordX1 = round(Horiz_size*0.0221)
 roundRectGrah_CoordY1 = round(Vert_size*0.1215)
+
+# Medidas Coordenadas y dimenciones del Graph_verticalLayoutWidget
+# Formula                                           # Cordenada Original   1920 - 1080
+roundRectVitalSignals_CoordX1 = round(Horiz_size*0.6041)
+roundRectVitalSignals_CoordY1 = round(Vert_size*0.1215)
+roundRectVitalSignals_HorizSize = round(Horiz_size*0.1171)
+roundRectVitalSignals_VertSize = round(Vert_size*0.7721)

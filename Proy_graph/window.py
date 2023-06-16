@@ -100,6 +100,31 @@ class Ui_window(object):
         painter.setPen(pen)
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectMCP_HorizSize, pantalla_config.roundRectMCP_VertSize, 20, 20)
         painter.end()
+            # Vital Signals
+        self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(Form)
+        self.roundRectVitalSignals_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectVitalSignals_CoordX1-3,
+                                            pantalla_config.roundRectVitalSignals_CoordY1-3,
+                                            pantalla_config.roundRectVitalSignals_HorizSize+6,
+                                            pantalla_config.roundRectVitalSignals_VertSize+6))
+        self.roundRectVitalSignals_Qpaint.setObjectName("roundRectVitalSignals_Qpaint")
+        self.canvasLabel = QtGui.QPixmap(pantalla_config.roundRectVitalSignals_HorizSize+6,pantalla_config.roundRectVitalSignals_VertSize+6)
+        self.canvasColor = QtGui.QColor(209,209,209)
+        self.canvasColor.setAlpha(0)
+        self.canvasLabel.fill(self.canvasColor)
+        self.roundRectVitalSignals_Qpaint.setPixmap(self.canvasLabel)
+        painter = QtGui.QPainter(self.roundRectVitalSignals_Qpaint.pixmap())
+        
+        brush = QtGui.QBrush()
+        brush.setColor(QtGui.QColor(34,34,34))
+        brush.setStyle(1)
+        painter.setBrush(brush)
+        
+        pen = QtGui.QPen()
+        pen.setWidth(3)
+        pen.setColor(QtGui.QColor(34,34,34))
+        painter.setPen(pen)
+        painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 20, 20)
+        painter.end()
         
         ### Widget Layout vertical para botones Defib, Charge, Shock
         self.DCS_verticalLayoutWidget = QtWidgets.QWidget(Form)
@@ -126,59 +151,55 @@ class Ui_window(object):
         
         ### Button Play, Pause, Stop, Question
             #Button
-        Play_icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Play_icon.svg"))
-        self.play_RoundButton = RoundButton(Form)
-        #self.play_RoundButton.setButtonIcon(Play_icon)
-        """self.play_RoundButton.setIcon(Play_icon)
-        play_buttonSize = self.play_RoundButton.size()
-        self.play_RoundButton.setIconSize(QtCore.QSize(play_buttonSize.width(), play_buttonSize.height()))"""
+        self.play_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Play_icon.svg")))
+        play_RoundButtonSize = self.play_RoundButton.size()
+        self.play_RoundButton.setIconSize(QtCore.QSize(round(play_RoundButtonSize.width()*0.8), round(play_RoundButtonSize.height()*0.8)))
         self.play_RoundButton.setGeometry(QtCore.QRect(pantalla_config.play_CoordX1,
                                                     pantalla_config.play_CoordY1,
                                                     pantalla_config.PPSQ_RoundButtonSize,
                                                     pantalla_config.PPSQ_RoundButtonSize))
         self.play_RoundButton.setObjectName("play_RoundButton")
-        
-        self.pause_RoundButton = RoundButton(Form)
-        Pause_icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Pause_icon.svg"))
-        self.pause_RoundButton.setIcon(Pause_icon)
-        pause_buttonSize = self.pause_RoundButton.size()
-        self.pause_RoundButton.setIconSize(QtCore.QSize(pause_buttonSize.width(), pause_buttonSize.height()))
+        self.play_RoundButton.setStyleSheet(Stylesheet)
+
+        self.pause_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Pause_icon.svg")))
+        self.pause_RoundButtonSize = self.pause_RoundButton.size()
+        self.pause_RoundButton.setIconSize(QtCore.QSize(round(self.pause_RoundButtonSize.width()*0.80), round(self.pause_RoundButtonSize.height()*0.8)))
         self.pause_RoundButton.setGeometry(QtCore.QRect(pantalla_config.pause_CoordX1,
                                                     pantalla_config.pause_CoordY1,
                                                     pantalla_config.PPSQ_RoundButtonSize,
                                                     pantalla_config.PPSQ_RoundButtonSize))
         self.pause_RoundButton.setObjectName("pause_RoundButton")
-        
-        self.stop_RoundButton = RoundButton(Form)
-        Stop_icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Stop_icon.svg"))
-        self.stop_RoundButton.setIcon(Stop_icon)
-        stop_buttonSize = self.stop_RoundButton.size()
-        self.stop_RoundButton.setIconSize(QtCore.QSize(stop_buttonSize.width(), stop_buttonSize.height()))
+        self.pause_RoundButton.setStyleSheet(Stylesheet)
+
+        self.stop_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Stop_icon.svg")))
+        self.stop_RoundButtonSize = self.stop_RoundButton.size()
+        self.stop_RoundButton.setIconSize(QtCore.QSize(round(self.stop_RoundButtonSize.width()*0.60), round(self.stop_RoundButtonSize.height()*0.60)))
         self.stop_RoundButton.setGeometry(QtCore.QRect(pantalla_config.stop_CoordX1,
                                                     pantalla_config.stop_CoordY1,
                                                     pantalla_config.PPSQ_RoundButtonSize,
                                                     pantalla_config.PPSQ_RoundButtonSize))
         self.stop_RoundButton.setObjectName("stop_RoundButton")
+        self.stop_RoundButton.setStyleSheet(Stylesheet)
         
-        self.question_RoundButton = RoundButton(Form)
-        Quiestion_icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Question_icon.svg"))
-        self.question_RoundButton.setIcon( Quiestion_icon )
-        question_buttonSize = self.question_RoundButton.size()
-        self.question_RoundButton.setIconSize(QtCore.QSize(question_buttonSize.width(), question_buttonSize.height()))
+        self.question_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Question_icon.svg")))
+        self.question_RoundButtonSize = self.question_RoundButton.size()
+        self.question_RoundButton.setIconSize(QtCore.QSize(self.question_RoundButtonSize.width(), self.question_RoundButtonSize.height()))
         self.question_RoundButton.setGeometry(QtCore.QRect(pantalla_config.question_CoordX1,
                                                     pantalla_config.question_CoordY1,
                                                     pantalla_config.PPSQ_RoundButtonSize,
                                                     pantalla_config.PPSQ_RoundButtonSize))
         self.question_RoundButton.setObjectName("question_RoundButton")
-        
-        self.OnOff_RoundButton = RoundButton(Form)
-        #OnOff_buttonSize = self.OnOff_RoundButton.size()
-        #self.OnOff_RoundButton.setIconSize(QtCore.QSize(OnOff_buttonSize.width(), OnOff_buttonSize.height()))
+        self.question_RoundButton.setStyleSheet(Stylesheet)
+
+        self.OnOff_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Config_icon.svg")))
+        self.OnOff_RoundButtonSize = self.OnOff_RoundButton.size()
+        self.OnOff_RoundButton.setIconSize(QtCore.QSize(self.OnOff_RoundButtonSize.width(), self.OnOff_RoundButtonSize.height()))
         self.OnOff_RoundButton.setGeometry(QtCore.QRect(pantalla_config.OnOff_CoordX1,
                                                     pantalla_config.OnOff_CoordY1,
                                                     pantalla_config.PPSQ_RoundButtonSize,
                                                     pantalla_config.PPSQ_RoundButtonSize))
         self.OnOff_RoundButton.setObjectName("OnOff_RoundButton")
+        self.OnOff_RoundButton.setStyleSheet(Stylesheet)
 
             #StyleSheet
 
@@ -374,7 +395,9 @@ class Ui_window(object):
         self.pacerRate_Label.setObjectName("pacerRate_Label")
         self.pacerRate_Label.setStyleSheet(Stylesheet)
 
-        self.config_pushButton = RoundButton(Form)
+        self.config_pushButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Config_icon.svg")))
+        self.config_pushButtonSize = self.config_pushButton.size()
+        self.config_pushButton.setIconSize(QtCore.QSize(self.OnOff_RoundButtonSize.width(), self.OnOff_RoundButtonSize.height()))
         self.config_pushButton.setGeometry(QtCore.QRect(pantalla_config.config_CoordX1,
                                                         pantalla_config.config_CoordY,
                                                         pantalla_config.PPSQ_RoundButtonSize,
@@ -402,14 +425,15 @@ class Ui_window(object):
         self.KabSinLogo_horizontalLayout.setObjectName("KabSinLogo_horizontalLayout")
 
         self.KabSimLogo_Scene = QtWidgets.QGraphicsScene(0, 0, self.KabSinLogo_horizontalLayoutWidget.width(), self.KabSinLogo_horizontalLayoutWidget.height())
-        self.KabSimLogo_Path = "PyQt_Images/KabSim_icon.svg"
+        self.KabSimLogo_Path = "PyQt_Images/Abersiya.svg"
         self.KabSimLogo_Image = QtGui.QPixmap(self.KabSimLogo_Path)
         self.KabSimLogo_pixmapitem = self.KabSimLogo_Scene.addPixmap(self.KabSimLogo_Image.scaled(self.KabSimLogo_Scene.sceneRect().size().toSize()))
         self.KabSimLogo_pixmapitem.setPos(0,0)
         
+        
         self.KabSimLogo_view = QtWidgets.QGraphicsView(self.KabSimLogo_Scene)
         self.KabSimLogo_view.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.KabSimLogo_view.setStyleSheet("border: none;background: none;")
+        self.KabSimLogo_view.setStyleSheet("border: none;background-color: rgb(209,209,209);")
         self.KabSinLogo_horizontalLayout.addWidget(self.KabSimLogo_view)
         
         self.heartRateLabel_pushButton = QtWidgets.QPushButton(Form)
@@ -459,6 +483,7 @@ class Ui_window(object):
                                                         pantalla_config.CO2Label_VertSize))
         self.CO2Label_pushButton.setObjectName("CO2Label_pushButton")
         self.CO2Label_pushButton.setStyleSheet(Stylesheet)
+
         
 
 
