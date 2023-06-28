@@ -484,6 +484,15 @@ class Ui_window(object):
         self.CO2Label_pushButton.setObjectName("CO2Label_pushButton")
         self.CO2Label_pushButton.setStyleSheet(Stylesheet)
 
+        self.port_comboBox = QtWidgets.QComboBox(Form)
+        self.port_comboBox.setGeometry(QtCore.QRect(pantalla_config.port_CoordX1,
+                                                    pantalla_config.port_CoordY1,
+                                                    pantalla_config.port_HorizSize,
+                                                    pantalla_config.port_VertSize))
+        self.port_comboBox.setObjectName("returnMenu_pushButton")
+        self.port_comboBox.setStyleSheet(Stylesheet)
+
+
         
 
 

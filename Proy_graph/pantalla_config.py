@@ -238,16 +238,23 @@ CO2Label_CoordY = round(Vert_size*0.8361)           #
 CO2Label_HorizSize = round(Horiz_size*0.0744)       # 
 CO2Label_VertSize = round(Vert_size*0.0314)         #  
 
-# Medidas Coordenadas y dimenciones del Graph_verticalLayoutWidget
+# Medidas Coordenadas y dimenciones del RoundRectGraph
 # Formula                                           # Cordenada Original   1920 - 1080
 roundRectGrah_HorizSize = round(Horiz_size*0.6993)
 roundRectGrah_VertSize = round(Vert_size*0.7721)
 roundRectGrah_CoordX1 = round(Horiz_size*0.0221)
 roundRectGrah_CoordY1 = round(Vert_size*0.1215)
 
-# Medidas Coordenadas y dimenciones del Graph_verticalLayoutWidget
+# Medidas Coordenadas y dimenciones del RoundRectVitalSignals
 # Formula                                           # Cordenada Original   1920 - 1080
 roundRectVitalSignals_CoordX1 = round(Horiz_size*0.6041)
 roundRectVitalSignals_CoordY1 = round(Vert_size*0.1215)
 roundRectVitalSignals_HorizSize = round(Horiz_size*0.1171)
 roundRectVitalSignals_VertSize = round(Vert_size*0.7721)
+
+# Medidas Coordenadas y dimenciones del RoundRectVitalSignals
+# Formula                                           # Cordenada Original
+port_CoordX1 = round(Horiz_size*0.3600)             # 370
+port_CoordY1 = round(Vert_size*0.9211)              # 841
+port_HorizSize = round(Horiz_size*0.0591)           # 96
+port_VertSize = round(Vert_size*0.0470)             # 43

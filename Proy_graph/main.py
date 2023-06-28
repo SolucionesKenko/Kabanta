@@ -8,6 +8,10 @@ import sys
 import numpy as np
 from data_test import ecg_signal, ecg12
 from window import Ui_window
+
+# Manejo de puertos
+import serial 
+import serial.tools.list_ports as portList 
 #from Bluetooth_sample import DeviceFinder
 
 
@@ -28,8 +32,10 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.Shock_pushButton.pressed.connect(self.displayHello)
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
-        self.ui.confirmMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.returnMenu_pushButton.pressed.connect(self.displayHello)
+        # Confirm es connect y return es scan 
+        self.ui.confirmMenu_pushButton.pressed.connect(self.onConnectConfirmButtonClicked)
+        self.ui.returnMenu_pushButton.pressed.connect(self.onScanReturnButtonClicked)
+
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.CPRMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
@@ -109,6 +115,30 @@ class MainWindow(QtWidgets.QWidget):
 
     def displayHello(self):
         print("Hello")
+
+    def onScanReturnButtonClicked(self):
+        self.sPorts.clear()
+        self.sPorts = list(portList.comports())
+        self.ui.portComboBox.clear()
+        self.addPorts()
+
+    def onConnectConfirmButtonClicked(self):
+        self.s = serial.Serial(
+            self.ui.portComboBox.currentText(), baudrate=1000000, timeout=100)
+
+        self.sConnected = self.s.is_open
+        if(self.sConnected):
+            self.sCoder.write_u08(self.s, 0x05)
+            self.state = (State.IdleConnected)
+            self.worker = WorkerThread(self.s, self.sCoder)
+            self.worker.exiting = False
+            self.state = State.IdleConnected
+            # self.timer.timeout.connect(lambda:self.updateGraph(random.choice(self.data)))
+            self.worker.signal.sig.connect(self.updateUI)
+            self.worker.start()
+
+
+
 
 main_Stylesheet = """
 #Pokemon {
