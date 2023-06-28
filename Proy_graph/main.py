@@ -8,7 +8,7 @@ import sys
 import numpy as np
 from data_test import ecg_signal, ecg12
 from window import Ui_window
-from Bluetooth_sample import DeviceFinder
+#from Bluetooth_sample import DeviceFinder
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -16,7 +16,7 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
-        self.bt = DeviceFinder()
+        #self.bt = DeviceFinder()
         #self.bt.startDeviceDiscovery()
         
 
