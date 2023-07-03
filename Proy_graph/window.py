@@ -510,7 +510,7 @@ class Ui_window(object):
         self.confirmMenu_pushButton.setText(_translate('Form','CONFIRM'))
         self.returnMenu_pushButton.setText(_translate('Form','RETURN'))
         self.alarmMenu_pushButton.setText(_translate('Form','ALARM\nSUSPEND'))
-        self.CPRMenu_pushButton.setText(_translate('Form','CRP'))
+        self.CPRMenu_pushButton.setText(_translate('Form','CPR'))
         self.sizeMenu_pushButton.setText(_translate('Form','SIZE'))
         self.LEADMenu_pushButton.setText(_translate('Form','LEAD'))
         self.energySelectLabel_pushButton.setText(_translate('Form','Energy\nSelect'))

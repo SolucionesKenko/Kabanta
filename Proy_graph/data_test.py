@@ -5,7 +5,7 @@ import wfdb
 import scipy.signal
 import neurokit2 as nk
 record = wfdb.rdrecord('Signals/00001_lr',channels=[0,1,2],sampfrom=0)
-ecg12 = nk.ecg_simulate(duration=10, method="multileads")
+ecg12 = nk.ecg_simulate(duration=10, method="multileads",sampling_rate=500,noise=0.5)
 #ecg12 = list(ecg12)
 
 signal = record.p_signal

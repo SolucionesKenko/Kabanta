@@ -12,7 +12,12 @@ from window import Ui_window
 # Manejo de puertos
 import serial 
 import serial.tools.list_ports as portList 
-#from Bluetooth_sample import DeviceFinder
+#from Bluetooth Variables
+from ESPmsg import ParserState, WorkerThread, State
+from serialCoder import SerialCoder
+# Manejo de arreglos en la senal 
+# todo, cambiar el manejo de datos con collections deque
+from collections import deque
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -23,7 +28,55 @@ class MainWindow(QtWidgets.QWidget):
         #self.bt = DeviceFinder()
         #self.bt.startDeviceDiscovery()
         
+        #Session
+        self.crcErrorCounter = 0
+        self.sessionToken = 0
+        self.sessionSequence = 0
+        self.sequenceArray = np.zeros(shape=[1,1])
+        self.commandToken = 0
 
+        # Data Variables
+        self.mi_diccionario = {"1":0,"2":0,"3":0,"4":0,"5":0,"6":0}
+        # self.fs = 2000
+        # self.t = 1/2000
+        
+        self.parserState = ParserState.Type
+        self.crc = 0
+        self.type = 0
+        self.size = 0
+        self.pendingPayload = 0
+        self.sequence = 0
+        self.sessionToken = 0
+        self.responseCode = 0
+        self.originPacketType = 0
+        self.OriginToken = 0
+        self.moduleError = 0
+        self.sn = 0
+        self.rate = 0
+        self.channelMask = 0
+        self.messageInBytes = []
+        #self.timer=qtc.QTimer()
+
+        # Connections
+        self.s = ""
+        self.sCoder = SerialCoder()
+        self.sPorts = list(portList.comports())
+        self.addPorts()
+        self.sConnected = False
+        self.exceptionCnt = 0
+        self.packetOffset = 0
+        self.mcuError = 0
+        self.temp = 0
+        self.vref = 0
+        self.adcOvr = 0
+        self.serialOvr = 0
+        self.crcMismatches = 0
+        self.spiOverrun = 0
+        self.moduleList = ['GPIO','UART','SPI','FLASH','IWDG','ADC','ADS1299','EEPROM','SERIAL','SIGNAL_ACQ','SIGNAL_PROC','NVS','SETTINGS','COMMANDS','DATA','SESSION','SYSTEM','CLOCK','CRC']
+        self.errorList = ['NONE','NO_INIT','WRONG_PARAM','BUSY','PERIPH_FAILURE','COMPONENT_FAILURE','UNKNOWN_FAILURE','UNKNOWN_COMPONENT','BUS_FAILURE','CLOCK_FAILURE','MSP_FAILURE','FEATURE_NOT_SUPPORTED','TIMEOUT']
+        self.custom_crc_table = {}
+        self.poly = 0x04C11DB7
+        self.generate_crc32_table(self.poly)
 
         #Button Control
         self.Ui_window = Ui_window()
@@ -45,8 +98,6 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.UPO_pushButton.pressed.connect(self.displayHello)
         self.ui.UPR_pushButton.pressed.connect(self.displayHello)
         self.ui.config_pushButton.pressed.connect(self.Pokemon)
-        self.ui.CPRMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.UpEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.DownEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.play_RoundButton.pressed.connect(self.displayHello)
@@ -56,27 +107,25 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.OnOff_RoundButton.pressed.connect(self.displayHello)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
         self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
-    
 
-        print(type(ecg12))
         ### Final de configuracion de los Widgets
         ### Codigo de main
         #Agregados al Layout vertical
-        self.SignalGrahps()
+        self.initSignalGrahps()
         #Actualizacion de grafica
         self.su = 1
         self.timer = QtCore.QTimer()
         self.timer.setInterval(30)
         #self.timer.timeout.connect(self.Update_Grahp)
         self.timer.start()
-        
         # User code starts Here 
+
     def Pokemon(self):
         print("inicio")
         print("final")
 
-    ### Funciones Agregados  
-    def SignalGrahps(self):
+    ### Funciones Iniciales 
+    def initSignalGrahps(self):
         #Eje en x 
         self.x = list(range(100))
         np.zeros
@@ -89,8 +138,6 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der2 = self.ui.plt.plot(self.x,self.der2)
         self.data_line_der3 = self.ui.plt.plot(self.x,self.der3)
         # User code end Here 
-    
-
 
     def Update_Grahp(self):
         self.su = self.su + 1
@@ -114,28 +161,62 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der3.setData(self.x, self.der3)
 
     def displayHello(self):
-        print("Hello")
+        id = 4
+        id = f"{id}"
+        print(type(id))
+        print({id})
+        print("{id}")
+        print(id)
+
+    # Funciones bluetooth
+    
+    def addPorts(self):
+        for p in self.sPorts:
+            print(p[0])
+            self.ui.port_comboBox.addItem(p[0])
+        print("New ports added")
+    
+    def generate_crc32_table(self, _poly):
+        for i in range(256):
+            c = i << 24
+            for j in range(8):
+                c = (c << 1) ^ _poly if (c & 0x80000000) else c << 1
+            self.custom_crc_table[i] = c & 0xffffffff
 
     def onScanReturnButtonClicked(self):
+        print("Scan On")
         self.sPorts.clear()
         self.sPorts = list(portList.comports())
-        self.ui.portComboBox.clear()
+        self.ui.port_comboBox.clear()
         self.addPorts()
 
     def onConnectConfirmButtonClicked(self):
         self.s = serial.Serial(
-            self.ui.portComboBox.currentText(), baudrate=1000000, timeout=100)
+            self.ui.port_comboBox.currentText(), baudrate=115200, timeout=100)
 
         self.sConnected = self.s.is_open
         if(self.sConnected):
-            self.sCoder.write_u08(self.s, 0x05)
+            print("Conectado")
             self.state = (State.IdleConnected)
             self.worker = WorkerThread(self.s, self.sCoder)
             self.worker.exiting = False
             self.state = State.IdleConnected
-            # self.timer.timeout.connect(lambda:self.updateGraph(random.choice(self.data)))
-            self.worker.signal.sig.connect(self.updateUI)
+            self.worker.signal.sig.connect(self.testWorker)
             self.worker.start()
+    
+    def testWorker(self, id, data):
+        print(f"id {id}")
+        print(f"value : {data}")
+        # Cambiar diccionario
+        print(f"Valor inicial {self.mi_diccionario[{id}]}")
+        self.mi_diccionario[f"{id}"] == data
+
+        print(self.mi_diccionario)
+
+    #def updateDiccionario(self):
+
+        
+
 
 
 
