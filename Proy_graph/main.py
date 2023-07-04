@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtCore
 #import pyqtgraph as pg 
 import sys 
 import numpy as np
-from data_test import ecg_signal, ecg12
+from data_test import ecg_signal, obtainSignals
 from window import Ui_window
 
 # Manejo de puertos
@@ -18,6 +18,7 @@ from serialCoder import SerialCoder
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 from collections import deque
+from itertools import cycle
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -36,9 +37,9 @@ class MainWindow(QtWidgets.QWidget):
         self.commandToken = 0
 
         # Data Variables
-        self.mi_diccionario = {"1":0,"2":0,"3":0,"4":0,"5":0,"6":0}
-        # self.fs = 2000
-        # self.t = 1/2000
+        self.mi_diccionario = {"1":75,"2":0,"3":0,"4":0,"5":0,"6":0}
+        self.generateSig = obtainSignals()
+        self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario["1"])
         
         self.parserState = ParserState.Type
         self.crc = 0
@@ -115,8 +116,8 @@ class MainWindow(QtWidgets.QWidget):
         #Actualizacion de grafica
         self.su = 1
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(30)
-        #self.timer.timeout.connect(self.Update_Grahp)
+        self.timer.setInterval(2)
+        self.timer.timeout.connect(self.update_Grahp)
         self.timer.start()
         # User code starts Here 
 
@@ -127,7 +128,7 @@ class MainWindow(QtWidgets.QWidget):
     ### Funciones Iniciales 
     def initSignalGrahps(self):
         #Eje en x 
-        self.x = list(range(100))
+        self.x = list(range(500))
         np.zeros
         # Senales Derivaciones cardiacas
         self.der1 = [0 for i in self.x]
@@ -139,19 +140,41 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der3 = self.ui.plt.plot(self.x,self.der3)
         # User code end Here 
 
-    def Update_Grahp(self):
+    def update_Grahp(self):
+        # todo cambiar el manejo de datos con collections deque
         self.su = self.su + 1
         self.x = self.x[1:]  # Remove the first y element.
         self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
 
-        #self.ecgSignal = self.ecgSignal
-
         self.der1 = self.der1[1:]  # Remove the first
-        self.der1.append(ecg12['I'][self.su*10])  # Add a new random value.
+        self.signalBufferDer1 = cycle(self.ecg12['I'])
+        self.der1.append(self.signalBufferDer1[self.su])  # Add a new random value.
         
 
         self.der2 = self.der2[1:]  # Remove the first
-        self.der2.append(ecg12['II'][self.su*10]-2)  # Add a new random value.
+        self.signalBufferDer2 = cycle(self.ecg12['II'])
+        self.der2.append(self.signalBufferDer2[self.su]-2)  # Add a new random value.
+
+        self.der3 = self.der3[1:]  # Remove the first
+        self.signalBufferDer3 = cycle(ecg_signal[self.su])
+        self.der3.append(self.signalBufferDer3[2]-4)  # Add a new random value.
+
+        self.data_line_der1.setData(self.x, self.der1)  # Update the data.
+        self.data_line_der2.setData(self.x, self.der2)
+        self.data_line_der3.setData(self.x, self.der3)
+        
+    def Update_Grahp(self):
+        # todo cambiar el manejo de datos con collections deque
+        self.su = self.su + 1
+        self.x = self.x[1:]  # Remove the first y element.
+        self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
+
+        self.der1 = self.der1[1:]  # Remove the first
+        self.der1.append(self.ecg12['I'][self.su])  # Add a new random value.
+        
+
+        self.der2 = self.der2[1:]  # Remove the first
+        self.der2.append(self.ecg12['II'][self.su]-2)  # Add a new random value.
 
         self.der3 = self.der3[1:]  # Remove the first
         self.der3.append(ecg_signal[self.su][2]-4)  # Add a new random value.
@@ -161,12 +184,7 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_der3.setData(self.x, self.der3)
 
     def displayHello(self):
-        id = 4
-        id = f"{id}"
-        print(type(id))
-        print({id})
-        print("{id}")
-        print(id)
+        print("hello")
 
     # Funciones bluetooth
     
@@ -208,9 +226,7 @@ class MainWindow(QtWidgets.QWidget):
         print(f"id {id}")
         print(f"value : {data}")
         # Cambiar diccionario
-        print(f"Valor inicial {self.mi_diccionario[{id}]}")
-        self.mi_diccionario[f"{id}"] == data
-
+        self.mi_diccionario[f"{id}"] = data
         print(self.mi_diccionario)
 
     #def updateDiccionario(self):
