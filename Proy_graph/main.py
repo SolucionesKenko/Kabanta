@@ -222,7 +222,7 @@ class MainWindow(QtWidgets.QWidget):
             self.generateSig = obtainSignals()
             self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
 
-        if(self.state != SignalState.Playing):
+        if(self.signalState != SignalState.Playing):
             self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
             self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
             self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
