@@ -13,7 +13,7 @@ print(ecg_signal[3])
 class obtainSignals():
     @staticmethod
     def generateSignals(id_1):
-        ecg12 = nk.ecg_simulate(duration=30, method="multileads",sampling_rate=500,heart_rate=id_1)
+        ecg12 = nk.ecg_simulate(duration=10, method="multileads",sampling_rate=500,heart_rate=id_1)
         return ecg12
         
 

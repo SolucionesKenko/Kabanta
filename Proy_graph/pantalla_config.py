@@ -203,6 +203,16 @@ heartRateLabel_CoordY = round(Vert_size*0.3083)         #
 heartRateLabel_HorizSize = round(Horiz_size*0.0744)     # 
 heartRateLabel_VertSize = round(Vert_size*0.0314)       #  
 
+heartRateValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+heartRateValueLabel_CoordY = round(Vert_size*0.2500)         # 
+heartRateValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+heartRateValueLabel_VertSize = round(Vert_size*0.05833) 
+
+heartRateUnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+heartRateUnidadesLabel_CoordY = round(Vert_size*0.2657)         # 
+heartRateUnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+heartRateUnidadesLabel_VertSize = round(Vert_size*0.02592) 
+
 # Medidas Coordenadas y dimenciones de temp 
 # Formula                                           # Cordenada Original   1920 - 1080
 tempLabel_CoordX1 = round(Horiz_size*0.6151)        # 
@@ -210,6 +220,15 @@ tempLabel_CoordY = round(Vert_size*0.425)          #
 tempLabel_HorizSize = round(Horiz_size*0.0744)      # 
 tempLabel_VertSize = round(Vert_size*0.0314)        #  
 
+tempValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+tempValueLabel_CoordY = round(Vert_size*0.3712)         # 
+tempValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+tempValueLabel_VertSize = round(Vert_size*0.05833) 
+
+tempUnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+tempUnidadesLabel_CoordY = round(Vert_size*0.3851)         # 
+tempUnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+tempUnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de SpO2 
 # Formula                                           # Cordenada Original   1920 - 1080
 SpO2Label_CoordX1 = round(Horiz_size*0.6151)        # 
@@ -217,6 +236,15 @@ SpO2Label_CoordY = round(Vert_size*0.5277)          #
 SpO2Label_HorizSize = round(Horiz_size*0.0744)      # 
 SpO2Label_VertSize = round(Vert_size*0.0314)        #  
 
+SpO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+SpO2ValueLabel_CoordY = round(Vert_size*0.4740)         # 
+SpO2ValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+SpO2ValueLabel_VertSize = round(Vert_size*0.05833) 
+
+SpO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+SpO2UnidadesLabel_CoordY = round(Vert_size*0.4944)         # 
+SpO2UnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+SpO2UnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de Pressure 
 # Formula                                           # Cordenada Original   1920 - 1080
 pressureLabel_CoordX1 = round(Horiz_size*0.6151)    # 
@@ -224,6 +252,15 @@ pressureLabel_CoordY = round(Vert_size*0.6388)      #
 pressureLabel_HorizSize = round(Horiz_size*0.0744)  # 
 pressureLabel_VertSize = round(Vert_size*0.0314)    #  
 
+pressureValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+pressureValueLabel_CoordY = round(Vert_size*0.5722)         # 
+pressureValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+pressureValueLabel_VertSize = round(Vert_size*0.05833) 
+
+pressureUnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+pressureUnidadesLabel_CoordY = round(Vert_size*0.5842)         # 
+pressureUnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+pressureUnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de  FR 
 # Formula                                           # Cordenada Original   1920 - 1080
 FRLabel_CoordX1 = round(Horiz_size*0.6151)          # 
@@ -231,6 +268,15 @@ FRLabel_CoordY = round(Vert_size*0.7398)            #
 FRLabel_HorizSize = round(Horiz_size*0.0744)        # 
 FRLabel_VertSize = round(Vert_size*0.0314)          #  
 
+FRValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+FRValueLabel_CoordY = round(Vert_size*0.6851)         # 
+FRValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+FRValueLabel_VertSize = round(Vert_size*0.05833) 
+
+FRUnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+FRUnidadesLabel_CoordY = round(Vert_size*0.7120)         # 
+FRUnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+FRUnidadesLabel_VertSize = round(Vert_size*0.02592)
 # Medidas Coordenadas y dimenciones de  CO2 
 # Formula                                           # Cordenada Original   1920 - 1080
 CO2Label_CoordX1 = round(Horiz_size*0.6151)         # 
@@ -238,6 +284,15 @@ CO2Label_CoordY = round(Vert_size*0.8361)           #
 CO2Label_HorizSize = round(Horiz_size*0.0744)       # 
 CO2Label_VertSize = round(Vert_size*0.0314)         #  
 
+CO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+CO2ValueLabel_CoordY = round(Vert_size*0.7805)         # 
+CO2ValueLabel_HorizSize = round(Horiz_size*0.0427)     # 
+CO2ValueLabel_VertSize = round(Vert_size*0.05833) 
+
+CO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       # 
+CO2UnidadesLabel_CoordY = round(Vert_size*0.7962)         # 
+CO2UnidadesLabel_HorizSize = round(Horiz_size*0.0265)     # 
+CO2UnidadesLabel_VertSize = round(Vert_size*0.02592)
 # Medidas Coordenadas y dimenciones del RoundRectGraph
 # Formula                                           # Cordenada Original   1920 - 1080
 roundRectGrah_HorizSize = round(Horiz_size*0.6993)
@@ -258,3 +313,4 @@ port_CoordX1 = round(Horiz_size*0.3600)             # 370
 port_CoordY1 = round(Vert_size*0.9211)              # 841
 port_HorizSize = round(Horiz_size*0.0591)           # 96
 port_VertSize = round(Vert_size*0.0470)             # 43
+

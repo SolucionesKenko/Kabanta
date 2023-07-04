@@ -15,11 +15,23 @@ import serial.tools.list_ports as portList
 #from Bluetooth Variables
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
+
+from enum import Enum, auto 
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
-from collections import deque
-from itertools import cycle
 
+class SignalState (Enum):
+    Playing = auto()
+    Pause = auto()
+    Idle = auto()
+
+HEART_RATE = "1"
+TEMPERATURE = "2"
+SPO = "3"
+SYSPRESSURE = "4"
+DIAPRESSURE = "5"
+FR = "6"
+CO = "7"
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -35,11 +47,14 @@ class MainWindow(QtWidgets.QWidget):
         self.sessionSequence = 0
         self.sequenceArray = np.zeros(shape=[1,1])
         self.commandToken = 0
+        self.signalState = SignalState.Idle
+        #self.ui.CO2Value_Label.setText
+        
 
         # Data Variables
-        self.mi_diccionario = {"1":75,"2":0,"3":0,"4":0,"5":0,"6":0}
-        self.generateSig = obtainSignals()
-        self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario["1"])
+        self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
+        self.generateSig = 0
+        self.ecg12 = 0
         
         self.parserState = ParserState.Type
         self.crc = 0
@@ -101,9 +116,9 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.config_pushButton.pressed.connect(self.Pokemon)
         self.ui.UpEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.DownEnergySelect_pushButton.pressed.connect(self.displayHello)
-        self.ui.play_RoundButton.pressed.connect(self.displayHello)
-        self.ui.pause_RoundButton.pressed.connect(self.displayHello)
-        self.ui.stop_RoundButton.pressed.connect(self.displayHello)
+        self.ui.play_RoundButton.pressed.connect(self.onPlayButtonClicked)
+        self.ui.pause_RoundButton.pressed.connect(self.onPauseButtonClicked)
+        self.ui.stop_RoundButton.pressed.connect(self.onStopButtonClicked)
         self.ui.question_RoundButton.pressed.connect(self.displayHello)
         self.ui.OnOff_RoundButton.pressed.connect(self.displayHello)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
@@ -114,11 +129,8 @@ class MainWindow(QtWidgets.QWidget):
         #Agregados al Layout vertical
         self.initSignalGrahps()
         #Actualizacion de grafica
-        self.su = 1
+        self.adder = 0
         self.timer = QtCore.QTimer()
-        self.timer.setInterval(2)
-        self.timer.timeout.connect(self.update_Grahp)
-        self.timer.start()
         # User code starts Here 
 
     def Pokemon(self):
@@ -131,58 +143,37 @@ class MainWindow(QtWidgets.QWidget):
         self.x = list(range(500))
         np.zeros
         # Senales Derivaciones cardiacas
-        self.der1 = [0 for i in self.x]
-        self.der2 = [-2 for i in self.x]
-        self.der3 = [-4 for i in self.x]
+        #self.der1 = [0 for i in self.x]
+        self.channel1 = [-0 for i in self.x]
+        self.channel2 = [-2 for i in self.x]
+        self.channel3 = [-4 for i in self.x]
         #todo pen =
-        self.data_line_der1 = self.ui.plt.plot(self.x,self.der1)
-        self.data_line_der2 = self.ui.plt.plot(self.x,self.der2)
-        self.data_line_der3 = self.ui.plt.plot(self.x,self.der3)
+        self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1)
+        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2)
+        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3)
         # User code end Here 
-
-    def update_Grahp(self):
-        # todo cambiar el manejo de datos con collections deque
-        self.su = self.su + 1
-        self.x = self.x[1:]  # Remove the first y element.
-        self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
-
-        self.der1 = self.der1[1:]  # Remove the first
-        self.signalBufferDer1 = cycle(self.ecg12['I'])
-        self.der1.append(self.signalBufferDer1[self.su])  # Add a new random value.
-        
-
-        self.der2 = self.der2[1:]  # Remove the first
-        self.signalBufferDer2 = cycle(self.ecg12['II'])
-        self.der2.append(self.signalBufferDer2[self.su]-2)  # Add a new random value.
-
-        self.der3 = self.der3[1:]  # Remove the first
-        self.signalBufferDer3 = cycle(ecg_signal[self.su])
-        self.der3.append(self.signalBufferDer3[2]-4)  # Add a new random value.
-
-        self.data_line_der1.setData(self.x, self.der1)  # Update the data.
-        self.data_line_der2.setData(self.x, self.der2)
-        self.data_line_der3.setData(self.x, self.der3)
         
     def Update_Grahp(self):
         # todo cambiar el manejo de datos con collections deque
-        self.su = self.su + 1
+        if(self.adder >= len(self.ecg12['I'])-1):
+            self.adder = 0
+        self.adder = self.adder + 1
+        
         self.x = self.x[1:]  # Remove the first y element.
         self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
 
-        self.der1 = self.der1[1:]  # Remove the first
-        self.der1.append(self.ecg12['I'][self.su])  # Add a new random value.
-        
+        self.channel1 = self.channel1[1:]                   # Remove the first
+        self.channel1.append(self.ecg12['I'][self.adder])   # Add a new random value.
 
-        self.der2 = self.der2[1:]  # Remove the first
-        self.der2.append(self.ecg12['II'][self.su]-2)  # Add a new random value.
+        self.channel2 = self.channel2[1:]                   # Remove the first
+        self.channel2.append(self.ecg12['II'][self.adder]-2)# Add a new random value.
 
-        self.der3 = self.der3[1:]  # Remove the first
-        self.der3.append(ecg_signal[self.su][2]-4)  # Add a new random value.
+        self.channel3 = self.channel3[1:] 
+        self.channel3.append(self.ecg12["III"][self.adder]-4)  # Add a new random value.
 
-        self.data_line_der1.setData(self.x, self.der1)  # Update the data.
-        self.data_line_der2.setData(self.x, self.der2)
-        self.data_line_der3.setData(self.x, self.der3)
-
+        self.data_line_channel1.setData(self.x, self.channel1)  # Update the data.
+        self.data_line_channel2.setData(self.x, self.channel2)
+        self.data_line_channel3.setData(self.x, self.channel3)
     def displayHello(self):
         print("hello")
 
@@ -222,19 +213,69 @@ class MainWindow(QtWidgets.QWidget):
             self.worker.signal.sig.connect(self.testWorker)
             self.worker.start()
     
+    def setDefaultValues(self):
+        self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
+
+    def onPlayButtonClicked(self):
+        if(self.signalState == SignalState.Idle):
+            self.setDefaultValues()
+            self.generateSig = obtainSignals()
+            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+
+        if(self.state != SignalState.Playing):
+            self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
+            self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
+            self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
+            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
+            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
+            self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
+            self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
+
+            self.signalState = SignalState.Playing
+            self.timer.setInterval(2)
+            self.timer.timeout.connect(self.Update_Grahp)
+            self.timer.start()
+
+    def onPauseButtonClicked(self):
+        self.timer.stop()
+        self.signalState = SignalState.Pause
+
+    def onStopButtonClicked(self):
+        self.timer.stop()
+        self.setDefaultValues()
+        # self.ui.plt.plotItem.clearPlots()
+        self.adder = 0
+        self.signalState = SignalState.Pause
+
+
+    def updateUI(self, id, data):
+        if(id == HEART_RATE):
+            self.ui.heartRateValue_Label.setText(str(data))
+            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+        elif(id == TEMPERATURE):
+            self.ui.tempValue_Label.setText(str(data))
+        elif(id == SPO):
+            self.ui.SpO2Value_Label.setText(str(data))
+        elif(id == SYSPRESSURE):
+            self.ui.pressureValue_Label.setText(str(data))
+        elif(id == DIAPRESSURE):
+            self.ui.pressureValue_Label.setText(str(data))
+        elif(id == FR):
+            self.ui.FRValue_Label.setText(str(data))
+        elif(id == CO):
+            self.ui.CO2Value_Label.setText(str(data))
+        else:
+            print("Invalid ID")
+            
+
     def testWorker(self, id, data):
-        print(f"id {id}")
-        print(f"value : {data}")
         # Cambiar diccionario
-        self.mi_diccionario[f"{id}"] = data
+        s_id = str(id)
+        self.mi_diccionario[s_id] = data
         print(self.mi_diccionario)
+        self.updateUI(s_id, data)
 
-    #def updateDiccionario(self):
-
-        
-
-
-
+    
 
 
 main_Stylesheet = """
@@ -243,10 +284,6 @@ main_Stylesheet = """
     }
 
 """
-
-
-
-
 
 
 if __name__ == '__main__':

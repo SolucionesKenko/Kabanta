@@ -11,6 +11,7 @@ from samples import UPRoundTriangle, DOWNRoundTriangle
 
 
 
+
 class Ui_window(object):
     def setupUi(self, Form):
         ### Inicio de Configuracion de los Widgets
@@ -444,6 +445,22 @@ class Ui_window(object):
         self.heartRateLabel_pushButton.setObjectName("heartRateLabel_pushButton")
         self.heartRateLabel_pushButton.setStyleSheet(Stylesheet)
 
+        self.heartRateValue_Label = QtWidgets.QLabel(Form)
+        self.heartRateValue_Label.setGeometry(QtCore.QRect(pantalla_config.heartRateValueLabel_CoordX1,
+                                                            pantalla_config.heartRateValueLabel_CoordY,
+                                                            pantalla_config.heartRateValueLabel_HorizSize,
+                                                            pantalla_config.heartRateValueLabel_VertSize))
+        self.heartRateValue_Label.setObjectName("heartRateValue_Label")
+        self.heartRateValue_Label.setStyleSheet(Stylesheet)
+
+        self.heartRateUnidades_Label = QtWidgets.QLabel(Form)
+        self.heartRateUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.heartRateUnidadesLabel_CoordX1,
+                                                                pantalla_config.heartRateUnidadesLabel_CoordY,
+                                                                pantalla_config.heartRateUnidadesLabel_HorizSize,
+                                                                pantalla_config.heartRateUnidadesLabel_VertSize))
+        self.heartRateUnidades_Label.setObjectName("heartRateUnidades_Label")
+        self.heartRateUnidades_Label.setStyleSheet(Stylesheet)
+
         self.tempLabel_pushButton = QtWidgets.QPushButton(Form)
         self.tempLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.tempLabel_CoordX1,
                                                         pantalla_config.tempLabel_CoordY,
@@ -452,6 +469,22 @@ class Ui_window(object):
         self.tempLabel_pushButton.setObjectName("tempLabel_pushButton")
         self.tempLabel_pushButton.setStyleSheet(Stylesheet)
 
+        self.tempValue_Label = QtWidgets.QLabel(Form)
+        self.tempValue_Label.setGeometry(QtCore.QRect(pantalla_config.tempValueLabel_CoordX1,
+                                                            pantalla_config.tempValueLabel_CoordY,
+                                                            pantalla_config.tempValueLabel_HorizSize,
+                                                            pantalla_config.tempValueLabel_VertSize))
+        self.tempValue_Label.setObjectName("tempValue_Label")
+        self.tempValue_Label.setStyleSheet(Stylesheet)
+
+        self.tempUnidades_Label = QtWidgets.QLabel(Form)
+        self.tempUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.tempUnidadesLabel_CoordX1,
+                                                                pantalla_config.tempUnidadesLabel_CoordY,
+                                                                pantalla_config.tempUnidadesLabel_HorizSize,
+                                                                pantalla_config.tempUnidadesLabel_VertSize))
+        self.tempUnidades_Label.setObjectName("tempUnidades_Label")
+        self.tempUnidades_Label.setStyleSheet(Stylesheet)
+
         self.SpO2Label_pushButton = QtWidgets.QPushButton(Form)
         self.SpO2Label_pushButton.setGeometry(QtCore.QRect(pantalla_config.SpO2Label_CoordX1,
                                                     pantalla_config.SpO2Label_CoordY,
@@ -459,6 +492,22 @@ class Ui_window(object):
                                                     pantalla_config.SpO2Label_VertSize))
         self.SpO2Label_pushButton.setObjectName("SpO2Label_pushButton")
         self.SpO2Label_pushButton.setStyleSheet(Stylesheet)
+
+        self.SpO2Value_Label = QtWidgets.QLabel(Form)
+        self.SpO2Value_Label.setGeometry(QtCore.QRect( pantalla_config.SpO2ValueLabel_CoordX1,
+                                                            pantalla_config.SpO2ValueLabel_CoordY,
+                                                            pantalla_config.SpO2ValueLabel_HorizSize,
+                                                            pantalla_config.SpO2ValueLabel_VertSize))
+        self.SpO2Value_Label.setObjectName("SpO2Value_Label")
+        self.SpO2Value_Label.setStyleSheet(Stylesheet)
+
+        self.SpO2Unidades_Label = QtWidgets.QLabel(Form)
+        self.SpO2Unidades_Label.setGeometry(QtCore.QRect(pantalla_config.SpO2UnidadesLabel_CoordX1,
+                                                                pantalla_config.SpO2UnidadesLabel_CoordY,
+                                                                pantalla_config.SpO2UnidadesLabel_HorizSize,
+                                                                pantalla_config.SpO2UnidadesLabel_VertSize))
+        self.SpO2Unidades_Label.setObjectName("SpO2Unidades_Label")
+        self.SpO2Unidades_Label.setStyleSheet(Stylesheet)
         
         self.pressureLabel_pushButton = QtWidgets.QPushButton(Form)
         self.pressureLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.pressureLabel_CoordX1,
@@ -468,6 +517,22 @@ class Ui_window(object):
         self.pressureLabel_pushButton.setObjectName("pressureLabel_pushButton")
         self.pressureLabel_pushButton.setStyleSheet(Stylesheet)
 
+        self.pressureValue_Label = QtWidgets.QLabel(Form)
+        self.pressureValue_Label.setGeometry(QtCore.QRect(pantalla_config.pressureValueLabel_CoordX1,
+                                                            pantalla_config.pressureValueLabel_CoordY,
+                                                            pantalla_config.pressureValueLabel_HorizSize,
+                                                            pantalla_config.pressureValueLabel_VertSize))
+        self.pressureValue_Label.setObjectName("pressureValue_Label")
+        self.pressureValue_Label.setStyleSheet(Stylesheet)
+
+        self.pressureUnidades_Label = QtWidgets.QLabel(Form)
+        self.pressureUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.pressureUnidadesLabel_CoordX1,
+                                                                pantalla_config.pressureUnidadesLabel_CoordY,
+                                                                pantalla_config.pressureUnidadesLabel_HorizSize,
+                                                                pantalla_config.pressureUnidadesLabel_VertSize))
+        self.pressureUnidades_Label.setObjectName("pressureUnidades_Label")
+        self.pressureUnidades_Label.setStyleSheet(Stylesheet)
+
         self.FRLabel_pushButton = QtWidgets.QPushButton(Form)
         self.FRLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.FRLabel_CoordX1,
                                                     pantalla_config.FRLabel_CoordY,
@@ -475,6 +540,22 @@ class Ui_window(object):
                                                     pantalla_config.FRLabel_VertSize))
         self.FRLabel_pushButton.setObjectName("FRLabel_pushButton")
         self.FRLabel_pushButton.setStyleSheet(Stylesheet)
+
+        self.FRValue_Label = QtWidgets.QLabel(Form)
+        self.FRValue_Label.setGeometry(QtCore.QRect( pantalla_config.FRValueLabel_CoordX1,
+                                                            pantalla_config.FRValueLabel_CoordY,
+                                                            pantalla_config.FRValueLabel_HorizSize,
+                                                            pantalla_config.FRValueLabel_VertSize))
+        self.FRValue_Label.setObjectName("FRValue_Label")
+        self.FRValue_Label.setStyleSheet(Stylesheet)
+
+        self.FRUnidades_Label = QtWidgets.QLabel(Form)
+        self.FRUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.FRUnidadesLabel_CoordX1,
+                                                                pantalla_config.FRUnidadesLabel_CoordY,
+                                                                pantalla_config.FRUnidadesLabel_HorizSize,
+                                                                pantalla_config.FRUnidadesLabel_VertSize))
+        self.FRUnidades_Label.setObjectName("FRUnidades_Label")
+        self.FRUnidades_Label.setStyleSheet(Stylesheet)
 
         self.CO2Label_pushButton = QtWidgets.QPushButton(Form)
         self.CO2Label_pushButton.setGeometry(QtCore.QRect(pantalla_config.CO2Label_CoordX1,
@@ -484,6 +565,22 @@ class Ui_window(object):
         self.CO2Label_pushButton.setObjectName("CO2Label_pushButton")
         self.CO2Label_pushButton.setStyleSheet(Stylesheet)
 
+        self.CO2Value_Label = QtWidgets.QLabel(Form)
+        self.CO2Value_Label.setGeometry(QtCore.QRect(pantalla_config.CO2ValueLabel_CoordX1,
+                                                            pantalla_config.CO2ValueLabel_CoordY,
+                                                            pantalla_config.CO2ValueLabel_HorizSize,
+                                                            pantalla_config.CO2ValueLabel_VertSize))
+        self.CO2Value_Label.setObjectName("CO2Value_Label")
+        self.CO2Value_Label.setStyleSheet(Stylesheet)
+
+        self.CO2Unidades_Label = QtWidgets.QLabel(Form)
+        self.CO2Unidades_Label.setGeometry(QtCore.QRect(pantalla_config.CO2UnidadesLabel_CoordX1,
+                                                                pantalla_config.CO2UnidadesLabel_CoordY,
+                                                                pantalla_config.CO2UnidadesLabel_HorizSize,
+                                                                pantalla_config.CO2UnidadesLabel_VertSize))
+        self.CO2Unidades_Label.setObjectName("CO2Unidades_Label")
+        self.CO2Unidades_Label.setStyleSheet(Stylesheet)
+
         self.port_comboBox = QtWidgets.QComboBox(Form)
         self.port_comboBox.setGeometry(QtCore.QRect(pantalla_config.port_CoordX1,
                                                     pantalla_config.port_CoordY1,
@@ -491,10 +588,6 @@ class Ui_window(object):
                                                     pantalla_config.port_VertSize))
         self.port_comboBox.setObjectName("returnMenu_pushButton")
         self.port_comboBox.setStyleSheet(Stylesheet)
-
-
-        
-
 
 
         self.retranslateUi(Form)
@@ -521,11 +614,23 @@ class Ui_window(object):
         self.pacerRate_Label.setText(_translate('Form','PACER \n RATE'))
         self.version_Label.setText(_translate('Form','Version 0.00'))
         self.heartRateLabel_pushButton.setText(_translate('Form','Heart Rate'))
+        self.heartRateValue_Label.setText(_translate('Form','- - -'))
+        self.heartRateUnidades_Label.setText(_translate('Form','lpm'))
         self.tempLabel_pushButton.setText(_translate('Form','TEMP'))
+        self.tempValue_Label.setText(_translate('Form','- - -'))
+        self.tempUnidades_Label.setText(_translate('Form','C'))
         self.SpO2Label_pushButton.setText(_translate('Form','SpO2 Level'))
+        self.SpO2Value_Label.setText(_translate('Form','- - -'))
+        self.SpO2Unidades_Label.setText(_translate('Form','%'))
         self.pressureLabel_pushButton.setText(_translate('Form','Pressure'))
+        self.pressureValue_Label.setText(_translate('Form','- - -'))
+        self.pressureUnidades_Label.setText(_translate('Form','mmHg'))
         self.FRLabel_pushButton.setText(_translate('Form','FR'))
+        self.FRValue_Label.setText(_translate('Form','- - -'))
+        self.FRUnidades_Label.setText(_translate('Form','/min'))
         self.CO2Label_pushButton.setText(_translate('Form','CO2 Level'))
+        self.CO2Value_Label.setText(_translate('Form','- - -'))
+        self.CO2Unidades_Label.setText(_translate('Form','mmHg'))
 
 
         

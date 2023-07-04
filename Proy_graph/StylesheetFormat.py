@@ -101,6 +101,18 @@ Stylesheet = """
     font: bold 8px; 
 }
 
+#heartRateValue_Label
+{
+    color: rgb(126,217,87);  
+    font: bold 10px; 
+}
+
+#heartRateUnidades_Label
+{
+    color: rgb(126,217,87);  
+    font: bold 8px; 
+}
+
 #tempLabel_pushButton
 {
     color: black; 
@@ -110,12 +122,35 @@ Stylesheet = """
     font: bold 8px; 
 }
 
+#tempValue_Label
+{
+    color: rgb(140,82,255);  
+    font: bold 11px; 
+}
+
+#tempUnidades_Label
+{
+    Color: rgb(140,82,255);  
+    font: bold 8px; 
+}
+
 #SpO2Label_pushButton
 {
     color: black; 
     background-color: rgb(134,234,233);  
     border-width: 0px; 
     border-radius: 8px; 
+    font: bold 8px; 
+}
+#SpO2Value_Label
+{
+    color: rgb(134,234,233);  
+    font: bold 10px; 
+
+}
+#SpO2Unidades_Label
+{
+    color: rgb(134,234,233);  
     font: bold 8px; 
 }
 
@@ -128,12 +163,35 @@ Stylesheet = """
     font: bold 8px; 
 }
 
+#pressureValue_Label
+{
+    color: rgb(255,22,22);  
+    font: bold 10px; 
+}
+
+#pressureUnidades_Label
+{
+    color: rgb(255,22,22);  
+    font: bold 8px; 
+}
 #FRLabel_pushButton
 {
     color: black; 
     background-color: rgb(255,222,89);  
     border-width: 0px; 
     border-radius: 8px; 
+    font: bold 8px; 
+}
+
+#FRValue_Label
+{
+    color: rgb(255,222,89);  
+    font: bold 10px; 
+}
+
+#FRUnidades_Label
+{
+    color: rgb(255,222,89);  
     font: bold 8px; 
 }
 
@@ -146,6 +204,17 @@ Stylesheet = """
     font: bold 8px; 
 }
 
+#CO2Value_Label
+{
+    color: rgb(241,255,255);  
+    font: bold 10px; 
+}
+
+#CO2Unidades_Label
+{
+    color: rgb(241,255,255);  
+    font: bold 8px; 
+}
 #play_RoundButton, #pause_RoundButton, #stop_RoundButton, #question_RoundButton, #OnOff_RoundButton, #config_pushButton
 {
     color: black; 
