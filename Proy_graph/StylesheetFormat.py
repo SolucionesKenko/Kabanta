@@ -98,19 +98,19 @@ Stylesheet = """
     background-color: rgb(126,217,87);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 
 #heartRateValue_Label
 {
     color: rgb(126,217,87);  
-    font: bold 12px; 
+    font: bold 26px; 
 }
 
 #heartRateUnidades_Label
 {
     color: rgb(126,217,87);  
-    font: bold 8px; 
+    font: bold 17px; 
 }
 
 #tempLabel_pushButton
@@ -119,19 +119,19 @@ Stylesheet = """
     background-color: rgb(140,82,255);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 
 #tempValue_Label
 {
     color: rgb(140,82,255);  
-    font: bold 12px; 
+    font: bold 26px; 
 }
 
 #tempUnidades_Label
 {
     Color: rgb(140,82,255);  
-    font: bold 8px; 
+    font: bold 17px; 
 }
 
 #SpO2Label_pushButton
@@ -140,18 +140,18 @@ Stylesheet = """
     background-color: rgb(134,234,233);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 #SpO2Value_Label
 {
     color: rgb(134,234,233);  
-    font: bold 12px; 
+    font: bold 26px; 
 
 }
 #SpO2Unidades_Label
 {
     color: rgb(134,234,233);  
-    font: bold 8px; 
+    font: bold 17px; 
 }
 
 #pressureLabel_pushButton
@@ -160,19 +160,19 @@ Stylesheet = """
     background-color: rgb(255,22,22);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 
 #pressureValue_Label
 {
     color: rgb(255,22,22);  
-    font: bold 12px; 
+    font: bold 26px; 
 }
 
 #pressureUnidades_Label
 {
     color: rgb(255,22,22);  
-    font: bold 8px; 
+    font: bold 17px; 
 }
 #FRLabel_pushButton
 {
@@ -180,19 +180,19 @@ Stylesheet = """
     background-color: rgb(255,222,89);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 
 #FRValue_Label
 {
     color: rgb(255,222,89);  
-    font: bold 12px; 
+    font: bold 26px; 
 }
 
 #FRUnidades_Label
 {
     color: rgb(255,222,89);  
-    font: bold 8px; 
+    font: bold 17px; 
 }
 
 #CO2Label_pushButton
@@ -201,19 +201,19 @@ Stylesheet = """
     background-color: rgb(241,255,255);  
     border-width: 0px; 
     border-radius: 8px; 
-    font: bold 8px; 
+    font: bold 10px; 
 }
 
 #CO2Value_Label
 {
     color: rgb(241,255,255);  
-    font: bold 12px; 
+    font: bold 26px; 
 }
 
 #CO2Unidades_Label
 {
     color: rgb(241,255,255);  
-    font: bold 8px; 
+    font: 17px; 
 }
 #play_RoundButton, #pause_RoundButton, #stop_RoundButton, #question_RoundButton, #OnOff_RoundButton, #config_pushButton
 {
