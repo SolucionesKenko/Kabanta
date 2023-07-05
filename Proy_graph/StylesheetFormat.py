@@ -52,7 +52,7 @@ Stylesheet = """
     border-radius: 8px; 
     border-color: rgb(254,22,27); 
     padding: 5px; 
-    font: bold 7px; 
+    font: bold 9px; 
 }
 
 #MARCPLabel_pushButton
@@ -72,7 +72,7 @@ Stylesheet = """
     border-width: 0px; 
     border-radius: 3px; 
     border-color: rgb(0,127,55); 
-    padding: 5px; 
+    padding: 4px; 
     font: bold 11px; 
 }
 
@@ -110,7 +110,7 @@ Stylesheet = """
 #heartRateUnidades_Label
 {
     color: rgb(126,217,87);  
-    font: bold 17px; 
+    font: 17px; 
 }
 
 #tempLabel_pushButton
@@ -131,7 +131,7 @@ Stylesheet = """
 #tempUnidades_Label
 {
     Color: rgb(140,82,255);  
-    font: bold 17px; 
+    font: 17px; 
 }
 
 #SpO2Label_pushButton
@@ -151,7 +151,7 @@ Stylesheet = """
 #SpO2Unidades_Label
 {
     color: rgb(134,234,233);  
-    font: bold 17px; 
+    font: 17px; 
 }
 
 #pressureLabel_pushButton
@@ -172,7 +172,7 @@ Stylesheet = """
 #pressureUnidades_Label
 {
     color: rgb(255,22,22);  
-    font: bold 17px; 
+    font: 17px; 
 }
 #FRLabel_pushButton
 {
@@ -192,7 +192,7 @@ Stylesheet = """
 #FRUnidades_Label
 {
     color: rgb(255,222,89);  
-    font: bold 17px; 
+    font: 17px; 
 }
 
 #CO2Label_pushButton
@@ -220,7 +220,7 @@ Stylesheet = """
     color: black; 
     background-color: rgb(84,84,84);  
     border-width: 0px; 
-    border-radius: 17px; 
+    border-radius: 20px; 
     font: bold 8px; 
 }
 
