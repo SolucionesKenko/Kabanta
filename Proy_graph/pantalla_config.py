@@ -3,9 +3,16 @@ Vert_size = 740   # Valor Original 913
 
 # Medidas Coordenadas y dimenciones del Graph_verticalLayoutWidget
 grah_HorizSize = round(Horiz_size*0.5812)
-grah_VertSize = round(Vert_size*0.7721)
+grah_VertSize = round(Vert_size*0.8553)
 grah_CoordX1 = round(Horiz_size*0.0221)
-grah_CoordY1 = round(Vert_size*0.1215)
+grah_CoordY1 = round(Vert_size*0.0383)
+
+# Medidas Coordenadas y dimenciones del RoundRectGraph
+# Formula                                           # Cordenada Original   1920 - 1080
+roundRectGrah_HorizSize = round(Horiz_size*0.6993)
+roundRectGrah_VertSize = round(Vert_size*0.8553)
+roundRectGrah_CoordX1 = round(Horiz_size*0.0221)
+roundRectGrah_CoordY1 = round(Vert_size*0.0383)
 
 # Medidas Coordenadas y dimenciones de PPSQ_HorizontalLayoutWidget, 
 # botones de Play, Pause, Stop, y On/Off
@@ -30,33 +37,55 @@ PPSQ_RoundButtonSize = round(Horiz_size*0.0332) # 54
 
 # Medidas Coordenadas y dimenciones de DCS_verticalLayoutWidget
 # Botones de DEFIB, CHARGE, SHOCK
-DCS_CoordX1 = round(Horiz_size*0.7720)
-DCS_CoordY1 = round(Vert_size*0.1840)
-DCS_HorizSize = round(Horiz_size*0.0770)
-DCS_VertSize = round(Vert_size*0.1949) 
+DEFIB_CoordX1 = round(Horiz_size*0.7520)
+DEFIB_CoordY1 = round(Vert_size*0.1700)
+DEFIB_HorizSize = round(Horiz_size*0.1100)
+DEFIB_VertSize = round(Vert_size*0.0580) 
+
+CHARGE_CoordX1 = round(Horiz_size*0.7520)
+CHARGE_CoordY1 = round(Vert_size*0.2500)
+CHARGE_HorizSize = round(Horiz_size*0.1100)
+CHARGE_VertSize = round(Vert_size*0.0580) 
+
+SHOCK_CoordX1 = round(Horiz_size*0.7520)
+SHOCK_CoordY1 = round(Vert_size*0.3300)
+SHOCK_HorizSize = round(Horiz_size*0.1100)
+SHOCK_VertSize = round(Vert_size*0.0580) 
 
 # Medidas Coordenadas y dimenciones de Energy Select Bottons 
 # Formula                                   # Cordenada Original 
-UES_CoordX1 = round(Horiz_size*0.8798)      # 1428
+UES_CoordX1 = round(Horiz_size*0.8840)      # 1428
 UES_CoordY1 = round(Vert_size*0.1511)       # 138
 UES_HorizSize = round(Horiz_size*0.0573)    # 93
 UES_VertSize = round(Vert_size*0.1018)      # 93
 
-DES_CoordX1 = round(Horiz_size*0.8798)      # 1428
+DES_CoordX1 = round(Horiz_size*0.8840)      # 1428
 DES_CoordY1 = round(Vert_size*0.3088)       # 282
 DES_HorizSize = round(Horiz_size*0.0573)    # 93
 DES_VertSize = round(Vert_size*0.1018)      # 93 
 
-DEA_CoordX1 = round(Horiz_size*0.8219)      # 1334
+DEA_CoordX1 = round(Horiz_size*0.8319)      # 1334
 DEA_CoordY1 = round(Vert_size*0.4414)       # 403
 DEA_HorizSize = round(Horiz_size*0.0511)    # 83
 DEA_VertSize = round(Vert_size*0.0284)      # 23
 
-SYNC_CoordX1 = round(Horiz_size*0.8860)     # 1438
+SYNC_CoordX1 = round(Horiz_size*0.8960)     # 1438
 SYNC_CoordY1 = round(Vert_size*0.4414)      # 403
 SYNC_HorizSize = round(Horiz_size*0.0511)   # 83
 SYNC_VertSize = round(Vert_size*0.0284)     # 23
- 
+
+DISCHARGE_CoordX1 = round(Horiz_size*0.7520)     
+DISCHARGE_CoordY1 = round(Vert_size*0.4414)      
+DISCHARGE_HorizSize = round(Horiz_size*0.0631)   
+DISCHARGE_VertSize = round(Vert_size*0.0284)     
+
+# Medidas Coordenadas y dimenciones de Energy select red button label 
+# Formula                                               # Cordenada Original
+energySelectLabel_CoordX1 = round(Horiz_size*0.8743)     # 1419
+energySelectLabel_CoordY = round(Vert_size*0.2606)      # 238
+energySelectLabel_HorizSize = round(Horiz_size*0.0802)  # 114
+energySelectLabel_VertSize = round(Vert_size*0.0405)    # 37 
+
 # Medidas Coordenadas y dimenciones de Round Rect QPaint 
 # # Formula                                         # Cordenada Original
 roundRectDCS_CoordX1 = round(Horiz_size*0.7350)     # 1193
@@ -72,24 +101,24 @@ roundRectMCP_VertSize = round(Vert_size*0.3822)     # 349
 # Medidas Coordenadas y dimenciones de MARCP Buttons
 # # Formula                                 # Cordenada Original
 UPO_CoordX1 = round(Horiz_size*0.7929)        # 1287
-UPO_CoordY= round(Vert_size*0.6276)         # 573
-UPO_HorizSize = round(Horiz_size*0.0394)    # 64
-UPO_VertSize = round(Vert_size*0.0700)      # 64
+UPO_CoordY= round(Vert_size*0.5509)         # 573
+UPO_HorizSize = round(Horiz_size*0.0523)    # 64
+UPO_VertSize = round(Vert_size*0.0930)      # 64
 
 DPO_CoordX1 = round(Horiz_size*0.7929)        # 1287
-DPO_CoordY= round(Vert_size*0.7338)         # 670
-DPO_HorizSize = round(Horiz_size*0.0394)    # 64
-DPO_VertSize = round(Vert_size*0.0700)      # 64
+DPO_CoordY= round(Vert_size*0.6981)         # 670
+DPO_HorizSize = round(Horiz_size*0.0523)    # 64
+DPO_VertSize = round(Vert_size*0.0930)      # 64
 
-UPR_CoordX1 = round(Horiz_size*0.8767)        # 1423
-UPR_CoordY= round(Vert_size*0.6276)         # 573
-UPR_HorizSize = round(Horiz_size*0.0394)    # 64
-UPR_VertSize = round(Vert_size*0.0700)      # 64
+UPR_CoordX1 = round(Horiz_size*0.8880)        # 1423
+UPR_CoordY= round(Vert_size*0.5509)         # 573
+UPR_HorizSize = round(Horiz_size*0.0523)    # 64
+UPR_VertSize = round(Vert_size*0.0930)      # 64
 
-DPR_CoordX1 = round(Horiz_size*0.8767)        # 1423
-DPR_CoordY= round(Vert_size*0.7338)         # 670
-DPR_HorizSize = round(Horiz_size*0.0394)    # 64
-DPR_VertSize = round(Vert_size*0.0700)      # 64
+DPR_CoordX1 = round(Horiz_size*0.8880)        # 1423
+DPR_CoordY= round(Vert_size*0.6981)         # 670
+DPR_HorizSize = round(Horiz_size*0.0523)    # 64
+DPR_VertSize = round(Vert_size*0.0930)      # 64
 
 # Medidas Coordenadas y dimenciones de Menu Inferior
 # Formula                                           # Cordenada Original
@@ -102,6 +131,11 @@ returnMenu_CoordX1 = round(Horiz_size*0.2162)      # 351
 returnMenu_CoordY= round(Vert_size*0.9211)         # 841
 returnMenu_HorizSize = round(Horiz_size*0.0591)    # 96
 returnMenu_VertSize = round(Vert_size*0.0470)      # 43
+
+paniMenu_CoordX1 = round(Horiz_size*0.3579)      # 351
+paniMenu_CoordY= round(Vert_size*0.9211)         # 841
+paniMenu_HorizSize = round(Horiz_size*0.0591)    # 96
+paniMenu_VertSize = round(Vert_size*0.0470)      # 43
 
 alarmMenu_CoordX1 = round(Horiz_size*0.4325)      # 702
 alarmMenu_CoordY= round(Vert_size*0.9211)         # 841
@@ -132,14 +166,7 @@ DTriangle_CoordY1 = round(Vert_size*0.9255)         # 845
 # Down
 UTriangle_CoordX1 = round(Horiz_size*0.0998)        # 162 
 UTriangle_CoordY1 = round(Vert_size*0.9255)         # 845  
-Triangle_RoundButtonSize = round(Horiz_size*0.0271)# 44
-
-# Medidas Coordenadas y dimenciones de Energy select red button label 
-# Formula                                               # Cordenada Original
-energySelectLabel_CoordX1 = round(Horiz_size*0.8743)     # 1419
-energySelectLabel_CoordY = round(Vert_size*0.2606)      # 238
-energySelectLabel_HorizSize = round(Horiz_size*0.0702)  # 114
-energySelectLabel_VertSize = round(Vert_size*0.0405)    # 37          
+Triangle_RoundButtonSize = round(Horiz_size*0.0271)# 44         
 
 # Medidas Coordenadas y dimenciones de MARCP Green button label 
 # Formula                                       # Cordenada Original
@@ -150,17 +177,17 @@ MARCPLabel_VertSize = round(Vert_size*0.0405)    # 37
 
 # Medidas Coordenadas y dimenciones de mA greed button label 
 # Formula                                     # Cordenada Original
-mALabel_CoordX1 = round(Horiz_size*0.7948)    # 1290
-mALabel_CoordY = round(Vert_size*0.7053)      # 644
-mALabel_HorizSize = round(Horiz_size*0.0363)  # 59
-mALabel_VertSize = round(Vert_size*0.0208)    # 19 
+mALabel_CoordX1 = round(Horiz_size*0.7947)    # 1290
+mALabel_CoordY = round(Vert_size*0.6564)      # 644
+mALabel_HorizSize = round(Horiz_size*0.0489)  # 59
+mALabel_VertSize = round(Vert_size*0.0287)    # 19 
 
 # Medidas Coordenadas y dimenciones de mA greed button label 
 # Formula                                     # Cordenada Original
-PPMLabel_CoordX1 = round(Horiz_size*0.8792)    # 1427
-PPMLabel_CoordY = round(Vert_size*0.7053)      # 644
-PPMLabel_HorizSize = round(Horiz_size*0.0363)  # 59
-PPMLabel_VertSize = round(Vert_size*0.0208)    # 19 
+PPMLabel_CoordX1 = round(Horiz_size*0.8906)    # 1427
+PPMLabel_CoordY = round(Vert_size*0.6583)      # 644
+PPMLabel_HorizSize = round(Horiz_size*0.0489)  # 59
+PPMLabel_VertSize = round(Vert_size*0.0287)    # 19 
 
 # Medidas Coordenadas y dimenciones de Pacer Output label 
 # Formula                                             # Cordenada Original
@@ -171,9 +198,9 @@ pacerOutputLabel_VertSize = round(Vert_size*0.0700)    # 64
 
 # Medidas Coordenadas y dimenciones de Pacer Rate label 
 # Formula                                             # Cordenada Original
-pacerRateLabel_CoordX1 = round(Horiz_size*0.8767)    # 1423
+pacerRateLabel_CoordX1 = round(Horiz_size*0.8880)    # 1423
 pacerRateLabel_CoordY = round(Vert_size*0.8094)      # 739
-pacerRateLabel_HorizSize = round(Horiz_size*0.0363)  # 105
+pacerRateLabel_HorizSize = round(Horiz_size*0.0800)  # 105
 pacerRateLabel_VertSize = round(Vert_size*0.0700)    # 64 
 
 # Medidas Coordenadas y dimenciones de configure pushButton
@@ -189,12 +216,12 @@ versionLabel_CoordY = round(Vert_size*0.9518)       #
 versionLabel_HorizSize = round(Horiz_size*0.0781)   # 
 versionLabel_VertSize = round(Vert_size*0.0240)    # 
 
-# Medidas Coordenadas y dimenciones de logo kabsim 
-# Formula                                           # Cordenada Original   1920 - 1080
-KabSimLogo_CoordX1 = round(Horiz_size*0.0354)       # 
-KabSimLogo_CoordY = round(Vert_size*0.0101)         # 
-KabSimLogo_HorizSize = round(Horiz_size*0.1697)     # 
-KabSimLogo_VertSize = round(Vert_size*0.1055)       #  
+# # Medidas Coordenadas y dimenciones de logo kabsim 
+# # Formula                                           # Cordenada Original   1920 - 1080
+# KabSimLogo_CoordX1 = round(Horiz_size*0.0354)       # 
+# KabSimLogo_CoordY = round(Vert_size*0.0101)         # 
+# KabSimLogo_HorizSize = round(Horiz_size*0.1697)     # 
+# KabSimLogo_VertSize = round(Vert_size*0.1055)       #  
 
 # Medidas Coordenadas y dimenciones de Heart Rate 
 # Formula                                               # Cordenada Original   1920 - 1080
@@ -293,23 +320,17 @@ CO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6614)       #
 CO2UnidadesLabel_CoordY = round(Vert_size*0.8100)         # 
 CO2UnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 CO2UnidadesLabel_VertSize = round(Vert_size*0.02592)
-# Medidas Coordenadas y dimenciones del RoundRectGraph
-# Formula                                           # Cordenada Original   1920 - 1080
-roundRectGrah_HorizSize = round(Horiz_size*0.6993)
-roundRectGrah_VertSize = round(Vert_size*0.7721)
-roundRectGrah_CoordX1 = round(Horiz_size*0.0221)
-roundRectGrah_CoordY1 = round(Vert_size*0.1215)
 
 # Medidas Coordenadas y dimenciones del RoundRectVitalSignals
 # Formula                                           # Cordenada Original   1920 - 1080
 roundRectVitalSignals_CoordX1 = round(Horiz_size*0.6041)
-roundRectVitalSignals_CoordY1 = round(Vert_size*0.1215)
+roundRectVitalSignals_CoordY1 = round(Vert_size*0.0383)
 roundRectVitalSignals_HorizSize = round(Horiz_size*0.1171)
-roundRectVitalSignals_VertSize = round(Vert_size*0.7721)
+roundRectVitalSignals_VertSize = round(Vert_size*0.8553)
 
 # Medidas Coordenadas y dimenciones del RoundRectVitalSignals
 # Formula                                           # Cordenada Original
-port_CoordX1 = round(Horiz_size*0.3200)             # 370
+port_CoordX1 = round(Horiz_size*0.7350)             # 370
 port_CoordY1 = round(Vert_size*0.9211)              # 841
 port_HorizSize = round(Horiz_size*0.0991)           # 96
 port_VertSize = round(Vert_size*0.0470)             # 43

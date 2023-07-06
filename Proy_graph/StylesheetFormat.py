@@ -6,13 +6,13 @@ Stylesheet = """
     color: black; 
     background-color: lightgray; 
     border-width: 1px; 
-    border-radius: 8px; 
+    border-radius: 12px; 
     border-color: black; 
     padding: 5px; 
-    font: bold 11px; 
+    font: bold 18px; 
     }
 
-#DEA_pushButton, #SYNC_pushButton
+#DEA_pushButton, #SYNC_pushButton, #DISCHARGE_pushButton
 {
     color: black; 
     background-color: lightgray; 
@@ -23,15 +23,15 @@ Stylesheet = """
     font: bold 10px; 
 
 }
-#confirmMenu_pushButton, #returnMenu_pushButton, #CPRMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton
+#confirmMenu_pushButton, #returnMenu_pushButton, #CPRMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton, #paniMenu_pushButton
 {
     color: white; 
     background-color: rgb(84,84,84);  
     border-width: 1px; 
-    border-radius: 8px; 
+    border-radius: 15px; 
     border-color: rgb(84,84,84); 
     padding: 5px; 
-    font: bold 10px; 
+    font: bold 15px; 
     }
 
  #alarmMenu_pushButton
@@ -39,10 +39,10 @@ Stylesheet = """
     color: white; 
     background-color: rgb(84,84,84);  
     border-width: 1px; 
-    border-radius: 8px; 
+    border-radius: 15px; 
     border-color: rgb(84,84,84); 
     padding: 5px; 
-    font: bold 9px; 
+    font:  15px; 
 }
 
 #energySelectLabel_pushButton {
@@ -52,7 +52,7 @@ Stylesheet = """
     border-radius: 8px; 
     border-color: rgb(254,22,27); 
     padding: 5px; 
-    font: bold 9px; 
+    font: bold 13px; 
 }
 
 #MARCPLabel_pushButton
@@ -64,6 +64,7 @@ Stylesheet = """
     border-color: rgb(0,127,55); 
     padding: 5px; 
     font: bold 11px; 
+
 }
 #PPMLabel_pushButton, #mALabel_pushButton
 {
@@ -73,7 +74,7 @@ Stylesheet = """
     border-radius: 3px; 
     border-color: rgb(0,127,55); 
     padding: 4px; 
-    font: bold 11px; 
+    font: bold 14px; 
 }
 
 #pacerRate_Label, #pacerOutput_Label
@@ -81,7 +82,7 @@ Stylesheet = """
     color: white;
     border: none;
     background: none;
-    font: bold 11px; 
+    font: bold 18px; 
 }
 
 #version_Label
@@ -97,8 +98,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(126,217,87);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 
 #heartRateValue_Label
@@ -118,8 +119,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(140,82,255);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 
 #tempValue_Label
@@ -139,8 +140,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(134,234,233);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 #SpO2Value_Label
 {
@@ -159,8 +160,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(255,22,22);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 
 #pressureValue_Label
@@ -179,8 +180,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(255,222,89);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 
 #FRValue_Label
@@ -200,8 +201,8 @@ Stylesheet = """
     color: black; 
     background-color: rgb(241,255,255);  
     border-width: 0px; 
-    border-radius: 8px; 
-    font: bold 10px; 
+    border-radius: 10px; 
+    font: bold 15px; 
 }
 
 #CO2Value_Label

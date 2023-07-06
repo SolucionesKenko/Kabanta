@@ -52,8 +52,35 @@ class DOWNRoundTriangle(QtWidgets.QPushButton):
     def sizeHint(self):
         return self.minimumSizeHint()
 
-    
+class RotatedButton(QtWidgets.QPushButton):
+    def __init__(self,  parent=None):
+        super().__init__( parent)
+        
 
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        painter.save()
+
+        # Rotar el botón en 90 grados
+        painter.translate(self.width() / 2, self.height() / 2)
+        painter.rotate(90)
+        painter.translate(-self.height() / 2, -self.width() / 2)
+
+        # Dibujar el texto en posición rotada
+        # font = QtGui.QFont(self.font())
+        # font_metrics = QtGui.QFontMetrics(font)
+        # text_width = font_metrics.width(self.text)
+        # text_height = font_metrics.height()
+        # painter.setFont(font)
+        # painter.drawText(
+        #     (self.width() - text_width) / 2,
+        #     (self.height() + text_height) / 2,
+        #     self.text
+        # )
+
+        painter.restore()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

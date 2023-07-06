@@ -128,23 +128,26 @@ class Ui_window(object):
         painter.end()
         
         ### Widget Layout vertical para botones Defib, Charge, Shock
-        self.DCS_verticalLayoutWidget = QtWidgets.QWidget(Form)
-        self.DCS_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.DCS_CoordX1,
-                                                                pantalla_config.DCS_CoordY1,
-                                                                pantalla_config.DCS_HorizSize,
-                                                                pantalla_config.DCS_VertSize))
-        self.DCS_verticalLayoutWidget.setObjectName("DCS_verticalLayoutWidget")
-        self.DCS_verticalLayout = QtWidgets.QVBoxLayout(self.DCS_verticalLayoutWidget)
             #Push Button 
-        self.DEFIB_pushButton = QtWidgets.QPushButton(self.DCS_verticalLayoutWidget)
+        self.DEFIB_pushButton = QtWidgets.QPushButton(Form)
+        self.DEFIB_pushButton.setGeometry(QtCore.QRect(pantalla_config.DEFIB_CoordX1,
+                                                        pantalla_config.DEFIB_CoordY1,
+                                                        pantalla_config.DEFIB_HorizSize,
+                                                        pantalla_config.DEFIB_VertSize))
         self.DEFIB_pushButton.setObjectName("DEFIB_pushButton")
-        self.DCS_verticalLayout.addWidget(self.DEFIB_pushButton)
-        self.Charge_pushButton = QtWidgets.QPushButton(self.DCS_verticalLayoutWidget)
+        self.Charge_pushButton = QtWidgets.QPushButton(Form)
+        self.Charge_pushButton.setGeometry(QtCore.QRect(pantalla_config.CHARGE_CoordX1,
+                                                        pantalla_config.CHARGE_CoordY1,
+                                                        pantalla_config.CHARGE_HorizSize,
+                                                        pantalla_config.CHARGE_VertSize))
         self.Charge_pushButton.setObjectName("Charge_pushButton")
-        self.DCS_verticalLayout.addWidget(self.Charge_pushButton)
-        self.Shock_pushButton = QtWidgets.QPushButton(self.DCS_verticalLayoutWidget)
+
+        self.Shock_pushButton = QtWidgets.QPushButton(Form)
+        self.Shock_pushButton.setGeometry(QtCore.QRect(pantalla_config.SHOCK_CoordX1,
+                                                        pantalla_config.SHOCK_CoordY1,
+                                                        pantalla_config.SHOCK_HorizSize,
+                                                        pantalla_config.SHOCK_VertSize))
         self.Shock_pushButton.setObjectName("Shock_pushButton")
-        self.DCS_verticalLayout.addWidget(self.Shock_pushButton)
             #StyleSheet Button
         self.DEFIB_pushButton.setStyleSheet(Stylesheet)
         self.Charge_pushButton.setStyleSheet(Stylesheet)
@@ -241,6 +244,15 @@ class Ui_window(object):
                                                     pantalla_config.SYNC_VertSize))
         self.SYNC_pushButton.setObjectName("SYNC_pushButton")
         self.SYNC_pushButton.setStyleSheet(Stylesheet)
+
+        self.DISCHARGE_pushButton = QtWidgets.QPushButton(Form)
+        self.DISCHARGE_pushButton.setGeometry(QtCore.QRect(pantalla_config.DISCHARGE_CoordX1,
+                                                    pantalla_config.DISCHARGE_CoordY1,
+                                                    pantalla_config.DISCHARGE_HorizSize,
+                                                    pantalla_config.DISCHARGE_VertSize))
+        self.DISCHARGE_pushButton.setObjectName("DISCHARGE_pushButton")
+        self.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
+
         ## MARCP Buttons
         self.UPO_pushButton = QtWidgets.QPushButton(Form,icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Up_icon.svg")))
         self.UPO_buttonSize = self.UPO_pushButton.size()
@@ -299,6 +311,14 @@ class Ui_window(object):
         self.returnMenu_pushButton.setObjectName("returnMenu_pushButton")
         self.returnMenu_pushButton.setStyleSheet(Stylesheet)
 
+        self.paniMenu_pushButton = QtWidgets.QPushButton(Form)
+        self.paniMenu_pushButton.setGeometry(QtCore.QRect(pantalla_config.paniMenu_CoordX1,
+                                                        pantalla_config.paniMenu_CoordY,
+                                                        pantalla_config.paniMenu_HorizSize,
+                                                        pantalla_config.paniMenu_VertSize))
+        self.paniMenu_pushButton.setObjectName("paniMenu_pushButton")
+        self.paniMenu_pushButton.setStyleSheet(Stylesheet)
+
         self.alarmMenu_pushButton = QtWidgets.QPushButton(Form)
         self.alarmMenu_pushButton.setGeometry(QtCore.QRect(pantalla_config.alarmMenu_CoordX1 ,
                                                             pantalla_config.alarmMenu_CoordY ,
@@ -356,13 +376,13 @@ class Ui_window(object):
         self.energySelectLabel_pushButton.setObjectName("energySelectLabel_pushButton")
         self.energySelectLabel_pushButton.setStyleSheet(Stylesheet)
         
-        self.MARCPLabel_pushButton = QtWidgets.QPushButton(Form)
-        self.MARCPLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
-                                                                    pantalla_config.MARCPLabel_CoordY ,
-                                                                    pantalla_config.MARCPLabel_HorizSize ,
-                                                                    pantalla_config.MARCPLabel_VertSize))
-        self.MARCPLabel_pushButton.setObjectName("MARCPLabel_pushButton")
-        self.MARCPLabel_pushButton.setStyleSheet(Stylesheet)
+        # self.MARCPLabel_pushButton = QtWidgets.QPushButton(Form)
+        # self.MARCPLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
+        #                                                             pantalla_config.MARCPLabel_CoordY ,
+        #                                                             pantalla_config.MARCPLabel_HorizSize ,
+        #                                                             pantalla_config.MARCPLabel_VertSize))
+        # self.MARCPLabel_pushButton.setObjectName("MARCPLabel_pushButton")
+        # self.MARCPLabel_pushButton.setStyleSheet(Stylesheet)
 
         self.mALabel_pushButton = QtWidgets.QPushButton(Form)
         self.mALabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.mALabel_CoordX1 ,
@@ -415,27 +435,27 @@ class Ui_window(object):
         self.version_Label.setStyleSheet(Stylesheet)
 
         # Logo de KabSinLogo
-        self.KabSinLogo_horizontalLayoutWidget = QtWidgets.QWidget(Form)
-        self.KabSinLogo_horizontalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.KabSimLogo_CoordX1,
-                                                                        pantalla_config.KabSimLogo_CoordY,
-                                                                        pantalla_config.KabSimLogo_HorizSize,
-                                                                        pantalla_config.KabSimLogo_VertSize))
-        self.KabSinLogo_horizontalLayoutWidget.setObjectName("KabSinLogo_horizontalLayoutWidget")
-        self.KabSinLogo_horizontalLayout = QtWidgets.QHBoxLayout(self.KabSinLogo_horizontalLayoutWidget)
-        self.KabSinLogo_horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.KabSinLogo_horizontalLayout.setObjectName("KabSinLogo_horizontalLayout")
+        # self.KabSinLogo_horizontalLayoutWidget = QtWidgets.QWidget(Form)
+        # self.KabSinLogo_horizontalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.KabSimLogo_CoordX1,
+        #                                                                 pantalla_config.KabSimLogo_CoordY,
+        #                                                                 pantalla_config.KabSimLogo_HorizSize,
+        #                                                                 pantalla_config.KabSimLogo_VertSize))
+        # self.KabSinLogo_horizontalLayoutWidget.setObjectName("KabSinLogo_horizontalLayoutWidget")
+        # self.KabSinLogo_horizontalLayout = QtWidgets.QHBoxLayout(self.KabSinLogo_horizontalLayoutWidget)
+        # self.KabSinLogo_horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        # self.KabSinLogo_horizontalLayout.setObjectName("KabSinLogo_horizontalLayout")
 
-        self.KabSimLogo_Scene = QtWidgets.QGraphicsScene(0, 0, self.KabSinLogo_horizontalLayoutWidget.width(), self.KabSinLogo_horizontalLayoutWidget.height())
-        self.KabSimLogo_Path = "PyQt_Images/Abersiya.svg"
-        self.KabSimLogo_Image = QtGui.QPixmap(self.KabSimLogo_Path)
-        self.KabSimLogo_pixmapitem = self.KabSimLogo_Scene.addPixmap(self.KabSimLogo_Image.scaled(self.KabSimLogo_Scene.sceneRect().size().toSize()))
-        self.KabSimLogo_pixmapitem.setPos(0,0)
+        # self.KabSimLogo_Scene = QtWidgets.QGraphicsScene(0, 0, self.KabSinLogo_horizontalLayoutWidget.width(), self.KabSinLogo_horizontalLayoutWidget.height())
+        # self.KabSimLogo_Path = "PyQt_Images/Abersiya.svg"
+        # self.KabSimLogo_Image = QtGui.QPixmap(self.KabSimLogo_Path)
+        # self.KabSimLogo_pixmapitem = self.KabSimLogo_Scene.addPixmap(self.KabSimLogo_Image.scaled(self.KabSimLogo_Scene.sceneRect().size().toSize()))
+        # self.KabSimLogo_pixmapitem.setPos(0,0)
         
         
-        self.KabSimLogo_view = QtWidgets.QGraphicsView(self.KabSimLogo_Scene)
-        self.KabSimLogo_view.setRenderHint(QtGui.QPainter.Antialiasing)
-        self.KabSimLogo_view.setStyleSheet("border: none;background-color: rgb(209,209,209);")
-        self.KabSinLogo_horizontalLayout.addWidget(self.KabSimLogo_view)
+        # self.KabSimLogo_view = QtWidgets.QGraphicsView(self.KabSimLogo_Scene)
+        # self.KabSimLogo_view.setRenderHint(QtGui.QPainter.Antialiasing)
+        # self.KabSimLogo_view.setStyleSheet("border: none;background-color: rgb(209,209,209);")
+        # self.KabSinLogo_horizontalLayout.addWidget(self.KabSimLogo_view)
         
         self.heartRateLabel_pushButton = QtWidgets.QPushButton(Form)
         self.heartRateLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.heartRateLabel_CoordX1,
@@ -600,14 +620,16 @@ class Ui_window(object):
         self.Shock_pushButton.setText(_translate('Form','3 SHOCK'))
         self.DEA_pushButton.setText(_translate('Form','DEA'))
         self.SYNC_pushButton.setText(_translate('Form','SYNC'))
+        self.DISCHARGE_pushButton.setText(_translate('Form','DISCHARGE'))
         self.confirmMenu_pushButton.setText(_translate('Form','CONFIRM'))
         self.returnMenu_pushButton.setText(_translate('Form','RETURN'))
+        self.paniMenu_pushButton.setText(_translate('Form','PANI'))
         self.alarmMenu_pushButton.setText(_translate('Form','ALARM\nSUSPEND'))
         self.CPRMenu_pushButton.setText(_translate('Form','CPR'))
         self.sizeMenu_pushButton.setText(_translate('Form','SIZE'))
         self.LEADMenu_pushButton.setText(_translate('Form','LEAD'))
-        self.energySelectLabel_pushButton.setText(_translate('Form','Energy\nSelect'))
-        self.MARCPLabel_pushButton.setText(_translate('Form','MARCP'))
+        self.energySelectLabel_pushButton.setText(_translate('Form','Energy Select'))
+        #self.MARCPLabel_pushButton.setText(_translate('Form','MARCP'))
         self.mALabel_pushButton.setText(_translate('Form','mA'))
         self.PPMLabel_pushButton.setText(_translate('Form','PPM'))
         self.pacerOutput_Label.setText(_translate('Form','PACER \n OUTPUT'))
