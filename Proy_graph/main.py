@@ -181,12 +181,12 @@ class MainWindow(QtWidgets.QWidget):
         self.channel1.append(self.ecg12['I'][self.adder])   # Add a new random value.
 
         self.channel2 = self.channel2[1:]                   # Remove the first
-        self.channel2.append(self.ecg12['II'][self.adder]+4)# Add a new random value.
+        self.channel2.append(self.ecg12['II'][self.adder]+2)# Add a new random value.
 
         self.channel3 = self.channel3[1:] 
-        self.channel3.append(self.ecg12["III"][self.adder]+8)  # Add a new random value.
+        self.channel3.append(self.ecg12["III"][self.adder]+4)  # Add a new random value.
 
-        self.r.append((self.rsp[self.i_rsp])+12)
+        self.r.append((self.rsp[self.i_rsp])+6)
         print(self.r)
 
         self.spo.update_plot()
