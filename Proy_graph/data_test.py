@@ -15,6 +15,12 @@ class obtainSignals():
     def generateSignals(id_1):
         ecg12 = nk.ecg_simulate(duration=10, method="multileads",sampling_rate=500,heart_rate=id_1)
         return ecg12
+    
+    @staticmethod
+    def generate_rsp():
+        rsp = nk.rsp_simulate(duration=10, respiratory_rate=15)
+        return rsp
+
         
 
 
