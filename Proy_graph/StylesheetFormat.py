@@ -90,7 +90,17 @@ Stylesheet = """
     color: rgb(34,34,34);
     border: none;
     background: none;
-    font: bold 11px;
+    font: bold 14px;
+}
+
+#simulationTimeValue_pushButton
+{
+    color: red;
+    background-color: black;  
+    border: 1px solid; 
+    border-radius: 12px;
+    border-color: black;
+    font: 22px; 
 }
 
 #heartRateLabel_pushButton
@@ -216,13 +226,28 @@ Stylesheet = """
     color: rgb(241,255,255);  
     font: 17px; 
 }
-#play_RoundButton, #pause_RoundButton, #stop_RoundButton, #question_RoundButton, #OnOff_RoundButton, #config_pushButton
+#play_RoundButton, #pause_RoundButton, #stop_RoundButton, #question_RoundButton, #config_pushButton
 {
     color: black; 
     background-color: rgb(84,84,84);  
     border-width: 0px; 
-    border-radius: 20px; 
+    border-radius: 22px;
     font: bold 8px; 
 }
 
+#OnOff_RoundButton
+{
+    background-color: rgb(41,41,41);  
+    border: 2px solid; 
+    border-radius: 26px;
+    border-color: green;
+}
+
+#PPSQBackground_pushButton
+{
+    background-color: rgb(209,209,209);  
+    border: 4px solid; 
+    border-radius: 30px;
+    border-color: rgb(50,50,50);
+}
 """

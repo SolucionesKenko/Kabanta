@@ -39,7 +39,7 @@ class Ui_window(object):
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(34,34,34))
         painter.setPen(pen)
-        painter.drawRoundedRect(3, 3,pantalla_config.roundRectGrah_HorizSize, pantalla_config.roundRectGrah_VertSize, 20, 20)
+        painter.drawRoundedRect(3, 3,pantalla_config.roundRectGrah_HorizSize, pantalla_config.roundRectGrah_VertSize, 30, 30)
         painter.end()
 
         #Widget de Layout vertical para la graficacion de senales 
@@ -76,7 +76,7 @@ class Ui_window(object):
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(255,22,25))
         painter.setPen(pen)
-        painter.drawRoundedRect(3, 3,pantalla_config.roundRectDCS_HorizSize, pantalla_config.roundRectDCS_VertSize, 20, 20)
+        painter.drawRoundedRect(3, 3,pantalla_config.roundRectDCS_HorizSize, pantalla_config.roundRectDCS_VertSize, 30, 30)
         painter.end()
             # MCP
         self.roundRectMCP_Qpaint = QtWidgets.QLabel(Form)
@@ -99,7 +99,7 @@ class Ui_window(object):
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(0,129,52))
         painter.setPen(pen)
-        painter.drawRoundedRect(3, 3,pantalla_config.roundRectMCP_HorizSize, pantalla_config.roundRectMCP_VertSize, 20, 20)
+        painter.drawRoundedRect(3, 3,pantalla_config.roundRectMCP_HorizSize, pantalla_config.roundRectMCP_VertSize, 30, 30)
         painter.end()
             # Vital Signals
         self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(Form)
@@ -124,7 +124,7 @@ class Ui_window(object):
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(34,34,34))
         painter.setPen(pen)
-        painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 20, 20)
+        painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 30, 30)
         painter.end()
         
         ### Widget Layout vertical para botones Defib, Charge, Shock
@@ -154,6 +154,13 @@ class Ui_window(object):
         self.Shock_pushButton.setStyleSheet(Stylesheet)
         
         ### Button Play, Pause, Stop, Question
+        self.PPSQBackground_pushButton = QtWidgets.QPushButton(Form)
+        self.PPSQBackground_pushButton.setGeometry(QtCore.QRect(pantalla_config.PPSQBackground_CoordX1,
+                                                                pantalla_config.PPSQBackground_CoordY1,
+                                                                pantalla_config.PPSQBackground_HorizSize,
+                                                                pantalla_config.PPSQBackground_VertSize))
+        self.PPSQBackground_pushButton.setObjectName("PPSQBackground_pushButton")
+        self.PPSQBackground_pushButton.setStyleSheet(Stylesheet)
             #Button
         self.play_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Play_icon.svg")))
         play_RoundButtonSize = self.play_RoundButton.size()
@@ -195,13 +202,13 @@ class Ui_window(object):
         self.question_RoundButton.setObjectName("question_RoundButton")
         self.question_RoundButton.setStyleSheet(Stylesheet)
 
-        self.OnOff_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/Config_icon.svg")))
+        self.OnOff_RoundButton = QtWidgets.QPushButton(Form, icon = QtGui.QIcon(QtGui.QPixmap("PyQt_Images/OnOFF_Icon.svg")))
         self.OnOff_RoundButtonSize = self.OnOff_RoundButton.size()
         self.OnOff_RoundButton.setIconSize(QtCore.QSize(self.OnOff_RoundButtonSize.width(), self.OnOff_RoundButtonSize.height()))
         self.OnOff_RoundButton.setGeometry(QtCore.QRect(pantalla_config.OnOff_CoordX1,
                                                     pantalla_config.OnOff_CoordY1,
-                                                    pantalla_config.PPSQ_RoundButtonSize,
-                                                    pantalla_config.PPSQ_RoundButtonSize))
+                                                    pantalla_config.OnOff_VertSize,
+                                                    pantalla_config.OnOff_VertSize))
         self.OnOff_RoundButton.setObjectName("OnOff_RoundButton")
         self.OnOff_RoundButton.setStyleSheet(Stylesheet)
 
@@ -457,6 +464,20 @@ class Ui_window(object):
         # self.KabSimLogo_view.setStyleSheet("border: none;background-color: rgb(209,209,209);")
         # self.KabSinLogo_horizontalLayout.addWidget(self.KabSimLogo_view)
         
+        self.simulationTimeValue_pushButton = QtWidgets.QPushButton(Form)
+        self.simulationTimeValue_pushButton.setGeometry(QtCore.QRect(pantalla_config.simulationTimeValue_CoordX1,
+                                                                    pantalla_config.simulationTimeValue_CoordY,
+                                                                    pantalla_config.simulationTimeValue_HorizSize,
+                                                                    pantalla_config.simulationTimeValue_VertSize))
+        self.simulationTimeValue_pushButton.setObjectName("simulationTimeValue_pushButton")
+        self.simulationTimeValue_pushButton.setStyleSheet(Stylesheet)
+
+        self.simulationTimeLabel_Label = QtWidgets.QLabel(Form)
+        self.simulationTimeLabel_Label.setGeometry(QtCore.QRect(pantalla_config.simulationTimeLabel_CoordX1,
+                                                                pantalla_config.simulationTimeLabel_CoordY,
+                                                                pantalla_config.simulationTimeLabel_HorizSize,
+                                                                pantalla_config.simulationTimeLabel_VertSize))
+
         self.heartRateLabel_pushButton = QtWidgets.QPushButton(Form)
         self.heartRateLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.heartRateLabel_CoordX1,
                                                             pantalla_config.heartRateLabel_CoordY,
@@ -635,6 +656,8 @@ class Ui_window(object):
         self.pacerOutput_Label.setText(_translate('Form','PACER \n OUTPUT'))
         self.pacerRate_Label.setText(_translate('Form','PACER \n RATE'))
         self.version_Label.setText(_translate('Form','Version 0.00'))
+        self.simulationTimeValue_pushButton.setText(_translate('Form','00:00:00'))
+        self.simulationTimeLabel_Label.setText(_translate('Form','Simulation Time'))
         self.heartRateLabel_pushButton.setText(_translate('Form','Heart Rate'))
         self.heartRateValue_Label.setText(_translate('Form','- - -'))
         self.heartRateUnidades_Label.setText(_translate('Form','lpm'))
