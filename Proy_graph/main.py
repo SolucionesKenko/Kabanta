@@ -35,6 +35,7 @@ DIAPRESSURE = "5"
 FR = "6"
 CO = "7"
 
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,6 +51,7 @@ class MainWindow(QtWidgets.QWidget):
         self.sequenceArray = np.zeros(shape=[1,1])
         self.commandToken = 0
         self.signalState = SignalState.Idle
+        self.state = State.IdleDisconnected
         #self.ui.CO2Value_Label.setText
         
 
@@ -75,7 +77,6 @@ class MainWindow(QtWidgets.QWidget):
         self.channelMask = 0
         self.messageInBytes = []
         self.spo = spo.SPO()
-        #self.timer=qtc.QTimer()
 
         # Connections
         self.s = ""
@@ -83,16 +84,6 @@ class MainWindow(QtWidgets.QWidget):
         self.sPorts = list(portList.comports())
         self.addPorts()
         self.sConnected = False
-        self.exceptionCnt = 0
-        self.packetOffset = 0
-        self.mcuError = 0
-        self.temp = 0
-        self.vref = 0
-        self.adcOvr = 0
-        self.serialOvr = 0
-        self.crcMismatches = 0
-        self.spiOverrun = 0
-        self.moduleList = ['GPIO','UART','SPI','FLASH','IWDG','ADC','ADS1299','EEPROM','SERIAL','SIGNAL_ACQ','SIGNAL_PROC','NVS','SETTINGS','COMMANDS','DATA','SESSION','SYSTEM','CLOCK','CRC']
         self.errorList = ['NONE','NO_INIT','WRONG_PARAM','BUSY','PERIPH_FAILURE','COMPONENT_FAILURE','UNKNOWN_FAILURE','UNKNOWN_COMPONENT','BUS_FAILURE','CLOCK_FAILURE','MSP_FAILURE','FEATURE_NOT_SUPPORTED','TIMEOUT']
         self.custom_crc_table = {}
         self.poly = 0x04C11DB7
@@ -136,7 +127,11 @@ class MainWindow(QtWidgets.QWidget):
         #Actualizacion de grafica
         self.adder = 0
         self.i_rsp = 0
+
+        # Manejo de tiempos
         self.timer = QtCore.QTimer()
+        self.time = QtCore.QTime()
+        self.elapsedTime = QtCore.QElapsedTimer()
         # User code starts Here 
 
     def Pokemon(self):
@@ -151,14 +146,20 @@ class MainWindow(QtWidgets.QWidget):
         # Senales Derivaciones cardiacas
         #self.der1 = [0 for i in self.x]
         self.channel1 = [-0 for i in self.x]
-        self.channel2 = [-2 for i in self.x]
-        self.channel3 = [-4 for i in self.x]
-        #todo pen =
-        self.data_line_ppg = self.ui.plt.plot()
-        self.data_line_rsp = self.ui.plt.plot()
-        self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1)
-        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2)
-        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3)
+        self.channel2 = [-4 for i in self.x]
+        self.channel3 = [-8 for i in self.x]
+        self.channel4 = [-12 for i in self.x]
+        self.channel5 = [-16 for i in self.x]
+        #todo 
+        # pen =
+        self.data_line_ppg = self.ui.plt.plot(pen = (134,234,233))
+        self.data_line_rsp = self.ui.plt.plot(pen = (255,222,89))
+        self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
+        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
+        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
+        # self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
+        # self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (255,222,89))
+
         # User code end Here 
         
     def Update_Grahp(self):
@@ -181,13 +182,13 @@ class MainWindow(QtWidgets.QWidget):
         self.channel1.append(self.ecg12['I'][self.adder])   # Add a new random value.
 
         self.channel2 = self.channel2[1:]                   # Remove the first
-        self.channel2.append(self.ecg12['II'][self.adder]+2)# Add a new random value.
+        self.channel2.append(self.ecg12['II'][self.adder]-4)# Add a new random value.
 
         self.channel3 = self.channel3[1:] 
-        self.channel3.append(self.ecg12["III"][self.adder]+4)  # Add a new random value.
+        self.channel3.append(self.ecg12["III"][self.adder]-8)  # Add a new random value.
 
-        self.r.append((self.rsp[self.i_rsp])+6)
-        print(self.r)
+        self.r.append((self.rsp[self.i_rsp])-12)
+        #print(self.r)
 
         self.spo.update_plot()
 
@@ -196,7 +197,14 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_channel1.setData(self.x, self.channel1)
         self.data_line_channel2.setData(self.x, self.channel2)
         self.data_line_channel3.setData(self.x, self.channel3)
-        
+
+    def Update_Time(self):
+        self.updateElapsedTime()
+        self.ui.simulationTimeValue_pushButton.setText(str(self.elapsed_time))
+    
+    def updateElapsedTime(self):
+        self.elapsed_time = self.time.addMSecs(self.elapsedTime.elapsed()).toString("hh:mm:ss")
+
     def displayHello(self):
         print("hello")
 
@@ -232,7 +240,7 @@ class MainWindow(QtWidgets.QWidget):
             self.state = (State.IdleConnected)
             self.worker = WorkerThread(self.s, self.sCoder)
             self.worker.exiting = False
-            self.state = State.IdleConnected
+            self.state = State.IdleConnected # Es correcto que el state sea conectado
             self.worker.signal.sig.connect(self.testWorker)
             self.worker.start()
     
@@ -240,13 +248,15 @@ class MainWindow(QtWidgets.QWidget):
         self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
 
     def onPlayButtonClicked(self):
+        
         if(self.signalState == SignalState.Idle):
             self.setDefaultValues()
             self.generateSig = obtainSignals()
             self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
             self.rsp = list(self.generateSig.generate_rsp())
-            print(self.rsp)
-
+            self.time.__init__(0,0,0,0)
+            #print(self.rsp)
+        
         if(self.signalState != SignalState.Playing):
             self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
             self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
@@ -257,20 +267,44 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
 
             self.signalState = SignalState.Playing
+            print(self.signalState)
+            # Envio de estado por serial 
+            if self.state != State.IdleDisconnected:
+                self.worker.encodeMesage(8,1)
+                self.worker.sendMessage()
+
+            self.elapsedTime.start()
             self.timer.setInterval(2)
             self.timer.timeout.connect(self.Update_Grahp)
+            self.timer.timeout.connect(self.Update_Time)
             self.timer.start()
+            
 
     def onPauseButtonClicked(self):
+        
         self.timer.stop()
+        #self.elapsedTime.stop()
         self.signalState = SignalState.Pause
+        print(self.signalState)
+        # Envio de estado por serial 
+        if self.state != State.IdleDisconnected:
+            self.worker.encodeMesage(8,2)
+            self.worker.sendMessage()
+        
 
     def onStopButtonClicked(self):
+        
         self.timer.stop()
         self.setDefaultValues()
         # self.ui.plt.plotItem.clearPlots()
         self.adder = 0
         self.signalState = SignalState.Pause
+        print(self.signalState)
+
+        # Envio de estado por serial 
+        if self.state != State.IdleDisconnected:
+            self.worker.encodeMesage(8,3)
+            self.worker.sendMessage()
 
 
     def updateUI(self, id, data):

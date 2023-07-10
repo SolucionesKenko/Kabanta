@@ -21,6 +21,13 @@ import string
 
 from enum import Enum, auto 
 
+SERIAL_FRAME_SYNC1 = 0
+SERIAL_FRAME_SYNC2 = 1
+SERIAL_FRAME_ID = 2
+SERIAL_FRAME_VALUE = 3
+SERIAL_FRAME_CRC = 4
+SERIAL_FRAME_LENGHT = 5
+
 
 
 poly = 0x04C11DB7
@@ -68,6 +75,7 @@ class WorkerThread(qtc.QThread):
         self.message = list()
         self.type = 0
         self.payload = 0
+        self.txArray = [0,0,0,0,0]
 
         self.crcTable = [
         0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15, 
@@ -111,7 +119,7 @@ class WorkerThread(qtc.QThread):
         crc = 0x00
         for i in range (length):
             crc = self.crcTable[crc ^ data[i]]
-            print(crc)
+            #print(crc)
         return crc
 
     @qtc.pyqtSlot()
@@ -164,6 +172,19 @@ class WorkerThread(qtc.QThread):
                     dataRead = {}
         finally:
             print("not running")
+    
+    def encodeMesage(self, id, value):
+        self.txArray[SERIAL_FRAME_SYNC1] = 0xA5
+        self.txArray[SERIAL_FRAME_SYNC2] = 0x5A
+        self.txArray[SERIAL_FRAME_ID] = id
+        self.txArray[SERIAL_FRAME_VALUE] = value
+        self.txArray[SERIAL_FRAME_CRC] = self.calculateCRC8(self.txArray, 4)
+        return self.txArray
+    
+    def sendMessage(self):
+        for i in self.txArray:
+            self.sCoder.write_u08(self.s,i)
+            print(hex(i))
 
 
 
