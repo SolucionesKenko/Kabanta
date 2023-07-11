@@ -179,7 +179,6 @@ class WorkerThread(qtc.QThread):
         self.txArray[SERIAL_FRAME_ID] = id
         self.txArray[SERIAL_FRAME_VALUE] = value
         self.txArray[SERIAL_FRAME_CRC] = self.calculateCRC8(self.txArray, 4)
-        return self.txArray
     
     def sendMessage(self):
         for i in self.txArray:

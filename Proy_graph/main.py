@@ -25,6 +25,7 @@ import spo
 class SignalState (Enum):
     Playing = auto()
     Pause = auto()
+    Stop = auto()
     Idle = auto()
 
 HEART_RATE = "1"
@@ -41,42 +42,20 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
-        #self.bt = DeviceFinder()
-        #self.bt.startDeviceDiscovery()
         
         #Session
-        self.crcErrorCounter = 0
-        self.sessionToken = 0
-        self.sessionSequence = 0
-        self.sequenceArray = np.zeros(shape=[1,1])
-        self.commandToken = 0
         self.signalState = SignalState.Idle
         self.state = State.IdleDisconnected
-        #self.ui.CO2Value_Label.setText
-        
 
         # Data Variables
         self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
         self.generateSig = 0
         self.ecg12 = 0
         self.i = 0
-        
         self.parserState = ParserState.Type
-        self.crc = 0
-        self.type = 0
-        self.size = 0
-        self.pendingPayload = 0
-        self.sequence = 0
-        self.sessionToken = 0
-        self.responseCode = 0
-        self.originPacketType = 0
-        self.OriginToken = 0
-        self.moduleError = 0
-        self.sn = 0
-        self.rate = 0
-        self.channelMask = 0
-        self.messageInBytes = []
         self.spo = spo.SPO()
+        self.i_rsp = 0
+        self.adder = 0
 
         # Connections
         self.s = ""
@@ -84,14 +63,12 @@ class MainWindow(QtWidgets.QWidget):
         self.sPorts = list(portList.comports())
         self.addPorts()
         self.sConnected = False
-        self.errorList = ['NONE','NO_INIT','WRONG_PARAM','BUSY','PERIPH_FAILURE','COMPONENT_FAILURE','UNKNOWN_FAILURE','UNKNOWN_COMPONENT','BUS_FAILURE','CLOCK_FAILURE','MSP_FAILURE','FEATURE_NOT_SUPPORTED','TIMEOUT']
         self.custom_crc_table = {}
         self.poly = 0x04C11DB7
         self.generate_crc32_table(self.poly)
         self.r = deque()
 
         #Button Control
-        self.Ui_window = Ui_window()
         self.ui.DEFIB_pushButton.pressed.connect(self.displayHello)
         self.ui.Charge_pushButton.pressed.connect(self.displayHello)
         self.ui.Shock_pushButton.pressed.connect(self.displayHello)
@@ -109,7 +86,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.DPR_pushButton.pressed.connect(self.displayHello)
         self.ui.UPO_pushButton.pressed.connect(self.displayHello)
         self.ui.UPR_pushButton.pressed.connect(self.displayHello)
-        self.ui.config_pushButton.pressed.connect(self.Pokemon)
+        self.ui.config_pushButton.pressed.connect(self.displayHello)
         self.ui.UpEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.DownEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.play_RoundButton.pressed.connect(self.onPlayButtonClicked)
@@ -122,27 +99,19 @@ class MainWindow(QtWidgets.QWidget):
 
         ### Final de configuracion de los Widgets
         ### Codigo de main
-        #Agregados al Layout vertical
+        # Inicializacion de las senales de las graficas
         self.initSignalGrahps()
-        #Actualizacion de grafica
-        self.adder = 0
-        self.i_rsp = 0
-
         # Manejo de tiempos
         self.timer = QtCore.QTimer()
         self.time = QtCore.QTime()
         self.elapsedTime = QtCore.QElapsedTimer()
-        # User code starts Here 
-
-    def Pokemon(self):
-        print("inicio")
-        print("final")
-
-    ### Funciones Iniciales 
+    
+    
+    ##########################################################################################
+    # Funtiones del Interfaz Grafica (GUI)
     def initSignalGrahps(self):
         #Eje en x 
         self.x = list(range(500))
-        np.zeros
         # Senales Derivaciones cardiacas
         #self.der1 = [0 for i in self.x]
         self.channel1 = [-0 for i in self.x]
@@ -150,20 +119,77 @@ class MainWindow(QtWidgets.QWidget):
         self.channel3 = [-8 for i in self.x]
         self.channel4 = [-12 for i in self.x]
         self.channel5 = [-16 for i in self.x]
-        #todo 
-        # pen =
+        
         self.data_line_ppg = self.ui.plt.plot(pen = (134,234,233))
         self.data_line_rsp = self.ui.plt.plot(pen = (255,222,89))
         self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
         self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
         self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
+        
+        # Futuro inicializacion de senales
         # self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
         # self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (255,222,89))
 
-        # User code end Here 
+    def onPlayButtonClicked(self):
         
+        if(self.signalState == SignalState.Idle):
+            self.setDefaultValues()
+            self.generateSig = obtainSignals()
+            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+            self.rsp = list(self.generateSig.generate_rsp())
+            self.time.__init__(0,0,0,0)
+        
+        if(self.signalState != SignalState.Playing):
+            self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
+            self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
+            self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
+            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
+            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
+            self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
+            self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
+
+            # ReInicializacion de la senal posterior a SignalState.Stop
+            if(self.signalState == SignalState.Stop):
+                self.initSignalGrahps()
+            
+            self.signalState = SignalState.Playing
+            print(self.signalState)
+            # Envio de estado por serial 
+            if self.state != State.IdleDisconnected:
+                self.worker.encodeMesage(8,1)
+                self.worker.sendMessage()
+            
+            # Manejo de timer y time
+            self.elapsedTime.start()
+            self.timer.setInterval(2)
+            self.timer.timeout.connect(self.Update_Grahp)
+            self.timer.timeout.connect(self.Update_Time)
+            self.timer.start()
+
+    def onPauseButtonClicked(self):
+        
+        self.timer.stop()
+        self.signalState = SignalState.Pause
+        print(self.signalState)
+        # Envio de estado por serial 
+        if self.state != State.IdleDisconnected:
+            self.worker.encodeMesage(8,2)
+            self.worker.sendMessage()
+        
+    def onStopButtonClicked(self):
+        
+        self.timer.stop()
+        self.setDefaultValues()
+        self.ui.plt.clear()
+        self.adder = 0
+        self.signalState = SignalState.Stop
+        print(self.signalState)
+
+        # Envio de estado por serial 
+        if self.state != State.IdleDisconnected:
+            self.worker.encodeMesage(8,3)
+            self.worker.sendMessage()
     def Update_Grahp(self):
-        # todo cambiar el manejo de datos con collections deque
         if(self.adder >= len(self.ecg12['I'])-1):
             self.adder = 0
         if(self.i_rsp >= 9999):
@@ -188,15 +214,17 @@ class MainWindow(QtWidgets.QWidget):
         self.channel3.append(self.ecg12["III"][self.adder]-8)  # Add a new random value.
 
         self.r.append((self.rsp[self.i_rsp])-12)
-        #print(self.r)
 
         self.spo.update_plot()
-
         self.data_line_rsp.setData(self.x, self.r)
         self.data_line_ppg.setData(self.x, list(self.spo.dataIR)[1:])
         self.data_line_channel1.setData(self.x, self.channel1)
         self.data_line_channel2.setData(self.x, self.channel2)
         self.data_line_channel3.setData(self.x, self.channel3)
+
+
+    ##########################################################################################
+    # Funciones Para el manejo del tiempo  
 
     def Update_Time(self):
         self.updateElapsedTime()
@@ -208,7 +236,8 @@ class MainWindow(QtWidgets.QWidget):
     def displayHello(self):
         print("hello")
 
-    # Funciones bluetooth
+    ##########################################################################################
+    # Funciones serial
     
     def addPorts(self):
         for p in self.sPorts:
@@ -232,7 +261,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def onConnectConfirmButtonClicked(self):
         self.s = serial.Serial(
-            self.ui.port_comboBox.currentText(), baudrate=115200, timeout=100)
+            self.ui.port_comboBox.currentText(), baudrate=115200, timeout=500)
 
         self.sConnected = self.s.is_open
         if(self.sConnected):
@@ -246,66 +275,6 @@ class MainWindow(QtWidgets.QWidget):
     
     def setDefaultValues(self):
         self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
-
-    def onPlayButtonClicked(self):
-        
-        if(self.signalState == SignalState.Idle):
-            self.setDefaultValues()
-            self.generateSig = obtainSignals()
-            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
-            self.rsp = list(self.generateSig.generate_rsp())
-            self.time.__init__(0,0,0,0)
-            #print(self.rsp)
-        
-        if(self.signalState != SignalState.Playing):
-            self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
-            self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
-            self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
-            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
-            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
-            self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
-            self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
-
-            self.signalState = SignalState.Playing
-            print(self.signalState)
-            # Envio de estado por serial 
-            if self.state != State.IdleDisconnected:
-                self.worker.encodeMesage(8,1)
-                self.worker.sendMessage()
-
-            self.elapsedTime.start()
-            self.timer.setInterval(2)
-            self.timer.timeout.connect(self.Update_Grahp)
-            self.timer.timeout.connect(self.Update_Time)
-            self.timer.start()
-            
-
-    def onPauseButtonClicked(self):
-        
-        self.timer.stop()
-        #self.elapsedTime.stop()
-        self.signalState = SignalState.Pause
-        print(self.signalState)
-        # Envio de estado por serial 
-        if self.state != State.IdleDisconnected:
-            self.worker.encodeMesage(8,2)
-            self.worker.sendMessage()
-        
-
-    def onStopButtonClicked(self):
-        
-        self.timer.stop()
-        self.setDefaultValues()
-        # self.ui.plt.plotItem.clearPlots()
-        self.adder = 0
-        self.signalState = SignalState.Pause
-        print(self.signalState)
-
-        # Envio de estado por serial 
-        if self.state != State.IdleDisconnected:
-            self.worker.encodeMesage(8,3)
-            self.worker.sendMessage()
-
 
     def updateUI(self, id, data):
         if(id == HEART_RATE):
@@ -325,7 +294,6 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CO2Value_Label.setText(str(data))
         else:
             print("Invalid ID")
-            
 
     def testWorker(self, id, data):
         # Cambiar diccionario

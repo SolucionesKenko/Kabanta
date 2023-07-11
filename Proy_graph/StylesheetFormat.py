@@ -115,7 +115,7 @@ Stylesheet = """
 #heartRateValue_Label
 {
     color: rgb(126,217,87);  
-    font: bold 26px; 
+    font: bold 40px; 
 }
 
 #heartRateUnidades_Label
@@ -136,7 +136,7 @@ Stylesheet = """
 #tempValue_Label
 {
     color: rgb(140,82,255);  
-    font: bold 26px; 
+    font: bold 40px; 
 }
 
 #tempUnidades_Label
@@ -156,7 +156,7 @@ Stylesheet = """
 #SpO2Value_Label
 {
     color: rgb(134,234,233);  
-    font: bold 26px; 
+    font: bold 40px; 
 
 }
 #SpO2Unidades_Label
@@ -177,7 +177,7 @@ Stylesheet = """
 #pressureValue_Label
 {
     color: rgb(255,22,22);  
-    font: bold 26px; 
+    font: bold 40px; 
 }
 
 #pressureUnidades_Label
@@ -197,7 +197,7 @@ Stylesheet = """
 #FRValue_Label
 {
     color: rgb(255,222,89);  
-    font: bold 26px; 
+    font: bold 40px; 
 }
 
 #FRUnidades_Label
@@ -218,7 +218,7 @@ Stylesheet = """
 #CO2Value_Label
 {
     color: rgb(241,255,255);  
-    font: bold 26px; 
+    font: bold 40px; 
 }
 
 #CO2Unidades_Label
