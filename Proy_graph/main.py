@@ -17,7 +17,7 @@ import serial.tools.list_ports as portList
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
 
-from enum import Enum, auto 
+from enum import Enum, auto, IntEnum
 import spo
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
@@ -36,6 +36,13 @@ DIAPRESSURE = "5"
 FR = "6"
 CO = "7"
 
+class PageState (IntEnum):
+    OFFPAGE = 0
+    DEFAULTPAGE = 1
+    
+    
+
+
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
@@ -46,6 +53,7 @@ class MainWindow(QtWidgets.QWidget):
         #Session
         self.signalState = SignalState.Idle
         self.state = State.IdleDisconnected
+        self.pageState = PageState.OFFPAGE
 
         # Data Variables
         self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
@@ -56,6 +64,10 @@ class MainWindow(QtWidgets.QWidget):
         self.spo = spo.SPO()
         self.i_rsp = 0
         self.adder = 0
+        # Manejo de tiempos
+        self.timer = QtCore.QTimer()
+        self.time = QtCore.QTime()
+        self.elapsedTime = QtCore.QElapsedTimer()
 
         # Connections
         self.s = ""
@@ -93,7 +105,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.pause_RoundButton.pressed.connect(self.onPauseButtonClicked)
         self.ui.stop_RoundButton.pressed.connect(self.onStopButtonClicked)
         self.ui.question_RoundButton.pressed.connect(self.displayHello)
-        self.ui.OnOff_RoundButton.pressed.connect(self.displayHello)
+        self.ui.OnOff_RoundButton.pressed.connect(self.onOnButtonClicked)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
         self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
 
@@ -101,12 +113,8 @@ class MainWindow(QtWidgets.QWidget):
         ### Codigo de main
         # Inicializacion de las senales de las graficas
         self.initSignalGrahps()
-        # Manejo de tiempos
-        self.timer = QtCore.QTimer()
-        self.time = QtCore.QTime()
-        self.elapsedTime = QtCore.QElapsedTimer()
     
-    
+
     ##########################################################################################
     # Funtiones del Interfaz Grafica (GUI)
     def initSignalGrahps(self):
@@ -189,6 +197,17 @@ class MainWindow(QtWidgets.QWidget):
         if self.state != State.IdleDisconnected:
             self.worker.encodeMesage(8,3)
             self.worker.sendMessage()
+            
+    def onOnButtonClicked(self):
+        if self.pageState != PageState.OFFPAGE:
+            self.pageState = PageState.OFFPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE)
+            
+        else:
+            self.pageState = PageState.DEFAULTPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            
+
     def Update_Grahp(self):
         if(self.adder >= len(self.ecg12['I'])-1):
             self.adder = 0

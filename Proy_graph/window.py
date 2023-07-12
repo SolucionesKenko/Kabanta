@@ -18,7 +18,7 @@ class Ui_window(object):
         Form.setObjectName("Pokemon")
         Form.resize(pantalla_config.Horiz_size, pantalla_config.Vert_size)
 
-            # Graph
+        ### Round Rectangle for Plotting Graph
         self.roundRectGraph_Qpaint = QtWidgets.QLabel(Form)
         self.roundRectGraph_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectGrah_CoordX1 -3,
                                             pantalla_config.roundRectGrah_CoordY1-3,
@@ -29,12 +29,10 @@ class Ui_window(object):
         self.canvasLabel.fill(QtGui.QColor(209,209,209))
         self.roundRectGraph_Qpaint.setPixmap(self.canvasLabel)
         painter = QtGui.QPainter(self.roundRectGraph_Qpaint.pixmap())
-        
         brush = QtGui.QBrush()
         brush.setColor(QtGui.QColor(0,0,0))
         brush.setStyle(1)
         painter.setBrush(brush)
-        
         pen = QtGui.QPen()
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(34,34,34))
@@ -42,19 +40,12 @@ class Ui_window(object):
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectGrah_HorizSize, pantalla_config.roundRectGrah_VertSize, 30, 30)
         painter.end()
 
-        #Widget de Layout vertical para la graficacion de senales 
-        self.Graph_verticalLayoutWidget = QtWidgets.QWidget(Form)
-        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.grah_CoordX1,
-                                                                pantalla_config.grah_CoordY1, 
-                                                                pantalla_config.grah_HorizSize, 
-                                                                pantalla_config.grah_VertSize))
-        self.Graph_verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
-        self.plt = pg.PlotWidget()
-        #self.plt.showGrid(x=True, y=True)
-        self.Graph_verticalLayout.addWidget(self.plt)
+        # print(pantalla_config.roundRectGrah_CoordX1)
+        # print(pantalla_config.roundRectGrah_CoordY1)
+        # print(pantalla_config.roundRectGrah_HorizSize)
+        # print(pantalla_config.roundRectGrah_VertSize)
 
-        ## Qpaint Round Rects
+        ### Round Rectangle for the DEFIB Charge and Shock button/Area
         self.roundRectDCS_Qpaint = QtWidgets.QLabel(Form)
         self.roundRectDCS_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectDCS_CoordX1-3,
                                             pantalla_config.roundRectDCS_CoordY-3,
@@ -65,20 +56,18 @@ class Ui_window(object):
         self.canvasLabel.fill(QtGui.QColor(209,209,209))
         self.roundRectDCS_Qpaint.setPixmap(self.canvasLabel)
         painter = QtGui.QPainter(self.roundRectDCS_Qpaint.pixmap())
-        
-        
         brush = QtGui.QBrush()
         brush.setColor(QtGui.QColor(50,50,50))
         brush.setStyle(1)
         painter.setBrush(brush)
-        
         pen = QtGui.QPen()
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(255,22,25))
         painter.setPen(pen)
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectDCS_HorizSize, pantalla_config.roundRectDCS_VertSize, 30, 30)
         painter.end()
-            # MCP
+        
+        ### Round Rectangle For the Marcapasos
         self.roundRectMCP_Qpaint = QtWidgets.QLabel(Form)
         self.roundRectMCP_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectMCP_CoordX1-3,
                                             pantalla_config.roundRectMCP_CoordY-3,
@@ -89,20 +78,57 @@ class Ui_window(object):
         self.canvasLabel.fill(QtGui.QColor(209,209,209))
         self.roundRectMCP_Qpaint.setPixmap(self.canvasLabel)
         painter = QtGui.QPainter(self.roundRectMCP_Qpaint.pixmap())
-        
         brush = QtGui.QBrush()
         brush.setColor(QtGui.QColor(50,50,50))
         brush.setStyle(1)
         painter.setBrush(brush)
-        
         pen = QtGui.QPen()
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(0,129,52))
         painter.setPen(pen)
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectMCP_HorizSize, pantalla_config.roundRectMCP_VertSize, 30, 30)
         painter.end()
-            # Vital Signals
-        self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(Form)
+
+        ### todo Stacked widget
+        self.stackedWidget = QtWidgets.QStackedWidget(Form)
+        self.stackedWidget.setGeometry(QtCore.QRect(pantalla_config.stackedWidget_CoordX1,
+                                                    pantalla_config.stackedWidget_CoordY1,
+                                                    pantalla_config.stackedWidget_HorizSize,
+                                                    pantalla_config.stackedWidget_VertSize))
+        self.stackedWidget.setObjectName("stackedWidget")
+        
+        self.offPage = QtWidgets.QWidget()
+        self.offPage.setObjectName("offPage")
+        
+        self.defaultPage = QtWidgets.QWidget()
+        self.defaultPage.setObjectName("defaultPage")
+
+        self.defibPage = QtWidgets.QWidget()
+        self.defibPage.setObjectName("defibPage")
+
+        self.stackedWidget.addWidget(self.offPage)
+        self.stackedWidget.addWidget(self.defaultPage)
+        self.stackedWidget.addWidget(self.defibPage)
+
+        ### Widget de Layout vertical para la graficacion de senales 
+        self.Graph_verticalLayoutWidget = QtWidgets.QWidget(self.defaultPage)
+        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.grah_CoordX1,
+                                                                pantalla_config.grah_CoordY1, 
+                                                                pantalla_config.grah_HorizSize, 
+                                                                pantalla_config.grah_VertSize))
+        self.Graph_verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
+        self.plt = pg.PlotWidget()
+        self.Graph_verticalLayout.addWidget(self.plt)
+
+        print("#### Medidas del Graph layoutgrah")
+        print(pantalla_config.grah_CoordX1)
+        print(pantalla_config.grah_CoordY1)
+        print(pantalla_config.grah_HorizSize)
+        print(pantalla_config.grah_VertSize)
+
+        # Round Rectangle for Vital Signals
+        self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(self.defaultPage)
         self.roundRectVitalSignals_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectVitalSignals_CoordX1-3,
                                             pantalla_config.roundRectVitalSignals_CoordY1-3,
                                             pantalla_config.roundRectVitalSignals_HorizSize+6,
@@ -114,12 +140,10 @@ class Ui_window(object):
         self.canvasLabel.fill(self.canvasColor)
         self.roundRectVitalSignals_Qpaint.setPixmap(self.canvasLabel)
         painter = QtGui.QPainter(self.roundRectVitalSignals_Qpaint.pixmap())
-        
         brush = QtGui.QBrush()
         brush.setColor(QtGui.QColor(34,34,34))
         brush.setStyle(1)
         painter.setBrush(brush)
-        
         pen = QtGui.QPen()
         pen.setWidth(3)
         pen.setColor(QtGui.QColor(34,34,34))
@@ -127,6 +151,13 @@ class Ui_window(object):
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 30, 30)
         painter.end()
         
+        print("###### valores de el Round Rectangle de signos vitales")
+        print(pantalla_config.roundRectVitalSignals_CoordX1)
+        print(pantalla_config.roundRectVitalSignals_CoordY1)
+        print(pantalla_config.roundRectVitalSignals_HorizSize)
+        print(pantalla_config.roundRectVitalSignals_VertSize)
+
+
         ### Widget Layout vertical para botones Defib, Charge, Shock
             #Push Button 
         self.DEFIB_pushButton = QtWidgets.QPushButton(Form)
@@ -464,7 +495,7 @@ class Ui_window(object):
         # self.KabSimLogo_view.setStyleSheet("border: none;background-color: rgb(209,209,209);")
         # self.KabSinLogo_horizontalLayout.addWidget(self.KabSimLogo_view)
         
-        self.simulationTimeValue_pushButton = QtWidgets.QPushButton(Form)
+        self.simulationTimeValue_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.simulationTimeValue_pushButton.setGeometry(QtCore.QRect(pantalla_config.simulationTimeValue_CoordX1,
                                                                     pantalla_config.simulationTimeValue_CoordY,
                                                                     pantalla_config.simulationTimeValue_HorizSize,
@@ -472,13 +503,13 @@ class Ui_window(object):
         self.simulationTimeValue_pushButton.setObjectName("simulationTimeValue_pushButton")
         self.simulationTimeValue_pushButton.setStyleSheet(Stylesheet)
 
-        self.simulationTimeLabel_Label = QtWidgets.QLabel(Form)
+        self.simulationTimeLabel_Label = QtWidgets.QLabel(self.defaultPage)
         self.simulationTimeLabel_Label.setGeometry(QtCore.QRect(pantalla_config.simulationTimeLabel_CoordX1,
                                                                 pantalla_config.simulationTimeLabel_CoordY,
                                                                 pantalla_config.simulationTimeLabel_HorizSize,
                                                                 pantalla_config.simulationTimeLabel_VertSize))
 
-        self.heartRateLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.heartRateLabel_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.heartRateLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.heartRateLabel_CoordX1,
                                                             pantalla_config.heartRateLabel_CoordY,
                                                             pantalla_config.heartRateLabel_HorizSize,
@@ -486,7 +517,7 @@ class Ui_window(object):
         self.heartRateLabel_pushButton.setObjectName("heartRateLabel_pushButton")
         self.heartRateLabel_pushButton.setStyleSheet(Stylesheet)
 
-        self.heartRateValue_Label = QtWidgets.QLabel(Form)
+        self.heartRateValue_Label = QtWidgets.QLabel(self.defaultPage)
         self.heartRateValue_Label.setGeometry(QtCore.QRect(pantalla_config.heartRateValueLabel_CoordX1,
                                                             pantalla_config.heartRateValueLabel_CoordY,
                                                             pantalla_config.heartRateValueLabel_HorizSize,
@@ -494,7 +525,7 @@ class Ui_window(object):
         self.heartRateValue_Label.setObjectName("heartRateValue_Label")
         self.heartRateValue_Label.setStyleSheet(Stylesheet)
 
-        self.heartRateUnidades_Label = QtWidgets.QLabel(Form)
+        self.heartRateUnidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.heartRateUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.heartRateUnidadesLabel_CoordX1,
                                                                 pantalla_config.heartRateUnidadesLabel_CoordY,
                                                                 pantalla_config.heartRateUnidadesLabel_HorizSize,
@@ -502,7 +533,7 @@ class Ui_window(object):
         self.heartRateUnidades_Label.setObjectName("heartRateUnidades_Label")
         self.heartRateUnidades_Label.setStyleSheet(Stylesheet)
 
-        self.tempLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.tempLabel_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.tempLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.tempLabel_CoordX1,
                                                         pantalla_config.tempLabel_CoordY,
                                                         pantalla_config.tempLabel_HorizSize,
@@ -510,7 +541,7 @@ class Ui_window(object):
         self.tempLabel_pushButton.setObjectName("tempLabel_pushButton")
         self.tempLabel_pushButton.setStyleSheet(Stylesheet)
 
-        self.tempValue_Label = QtWidgets.QLabel(Form)
+        self.tempValue_Label = QtWidgets.QLabel(self.defaultPage)
         self.tempValue_Label.setGeometry(QtCore.QRect(pantalla_config.tempValueLabel_CoordX1,
                                                             pantalla_config.tempValueLabel_CoordY,
                                                             pantalla_config.tempValueLabel_HorizSize,
@@ -518,7 +549,7 @@ class Ui_window(object):
         self.tempValue_Label.setObjectName("tempValue_Label")
         self.tempValue_Label.setStyleSheet(Stylesheet)
 
-        self.tempUnidades_Label = QtWidgets.QLabel(Form)
+        self.tempUnidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.tempUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.tempUnidadesLabel_CoordX1,
                                                                 pantalla_config.tempUnidadesLabel_CoordY,
                                                                 pantalla_config.tempUnidadesLabel_HorizSize,
@@ -526,7 +557,7 @@ class Ui_window(object):
         self.tempUnidades_Label.setObjectName("tempUnidades_Label")
         self.tempUnidades_Label.setStyleSheet(Stylesheet)
 
-        self.SpO2Label_pushButton = QtWidgets.QPushButton(Form)
+        self.SpO2Label_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.SpO2Label_pushButton.setGeometry(QtCore.QRect(pantalla_config.SpO2Label_CoordX1,
                                                     pantalla_config.SpO2Label_CoordY,
                                                     pantalla_config.SpO2Label_HorizSize,
@@ -534,7 +565,7 @@ class Ui_window(object):
         self.SpO2Label_pushButton.setObjectName("SpO2Label_pushButton")
         self.SpO2Label_pushButton.setStyleSheet(Stylesheet)
 
-        self.SpO2Value_Label = QtWidgets.QLabel(Form)
+        self.SpO2Value_Label = QtWidgets.QLabel(self.defaultPage)
         self.SpO2Value_Label.setGeometry(QtCore.QRect( pantalla_config.SpO2ValueLabel_CoordX1,
                                                             pantalla_config.SpO2ValueLabel_CoordY,
                                                             pantalla_config.SpO2ValueLabel_HorizSize,
@@ -542,7 +573,7 @@ class Ui_window(object):
         self.SpO2Value_Label.setObjectName("SpO2Value_Label")
         self.SpO2Value_Label.setStyleSheet(Stylesheet)
 
-        self.SpO2Unidades_Label = QtWidgets.QLabel(Form)
+        self.SpO2Unidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.SpO2Unidades_Label.setGeometry(QtCore.QRect(pantalla_config.SpO2UnidadesLabel_CoordX1,
                                                                 pantalla_config.SpO2UnidadesLabel_CoordY,
                                                                 pantalla_config.SpO2UnidadesLabel_HorizSize,
@@ -550,7 +581,7 @@ class Ui_window(object):
         self.SpO2Unidades_Label.setObjectName("SpO2Unidades_Label")
         self.SpO2Unidades_Label.setStyleSheet(Stylesheet)
         
-        self.pressureLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.pressureLabel_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.pressureLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.pressureLabel_CoordX1,
                                                         pantalla_config.pressureLabel_CoordY,
                                                         pantalla_config.pressureLabel_HorizSize,
@@ -558,7 +589,7 @@ class Ui_window(object):
         self.pressureLabel_pushButton.setObjectName("pressureLabel_pushButton")
         self.pressureLabel_pushButton.setStyleSheet(Stylesheet)
 
-        self.pressureValue_Label = QtWidgets.QLabel(Form)
+        self.pressureValue_Label = QtWidgets.QLabel(self.defaultPage)
         self.pressureValue_Label.setGeometry(QtCore.QRect(pantalla_config.pressureValueLabel_CoordX1,
                                                             pantalla_config.pressureValueLabel_CoordY,
                                                             pantalla_config.pressureValueLabel_HorizSize,
@@ -566,7 +597,7 @@ class Ui_window(object):
         self.pressureValue_Label.setObjectName("pressureValue_Label")
         self.pressureValue_Label.setStyleSheet(Stylesheet)
 
-        self.pressureUnidades_Label = QtWidgets.QLabel(Form)
+        self.pressureUnidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.pressureUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.pressureUnidadesLabel_CoordX1,
                                                                 pantalla_config.pressureUnidadesLabel_CoordY,
                                                                 pantalla_config.pressureUnidadesLabel_HorizSize,
@@ -574,7 +605,7 @@ class Ui_window(object):
         self.pressureUnidades_Label.setObjectName("pressureUnidades_Label")
         self.pressureUnidades_Label.setStyleSheet(Stylesheet)
 
-        self.FRLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.FRLabel_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.FRLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.FRLabel_CoordX1,
                                                     pantalla_config.FRLabel_CoordY,
                                                     pantalla_config.FRLabel_HorizSize,
@@ -582,7 +613,7 @@ class Ui_window(object):
         self.FRLabel_pushButton.setObjectName("FRLabel_pushButton")
         self.FRLabel_pushButton.setStyleSheet(Stylesheet)
 
-        self.FRValue_Label = QtWidgets.QLabel(Form)
+        self.FRValue_Label = QtWidgets.QLabel(self.defaultPage)
         self.FRValue_Label.setGeometry(QtCore.QRect( pantalla_config.FRValueLabel_CoordX1,
                                                             pantalla_config.FRValueLabel_CoordY,
                                                             pantalla_config.FRValueLabel_HorizSize,
@@ -590,7 +621,7 @@ class Ui_window(object):
         self.FRValue_Label.setObjectName("FRValue_Label")
         self.FRValue_Label.setStyleSheet(Stylesheet)
 
-        self.FRUnidades_Label = QtWidgets.QLabel(Form)
+        self.FRUnidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.FRUnidades_Label.setGeometry(QtCore.QRect(pantalla_config.FRUnidadesLabel_CoordX1,
                                                                 pantalla_config.FRUnidadesLabel_CoordY,
                                                                 pantalla_config.FRUnidadesLabel_HorizSize,
@@ -598,7 +629,7 @@ class Ui_window(object):
         self.FRUnidades_Label.setObjectName("FRUnidades_Label")
         self.FRUnidades_Label.setStyleSheet(Stylesheet)
 
-        self.CO2Label_pushButton = QtWidgets.QPushButton(Form)
+        self.CO2Label_pushButton = QtWidgets.QPushButton(self.defaultPage)
         self.CO2Label_pushButton.setGeometry(QtCore.QRect(pantalla_config.CO2Label_CoordX1,
                                                         pantalla_config.CO2Label_CoordY,
                                                         pantalla_config.CO2Label_HorizSize,
@@ -606,7 +637,7 @@ class Ui_window(object):
         self.CO2Label_pushButton.setObjectName("CO2Label_pushButton")
         self.CO2Label_pushButton.setStyleSheet(Stylesheet)
 
-        self.CO2Value_Label = QtWidgets.QLabel(Form)
+        self.CO2Value_Label = QtWidgets.QLabel(self.defaultPage)
         self.CO2Value_Label.setGeometry(QtCore.QRect(pantalla_config.CO2ValueLabel_CoordX1,
                                                             pantalla_config.CO2ValueLabel_CoordY,
                                                             pantalla_config.CO2ValueLabel_HorizSize,
@@ -614,7 +645,7 @@ class Ui_window(object):
         self.CO2Value_Label.setObjectName("CO2Value_Label")
         self.CO2Value_Label.setStyleSheet(Stylesheet)
 
-        self.CO2Unidades_Label = QtWidgets.QLabel(Form)
+        self.CO2Unidades_Label = QtWidgets.QLabel(self.defaultPage)
         self.CO2Unidades_Label.setGeometry(QtCore.QRect(pantalla_config.CO2UnidadesLabel_CoordX1,
                                                                 pantalla_config.CO2UnidadesLabel_CoordY,
                                                                 pantalla_config.CO2UnidadesLabel_HorizSize,
@@ -632,6 +663,7 @@ class Ui_window(object):
 
 
         self.retranslateUi(Form)
+        self.stackedWidget.setCurrentIndex(0)
     
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
