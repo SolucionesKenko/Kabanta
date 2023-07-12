@@ -250,4 +250,50 @@ Stylesheet = """
     border-radius: 30px;
     border-color: rgb(50,50,50);
 }
+
+#CRPRateLabel_Label, #CRPTimeLabel_Label, #CRPFCTLabel_Label
+{
+    color: white;  
+    font: 13px;
+}
+ 
+
+#CPRLabel_pushButton
+{
+    background-color: rgb(50,50,50);  
+    border: 4px solid; 
+    border-radius: 36px;
+    border-color: rgb(221,224,232);
+}
+
+#CRPRateValue_Label, #CRPFCTValue_Label
+{
+    color: rgb(126,217,87);  
+    font: bold 19px;
+}
+
+#CRPTimeValue_Label
+{
+    color: rgb(254,22,27);  
+    font: bold 19px;
+}
+
+#pacerLabel_pushButton
+{
+    color: white;
+    background-color: rgb(0,127,55);  
+    border: 4px solid; 
+    border-radius: 36px;
+    border-color: white;
+}
+
+#defibLabel_pushButton
+{
+    color: white;
+    background-color: rgb(254,22,27);  
+    border: 4px solid; 
+    border-radius: 36px;
+    border-color: white;
+    font: bold 34px;
+}
 """

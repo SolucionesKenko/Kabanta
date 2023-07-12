@@ -39,7 +39,10 @@ CO = "7"
 class PageState (IntEnum):
     OFFPAGE = 0
     DEFAULTPAGE = 1
-    
+    CPRPAGE = 2
+    DEFIBPAGE = 3
+    PACERPAGE = 4
+
     
 
 
@@ -81,7 +84,7 @@ class MainWindow(QtWidgets.QWidget):
         self.r = deque()
 
         #Button Control
-        self.ui.DEFIB_pushButton.pressed.connect(self.displayHello)
+        self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
         self.ui.Charge_pushButton.pressed.connect(self.displayHello)
         self.ui.Shock_pushButton.pressed.connect(self.displayHello)
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
@@ -91,8 +94,8 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.returnMenu_pushButton.pressed.connect(self.onScanReturnButtonClicked)
 
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.CPRMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
+        self.ui.sizeMenu_pushButton.pressed.connect(self.onPacerButtonClicked)
         self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.DPO_pushButton.pressed.connect(self.displayHello)
         self.ui.DPR_pushButton.pressed.connect(self.displayHello)
@@ -105,7 +108,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.pause_RoundButton.pressed.connect(self.onPauseButtonClicked)
         self.ui.stop_RoundButton.pressed.connect(self.onStopButtonClicked)
         self.ui.question_RoundButton.pressed.connect(self.displayHello)
-        self.ui.OnOff_RoundButton.pressed.connect(self.onOnButtonClicked)
+        self.ui.OnOff_RoundButton.pressed.connect(self.onOnOffButtonClicked)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
         self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
 
@@ -198,7 +201,7 @@ class MainWindow(QtWidgets.QWidget):
             self.worker.encodeMesage(8,3)
             self.worker.sendMessage()
             
-    def onOnButtonClicked(self):
+    def onOnOffButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.OFFPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE)
@@ -206,6 +209,21 @@ class MainWindow(QtWidgets.QWidget):
         else:
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+
+    def onCPRButtonClicked(self):
+        if self.pageState != PageState.OFFPAGE:
+            self.pageState = PageState.CPRPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
+    
+    def onDEFIBButtonClicked(self):
+        if self.pageState != PageState.OFFPAGE:
+            self.pageState = PageState.DEFIBPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
+
+    def onPacerButtonClicked(self):
+        if self.pageState != PageState.OFFPAGE:
+            self.pageState = PageState.PACERPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
             
 
     def Update_Grahp(self):

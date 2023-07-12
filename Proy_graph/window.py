@@ -40,11 +40,6 @@ class Ui_window(object):
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectGrah_HorizSize, pantalla_config.roundRectGrah_VertSize, 30, 30)
         painter.end()
 
-        # print(pantalla_config.roundRectGrah_CoordX1)
-        # print(pantalla_config.roundRectGrah_CoordY1)
-        # print(pantalla_config.roundRectGrah_HorizSize)
-        # print(pantalla_config.roundRectGrah_VertSize)
-
         ### Round Rectangle for the DEFIB Charge and Shock button/Area
         self.roundRectDCS_Qpaint = QtWidgets.QLabel(Form)
         self.roundRectDCS_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectDCS_CoordX1-3,
@@ -103,12 +98,20 @@ class Ui_window(object):
         self.defaultPage = QtWidgets.QWidget()
         self.defaultPage.setObjectName("defaultPage")
 
+        self.cprPage = QtWidgets.QWidget()
+        self.cprPage.setObjectName("cprPage")
+
         self.defibPage = QtWidgets.QWidget()
         self.defibPage.setObjectName("defibPage")
 
+        self.pacerPage = QtWidgets.QWidget()
+        self.pacerPage.setObjectName("pacerPage")
+
         self.stackedWidget.addWidget(self.offPage)
         self.stackedWidget.addWidget(self.defaultPage)
+        self.stackedWidget.addWidget(self.cprPage)
         self.stackedWidget.addWidget(self.defibPage)
+        self.stackedWidget.addWidget(self.pacerPage)
 
         ### Widget de Layout vertical para la graficacion de senales 
         self.Graph_verticalLayoutWidget = QtWidgets.QWidget(self.defaultPage)
@@ -120,12 +123,6 @@ class Ui_window(object):
         self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
         self.plt = pg.PlotWidget()
         self.Graph_verticalLayout.addWidget(self.plt)
-
-        print("#### Medidas del Graph layoutgrah")
-        print(pantalla_config.grah_CoordX1)
-        print(pantalla_config.grah_CoordY1)
-        print(pantalla_config.grah_HorizSize)
-        print(pantalla_config.grah_VertSize)
 
         # Round Rectangle for Vital Signals
         self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(self.defaultPage)
@@ -150,13 +147,6 @@ class Ui_window(object):
         painter.setPen(pen)
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 30, 30)
         painter.end()
-        
-        print("###### valores de el Round Rectangle de signos vitales")
-        print(pantalla_config.roundRectVitalSignals_CoordX1)
-        print(pantalla_config.roundRectVitalSignals_CoordY1)
-        print(pantalla_config.roundRectVitalSignals_HorizSize)
-        print(pantalla_config.roundRectVitalSignals_VertSize)
-
 
         ### Widget Layout vertical para botones Defib, Charge, Shock
             #Push Button 
@@ -661,6 +651,86 @@ class Ui_window(object):
         self.port_comboBox.setObjectName("returnMenu_pushButton")
         self.port_comboBox.setStyleSheet(Stylesheet)
 
+        self.CPRLabel_pushButton = QtWidgets.QPushButton(self.cprPage)
+        self.CPRLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.CRPLabel_CoordX1,
+                                                        pantalla_config.CRPLabel_CoordY1,
+                                                        pantalla_config.CRPLabel_HorizSize,
+                                                        pantalla_config.CRPLabel_VertSize))
+        self.CPRLabel_pushButton.setObjectName("CPRLabel_pushButton")
+        self.CPRLabel_pushButton.setStyleSheet(Stylesheet)
+
+        self.CRPRateLabel_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPRateLabel_Label.setGeometry(QtCore.QRect(pantalla_config.CRPRateLabel_CoordX1,
+                                            pantalla_config.CRPRateLabel_CoordY1,
+                                            pantalla_config.CRPRateLabel_HorizSize,
+                                            pantalla_config.CRPRateLabel_VertSize))
+        self.CRPRateLabel_Label.setObjectName("CRPRateLabel_Label")
+        self.CRPRateLabel_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPRateLabel_Label.setStyleSheet(Stylesheet)
+
+        self.CRPRateValue_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPRateValue_Label.setGeometry(QtCore.QRect(pantalla_config.CRPRateValue_CoordX1,
+                                            pantalla_config.CRPRateValue_CoordY1,
+                                            pantalla_config.CRPRateValue_HorizSize,
+                                            pantalla_config.CRPRateValue_VertSize))
+        self.CRPRateValue_Label.setObjectName("CRPRateValue_Label")
+        self.CRPRateValue_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPRateValue_Label.setStyleSheet(Stylesheet)
+
+        self.CRPTimeLabel_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPTimeLabel_Label.setGeometry(QtCore.QRect(pantalla_config.CRPTimeLabel_CoordX1,
+                                            pantalla_config.CRPTimeLabel_CoordY1,
+                                            pantalla_config.CRPTimeLabel_HorizSize,
+                                            pantalla_config.CRPTimeLabel_VertSize))
+        self.CRPTimeLabel_Label.setObjectName("CRPTimeLabel_Label")
+        self.CRPTimeLabel_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPTimeLabel_Label.setStyleSheet(Stylesheet)
+
+        self.CRPTimeValue_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPTimeValue_Label.setGeometry(QtCore.QRect(pantalla_config.CRPTimeValue_CoordX1,
+                                            pantalla_config.CRPTimeValue_CoordY1,
+                                            pantalla_config.CRPTimeValue_HorizSize,
+                                            pantalla_config.CRPTimeValue_VertSize))
+        self.CRPTimeValue_Label.setObjectName("CRPTimeValue_Label")
+        self.CRPTimeValue_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPTimeValue_Label.setStyleSheet(Stylesheet)
+
+        self.CRPFCTLabel_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPFCTLabel_Label.setGeometry(QtCore.QRect(pantalla_config.CRPFCTLabel_CoordX1,
+                                            pantalla_config.CRPFCTLabel_CoordY1,
+                                            pantalla_config.CRPFCTLabel_HorizSize,
+                                            pantalla_config.CRPFCTLabel_VertSize))
+        self.CRPFCTLabel_Label.setObjectName("CRPFCTLabel_Label")
+        self.CRPFCTLabel_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPFCTLabel_Label.setStyleSheet(Stylesheet)
+
+        self.CRPFCTValue_Label = QtWidgets.QLabel(self.cprPage)
+        self.CRPFCTValue_Label.setGeometry(QtCore.QRect(pantalla_config.CRPFCTValue_CoordX1,
+                                            pantalla_config.CRPFCTValue_CoordY1,
+                                            pantalla_config.CRPFCTValue_HorizSize,
+                                            pantalla_config.CRPFCTValue_VertSize))
+        self.CRPFCTValue_Label.setObjectName("CRPFCTValue_Label")
+        self.CRPFCTValue_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.CRPFCTValue_Label.setStyleSheet(Stylesheet)
+
+        self.defibLabel_pushButton = QtWidgets.QPushButton(self.defibPage)
+        self.defibLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.defibLabel_CoordX1,
+                                                pantalla_config.defibLabel_CoordY1,
+                                                pantalla_config.defibLabel_HorizSize,
+                                                pantalla_config.defibLabel_VertSize))
+        self.defibLabel_pushButton.setObjectName("defibLabel_pushButton")
+        self.defibLabel_pushButton.setStyleSheet(Stylesheet)
+
+        self.pacerLabel_pushButton =QtWidgets.QPushButton(self.pacerPage)
+        self.pacerLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.pacerLabel_CoordX1,
+                                                pantalla_config.pacerLabel_CoordY1,
+                                                pantalla_config.pacerLabel_HorizSize,
+                                                pantalla_config.pacerLabel_VertSize))
+        self.pacerLabel_pushButton.setObjectName("pacerLabel_pushButton")
+        self.pacerLabel_pushButton.setStyleSheet(Stylesheet)
+
+
+
 
         self.retranslateUi(Form)
         self.stackedWidget.setCurrentIndex(0)
@@ -708,6 +778,13 @@ class Ui_window(object):
         self.CO2Label_pushButton.setText(_translate('Form','CO2 Level'))
         self.CO2Value_Label.setText(_translate('Form','- - -'))
         self.CO2Unidades_Label.setText(_translate('Form','mmHg'))
+        self.CRPRateLabel_Label.setText(_translate('Form','Rate (cpm)'))
+        self.CRPRateValue_Label.setText(_translate('Form','110'))
+        self.CRPTimeLabel_Label.setText(_translate('Form','CPR Time'))
+        self.CRPTimeValue_Label.setText(_translate('Form','00:00'))
+        self.CRPFCTLabel_Label.setText(_translate('Form','FCT'))
+        self.CRPFCTValue_Label.setText(_translate('Form','100%'))
+        self.defibLabel_pushButton.setText(_translate('Form','DEFIB 0 J SEL\nBIFASICO'))
 
 
         
