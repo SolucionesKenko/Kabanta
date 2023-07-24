@@ -3,7 +3,7 @@
 # Informacion 
 # https://www.pythonguis.com/tutorials/plotting-pyqtgraph/
 from PyQt5 import QtWidgets, QtCore
-#import pyqtgraph as pg 
+import pyqtgraph as pg 
 import sys 
 import numpy as np
 from data_test import ecg_signal, obtainSignals
@@ -19,6 +19,8 @@ from serialCoder import SerialCoder
 
 from enum import Enum, auto, IntEnum
 import spo
+import co2
+import bp
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 
@@ -43,15 +45,12 @@ class PageState (IntEnum):
     DEFIBPAGE = 3
     PACERPAGE = 4
 
-    
-
-
-
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
+        self.graphlength = 2000
         
         #Session
         self.signalState = SignalState.Idle
@@ -65,6 +64,8 @@ class MainWindow(QtWidgets.QWidget):
         self.i = 0
         self.parserState = ParserState.Type
         self.spo = spo.SPO()
+        self.co2 = co2.CO2()
+        self.bp =bp.BloodPressure()
         self.i_rsp = 0
         self.adder = 0
         # Manejo de tiempos
@@ -122,20 +123,66 @@ class MainWindow(QtWidgets.QWidget):
     # Funtiones del Interfaz Grafica (GUI)
     def initSignalGrahps(self):
         #Eje en x 
-        self.x = list(range(500))
+        self.x = list(range(self.graphlength))
         # Senales Derivaciones cardiacas
         #self.der1 = [0 for i in self.x]
-        self.channel1 = [-0 for i in self.x]
-        self.channel2 = [-4 for i in self.x]
-        self.channel3 = [-8 for i in self.x]
-        self.channel4 = [-12 for i in self.x]
-        self.channel5 = [-16 for i in self.x]
+        self.channel1 = [130 for i in self.x]
+        self.channel2 = [110 for i in self.x]
+        self.channel3 = [90 for i in self.x]
+        # self.channel4 = [-12 for i in self.x]
+        # self.channel5 = [-16 for i in self.x]
         
-        self.data_line_ppg = self.ui.plt.plot(pen = (134,234,233))
-        self.data_line_rsp = self.ui.plt.plot(pen = (255,222,89))
+        self.data_line_ppg = self.ui.plt.plot(self.x,[70]*self.graphlength, pen = (134,234,233))
+        self.data_line_rsp = self.ui.plt.plot(self.x, [30]*self.graphlength, pen = (255,222,89))
         self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
         self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
         self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
+        self.data_line_co2 = self.ui.plt.plot(self.x,[10]*self.graphlength, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
+        self.data_line_bp = self.ui.plt.plot(self.x,[50]*self.graphlength, pen = (136,51,64))
+
+        # self.data_line_ppg = self.ui.plt.plot(pen = (134,234,233))
+        # self.data_line_rsp = self.ui.plt.plot(pen = (255,222,89))
+        # self.data_line_channel1 = self.ui.plt.plot(pen = (162,249,161))
+        # self.data_line_channel2 = self.ui.plt.plot( pen = (162,249,161))
+        # self.data_line_channel3 = self.ui.plt.plot(pen = (162,249,161))
+        # self.data_line_co2 = self.ui.plt.plot(pen = (162,249,161))
+        
+        # getting plot item
+        # self.ui.plt.getPlotItem().hideAxis('bottom')
+        self.ui.plt.getPlotItem().hideAxis('left')
+        self.plot_size = self.ui.plt.getPlotItem().height()
+        self.plot_x = self.ui.plt.getPlotItem().viewGeometry()
+ 
+        # printing the value
+        # print("plot : ")
+        # print(self.plot_size)
+
+        # print("plot x : ")
+        # print(self.plot_x)
+
+        self.ui.plt.setYRange(0, 140)
+
+        self.d1text = pg.TextItem('I', color = (162,249,161))
+        self.d1text.setPos(-100, 130)
+        self.ui.plt.addItem(self.d1text)
+        self.d2text = pg.TextItem('II', color = (162,249,161))
+        self.d2text.setPos(-100, 110)
+        self.ui.plt.addItem(self.d2text)
+        self.d3text = pg.TextItem('III', color = (162,249,161))
+        self.d3text.setPos(-100, 90)
+        self.ui.plt.addItem(self.d3text)
+        self.plethtext = pg.TextItem('Pleth', color = (134,234,233))
+        self.plethtext.setPos(-150, 70)
+        self.ui.plt.addItem(self.plethtext)
+        self.prestext = pg.TextItem('ABP', color= (136,51,64))
+        self.prestext.setPos(-150, 50)
+        self.ui.plt.addItem(self.prestext)
+        self.resptext = pg.TextItem('Resp', color = (255,222,89))
+        self.resptext.setPos(-150, 30)
+        self.ui.plt.addItem(self.resptext)
+        self.co2text = pg.TextItem('CO2', color = (171,171,171))
+        self.co2text.setPos(-100, 10)
+        self.ui.plt.addItem(self.co2text)
         
         # Futuro inicializacion de senales
         # self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
@@ -207,6 +254,26 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE)
             
         else:
+            self.ui.simulationTimeValue_pushButton.setHidden(False)
+            self.ui.simulationTimeLabel_Label.setHidden(False)
+            self.ui.heartRateLabel_pushButton.setHidden(False)
+            self.ui.heartRateValue_Label.setHidden(False)
+            self.ui.heartRateUnidades_Label.setHidden(False)
+            self.ui.tempLabel_pushButton.setHidden(False)
+            self.ui.tempValue_Label.setHidden(False)
+            self.ui.tempUnidades_Label.setHidden(False)
+            self.ui.SpO2Label_pushButton.setHidden(False)
+            self.ui.SpO2Value_Label.setHidden(False)
+            self.ui.SpO2Unidades_Label.setHidden(False)
+            self.ui.pressureLabel_pushButton.setHidden(False)
+            self.ui.pressureValue_Label.setHidden(False)
+            self.ui.pressureUnidades_Label.setHidden(False)
+            self.ui.FRLabel_pushButton.setHidden(False)
+            self.ui.FRValue_Label.setHidden(False)
+            self.ui.FRUnidades_Label.setHidden(False)
+            self.ui.CO2Label_pushButton.setHidden(False)
+            self.ui.CO2Value_Label.setHidden(False)
+            self.ui.CO2Unidades_Label.setHidden(False)
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
 
@@ -231,7 +298,7 @@ class MainWindow(QtWidgets.QWidget):
             self.adder = 0
         if(self.i_rsp >= 9999):
             self.i_rsp = 0
-        while(self.i > 499):
+        while(self.i > self.graphlength-1):
             self.i = self.i - 1
             self.r.popleft()
 
@@ -242,19 +309,30 @@ class MainWindow(QtWidgets.QWidget):
         self.x.append(self.x[-1] + 1)  # Add a new value 1 higher than the last.
 
         self.channel1 = self.channel1[1:]                   # Remove the first
-        self.channel1.append(self.ecg12['I'][self.adder])   # Add a new random value.
+        self.channel1.append((self.ecg12['I'][self.adder]*10) + 130)   # Add a new random value.
 
         self.channel2 = self.channel2[1:]                   # Remove the first
-        self.channel2.append(self.ecg12['II'][self.adder]-4)# Add a new random value.
+        self.channel2.append((self.ecg12['II'][self.adder]*10)+ 110)# Add a new random value.
 
         self.channel3 = self.channel3[1:] 
-        self.channel3.append(self.ecg12["III"][self.adder]-8)  # Add a new random value.
+        self.channel3.append((self.ecg12["III"][self.adder]*10) + 90)  # Add a new random value.
 
-        self.r.append((self.rsp[self.i_rsp])-12)
-
+        self.r.append((self.rsp[self.i_rsp]*10) + 30)
+        print(self.x[0])
+        self.d1text.setPos(self.x[0]-100, 130)
+        self.d2text.setPos(self.x[0]-100, 110)
+        self.d3text.setPos(self.x[0]-100, 90)
+        self.plethtext.setPos(self.x[0]-150, 70)
+        self.prestext.setPos(self.x[0]-150, 50)
+        self.resptext.setPos(self.x[0]-150, 30)
+        self.co2text.setPos(self.x[0]-100, 10)
         self.spo.update_plot()
+        self.co2.update_plot()
+        self.bp.update_plot()
         self.data_line_rsp.setData(self.x, self.r)
         self.data_line_ppg.setData(self.x, list(self.spo.dataIR)[1:])
+        self.data_line_co2.setData(self.x, list(self.co2.data)[0:self.graphlength])
+        self.data_line_bp.setData(self.x, list(self.bp.data)[0:self.graphlength])
         self.data_line_channel1.setData(self.x, self.channel1)
         self.data_line_channel2.setData(self.x, self.channel2)
         self.data_line_channel3.setData(self.x, self.channel3)

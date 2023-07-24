@@ -3,14 +3,13 @@ from typing import Any, Union, List
 from time import time
 
 import numpy as np
-from time import time
 import scipy.io as sio
 
 from collections import deque
 from multiprocessing import Queue
 
 # @brief Buffer size for the data (number of points in the plot)
-N_SAMPLES = 501
+N_SAMPLES = 2001
 # @brief Update time of the plot, in ms
 PLOT_UPDATE_TIME = 1
 # @brief Point to update in each redraw
@@ -27,8 +26,8 @@ class SPO():
         self.timestamp = 0.0
         self.ampR = 0.4  # amplitude for Red signal
         self.ampIR = 0.270  # amplitude for InfraRed signal
-        self.minR = 1.45  # Displacement from zero for Red signal
-        self.minIR = 1.45  # Displacement from zero for Red signal
+        self.minR = 0.45  # Displacement from zero for Red signal
+        self.minIR = 0.45  # Displacement from zero for Red signal
         
         self.init_values(self.ampR, self.ampIR, 60, 100)
         self.spo2sl_change(100)
@@ -108,8 +107,8 @@ class SPO():
 
         # store data into variables 
         self.time.append(self.tPPG)
-        self.dataR.append(self.sR)
-        self.dataIR.append(self.sIR)
+        self.dataR.append(self.sR*8+70)
+        self.dataIR.append(self.sIR*8+70)
     
     def reset_buffers(self):
         self.dataR.clear()
