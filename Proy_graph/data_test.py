@@ -18,7 +18,7 @@ class obtainSignals():
     
     @staticmethod
     def generate_rsp():
-        rsp = nk.rsp_simulate(duration=10, respiratory_rate=15)
+        rsp = nk.rsp_simulate(duration=10, respiratory_rate=100, method="sinusoidal")
         return rsp
 
         
