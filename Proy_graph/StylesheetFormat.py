@@ -296,4 +296,15 @@ Stylesheet = """
     border-color: white;
     font: bold 34px;
 }
+
+#pacerLabelText_Label
+{
+    color: white;
+    font: bold 34px;
+}
+#pacerValuemA_Label, #pacerValueppm_Label
+{
+    color: white;
+    font:  24px;
+}
 """

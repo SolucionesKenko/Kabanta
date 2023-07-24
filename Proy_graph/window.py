@@ -84,6 +84,18 @@ class Ui_window(object):
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectMCP_HorizSize, pantalla_config.roundRectMCP_VertSize, 30, 30)
         painter.end()
 
+        ### Widget de Layout vertical para la graficacion de senales 
+        self.Graph_verticalLayoutWidget = QtWidgets.QWidget(Form)
+        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.grah_CoordX1,
+                                                                pantalla_config.grah_CoordY1, 
+                                                                pantalla_config.grah_HorizSize, 
+                                                                pantalla_config.grah_VertSize))
+        self.Graph_verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
+        self.plt = pg.PlotWidget()
+        self.Graph_verticalLayout.addWidget(self.plt)
+        self.Graph_verticalLayoutWidget.setHidden(True)
+
         ### todo Stacked widget
         self.stackedWidget = QtWidgets.QStackedWidget(Form)
         self.stackedWidget.setGeometry(QtCore.QRect(pantalla_config.stackedWidget_CoordX1,
@@ -113,19 +125,8 @@ class Ui_window(object):
         self.stackedWidget.addWidget(self.defibPage)
         self.stackedWidget.addWidget(self.pacerPage)
 
-        ### Widget de Layout vertical para la graficacion de senales 
-        self.Graph_verticalLayoutWidget = QtWidgets.QWidget(self.defaultPage)
-        self.Graph_verticalLayoutWidget.setGeometry(QtCore.QRect(pantalla_config.grah_CoordX1,
-                                                                pantalla_config.grah_CoordY1, 
-                                                                pantalla_config.grah_HorizSize, 
-                                                                pantalla_config.grah_VertSize))
-        self.Graph_verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.Graph_verticalLayout = QtWidgets.QVBoxLayout(self.Graph_verticalLayoutWidget)
-        self.plt = pg.PlotWidget()
-        self.Graph_verticalLayout.addWidget(self.plt)
-
         # Round Rectangle for Vital Signals
-        self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(self.defaultPage)
+        self.roundRectVitalSignals_Qpaint = QtWidgets.QLabel(Form)
         self.roundRectVitalSignals_Qpaint.setGeometry(QtCore.QRect(pantalla_config.roundRectVitalSignals_CoordX1-3,
                                             pantalla_config.roundRectVitalSignals_CoordY1-3,
                                             pantalla_config.roundRectVitalSignals_HorizSize+6,
@@ -147,6 +148,7 @@ class Ui_window(object):
         painter.setPen(pen)
         painter.drawRoundedRect(3, 3,pantalla_config.roundRectVitalSignals_HorizSize, pantalla_config.roundRectVitalSignals_VertSize, 30, 30)
         painter.end()
+        self.roundRectVitalSignals_Qpaint.setHidden(True)
 
         ### Widget Layout vertical para botones Defib, Charge, Shock
             #Push Button 
@@ -749,8 +751,32 @@ class Ui_window(object):
         self.pacerLabel_pushButton.setObjectName("pacerLabel_pushButton")
         self.pacerLabel_pushButton.setStyleSheet(Stylesheet)
 
+        self.pacerLabelText_Label = QtWidgets.QLabel(self.pacerPage)
+        self.pacerLabelText_Label.setGeometry(QtCore.QRect(pantalla_config.pacerLabelText_CoordX1,
+                                                            pantalla_config.pacerLabelText_CoordY1,
+                                                            pantalla_config.pacerLabelText_HorizSize,
+                                                            pantalla_config.pacerLabelText_VertSize))
+        self.pacerLabelText_Label.setObjectName("pacerLabelText_Label")
+        self.pacerLabelText_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.pacerLabelText_Label.setStyleSheet(Stylesheet)
 
+        self.pacerValuemA_Label = QtWidgets.QLabel(self.pacerPage)
+        self.pacerValuemA_Label.setGeometry(QtCore.QRect(pantalla_config.pacerValuemA_CoordX1,
+                                                        pantalla_config.pacerValuemA_CoordY1,
+                                                        pantalla_config.pacerValuemA_HorizSize,
+                                                        pantalla_config.pacerValuemA_VertSize))
+        self.pacerValuemA_Label.setObjectName("pacerValuemA_Label")
+        self.pacerValuemA_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.pacerValuemA_Label.setStyleSheet(Stylesheet)
 
+        self.pacerValueppm_Label = QtWidgets.QLabel(self.pacerPage)
+        self.pacerValueppm_Label.setGeometry(QtCore.QRect(pantalla_config.pacerValueppm_CoordX1,
+                                                        pantalla_config.pacerValueppm_CoordY1,
+                                                        pantalla_config.pacerValueppm_HorizSize,
+                                                        pantalla_config.pacerValueppm_VertSize))
+        self.pacerValueppm_Label.setObjectName("pacerValueppm_Label")
+        self.pacerValueppm_Label.setAlignment(QtCore.Qt.AlignCenter)
+        self.pacerValueppm_Label.setStyleSheet(Stylesheet)
 
         self.retranslateUi(Form)
         self.stackedWidget.setCurrentIndex(0)
@@ -805,6 +831,9 @@ class Ui_window(object):
         self.CRPFCTLabel_Label.setText(_translate('Form','FCT'))
         self.CRPFCTValue_Label.setText(_translate('Form','100%'))
         self.defibLabel_pushButton.setText(_translate('Form','DEFIB 0 J SEL\nBIFASICO'))
+        self.pacerLabelText_Label.setText(_translate('Form',"PACEMAKER"))
+        self.pacerValuemA_Label.setText(_translate('Form',"18 mA"))
+        self.pacerValueppm_Label.setText(_translate('Form',"70 ppm"))
 
 
         

@@ -139,13 +139,6 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
         self.data_line_co2 = self.ui.plt.plot(self.x,[10]*self.graphlength, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
         self.data_line_bp = self.ui.plt.plot(self.x,[50]*self.graphlength, pen = (136,51,64))
-
-        # self.data_line_ppg = self.ui.plt.plot(pen = (134,234,233))
-        # self.data_line_rsp = self.ui.plt.plot(pen = (255,222,89))
-        # self.data_line_channel1 = self.ui.plt.plot(pen = (162,249,161))
-        # self.data_line_channel2 = self.ui.plt.plot( pen = (162,249,161))
-        # self.data_line_channel3 = self.ui.plt.plot(pen = (162,249,161))
-        # self.data_line_co2 = self.ui.plt.plot(pen = (162,249,161))
         
         # getting plot item
         # self.ui.plt.getPlotItem().hideAxis('bottom')
@@ -187,6 +180,33 @@ class MainWindow(QtWidgets.QWidget):
         # Futuro inicializacion de senales
         # self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
         # self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (255,222,89))
+
+    ##########################################################################################
+    # Funciones Callbacks de botones
+    def enableDisableVitalSignalMenu(self,status):
+        self.ui.simulationTimeValue_pushButton.setHidden(status)
+        self.ui.simulationTimeLabel_Label.setHidden(status)
+        self.ui.heartRateLabel_pushButton.setHidden(status)
+        self.ui.heartRateValue_Label.setHidden(status)
+        self.ui.heartRateUnidades_Label.setHidden(status)
+        self.ui.tempLabel_pushButton.setHidden(status)
+        self.ui.tempValue_Label.setHidden(status)
+        self.ui.tempUnidades_Label.setHidden(status)
+        self.ui.SpO2Label_pushButton.setHidden(status)
+        self.ui.SpO2Value_Label.setHidden(status)
+        self.ui.SpO2Unidades_Label.setHidden(status)
+        self.ui.pressureLabel_pushButton.setHidden(status)
+        self.ui.pressureValue_Label.setHidden(status)
+        self.ui.pressureUnidades_Label.setHidden(status)
+        self.ui.FRLabel_pushButton.setHidden(status)
+        self.ui.FRValue_Label.setHidden(status)
+        self.ui.FRUnidades_Label.setHidden(status)
+        self.ui.CO2Label_pushButton.setHidden(status)
+        self.ui.CO2Value_Label.setHidden(status)
+        self.ui.CO2Unidades_Label.setHidden(status)
+        self.ui.roundRectVitalSignals_Qpaint.setHidden(status)
+        self.ui.Graph_verticalLayoutWidget.setHidden(status)
+        
 
     def onPlayButtonClicked(self):
         
@@ -251,46 +271,31 @@ class MainWindow(QtWidgets.QWidget):
     def onOnOffButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.OFFPAGE
-            self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE)
-            
+            self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE) 
+            self.enableDisableVitalSignalMenu(True) 
         else:
-            self.ui.simulationTimeValue_pushButton.setHidden(False)
-            self.ui.simulationTimeLabel_Label.setHidden(False)
-            self.ui.heartRateLabel_pushButton.setHidden(False)
-            self.ui.heartRateValue_Label.setHidden(False)
-            self.ui.heartRateUnidades_Label.setHidden(False)
-            self.ui.tempLabel_pushButton.setHidden(False)
-            self.ui.tempValue_Label.setHidden(False)
-            self.ui.tempUnidades_Label.setHidden(False)
-            self.ui.SpO2Label_pushButton.setHidden(False)
-            self.ui.SpO2Value_Label.setHidden(False)
-            self.ui.SpO2Unidades_Label.setHidden(False)
-            self.ui.pressureLabel_pushButton.setHidden(False)
-            self.ui.pressureValue_Label.setHidden(False)
-            self.ui.pressureUnidades_Label.setHidden(False)
-            self.ui.FRLabel_pushButton.setHidden(False)
-            self.ui.FRValue_Label.setHidden(False)
-            self.ui.FRUnidades_Label.setHidden(False)
-            self.ui.CO2Label_pushButton.setHidden(False)
-            self.ui.CO2Value_Label.setHidden(False)
-            self.ui.CO2Unidades_Label.setHidden(False)
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.enableDisableVitalSignalMenu(False)
+    
 
     def onCPRButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.CPRPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
+            print(PageState.CPRPAGE)
     
     def onDEFIBButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.DEFIBPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
+            print(PageState.DEFIBPAGE)
 
     def onPacerButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
+            print(PageState.PACERPAGE)
             
 
     def Update_Grahp(self):
@@ -318,7 +323,7 @@ class MainWindow(QtWidgets.QWidget):
         self.channel3.append((self.ecg12["III"][self.adder]*10) + 90)  # Add a new random value.
 
         self.r.append((self.rsp[self.i_rsp]*10) + 30)
-        print(self.x[0])
+        #print(self.x[0])
         self.d1text.setPos(self.x[0]-100, 130)
         self.d2text.setPos(self.x[0]-100, 110)
         self.d3text.setPos(self.x[0]-100, 90)

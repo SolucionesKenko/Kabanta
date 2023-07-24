@@ -17,8 +17,8 @@ roundRectGrah_CoordY1 = round(Vert_size*0.0383)
 # Medidas Coordenadas y dimenciones del Graph_verticalLayoutWidget en StackedWidget
 grah_HorizSize = round(Horiz_size*0.5812)
 grah_VertSize = round(Vert_size*0.8553)
-grah_CoordX1 = round(Horiz_size*0.0221)- stackedWidget_CoordX1
-grah_CoordY1 = round(Vert_size*0.0383) - stackedWidget_CoordY1
+grah_CoordX1 = round(Horiz_size*0.0221)
+grah_CoordY1 = round(Vert_size*0.0383) 
 
 # Medidas Coordenadas y dimenciones de PPSQ_HorizontalLayoutWidget, 
 # botones de Play, Pause, Stop, y On/Off
@@ -240,118 +240,118 @@ versionLabel_VertSize = round(Vert_size*0.0240)    #
 # # Medidas Coordenadas y dimenciones de simulation time 
 # # Formula                                           # Cordenada Original   1920 - 1080
 
-simulationTimeValue_CoordX1 = round(Horiz_size*0.6130)-stackedWidget_CoordX1 + 40    # 
-simulationTimeValue_CoordY = round(Vert_size*0.1064)- stackedWidget_CoordY1      # 
+simulationTimeValue_CoordX1 = round(Horiz_size*0.6130)    # 
+simulationTimeValue_CoordY = round(Vert_size*0.1064)      # 
 simulationTimeValue_HorizSize = round(Horiz_size*0.0947)     # 
 simulationTimeValue_VertSize = round(Vert_size*0.0555)  
 
-simulationTimeLabel_CoordX1 = round(Horiz_size*0.6177)-stackedWidget_CoordX1+40        # 
-simulationTimeLabel_CoordY = round(Vert_size*0.0851)- stackedWidget_CoordY1         # 
+simulationTimeLabel_CoordX1 = round(Horiz_size*0.6177)       # 
+simulationTimeLabel_CoordY = round(Vert_size*0.0851)         # 
 simulationTimeLabel_HorizSize = round(Horiz_size*0.8541)     # 
 simulationTimeLabel_VertSize = round(Vert_size*0.0203) 
 
 # Medidas Coordenadas y dimenciones de Heart Rate 
 # Formula                                               # Cordenada Original   1920 - 1080
-heartRateLabel_CoordX1 = round(Horiz_size*0.6151)- stackedWidget_CoordX1 + 40       # 
-heartRateLabel_CoordY = round(Vert_size*0.2626)-stackedWidget_CoordY1        # 
+heartRateLabel_CoordX1 = round(Horiz_size*0.6151)      # 
+heartRateLabel_CoordY = round(Vert_size*0.2626)      # 
 heartRateLabel_HorizSize = round(Horiz_size*0.0744)     # 
 heartRateLabel_VertSize = round(Vert_size*0.0314)       #  
 
-heartRateValueLabel_CoordX1 = round(Horiz_size*0.6151)- stackedWidget_CoordX1 + 40    # 
-heartRateValueLabel_CoordY = round(Vert_size*0.2043)-stackedWidget_CoordY1        # 
+heartRateValueLabel_CoordX1 = round(Horiz_size*0.6151)   # 
+heartRateValueLabel_CoordY = round(Vert_size*0.2043)        # 
 heartRateValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 heartRateValueLabel_VertSize = round(Vert_size*0.05833) 
 
-heartRateUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1 + 40    # 
-heartRateUnidadesLabel_CoordY = round(Vert_size*0.2330)-stackedWidget_CoordY1        # 
+heartRateUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)    # 
+heartRateUnidadesLabel_CoordY = round(Vert_size*0.2330)        # 
 heartRateUnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 heartRateUnidadesLabel_VertSize = round(Vert_size*0.02592) 
 
 # Medidas Coordenadas y dimenciones de temp 
 # Formula                                           # Cordenada Original   1920 - 1080
-tempLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1 + 40     # 
-tempLabel_CoordY = round(Vert_size*0.3744)-stackedWidget_CoordY1         # 
+tempLabel_CoordX1 = round(Horiz_size*0.6151)     # 
+tempLabel_CoordY = round(Vert_size*0.3744)         # 
 tempLabel_HorizSize = round(Horiz_size*0.0744)      # 
 tempLabel_VertSize = round(Vert_size*0.0314)        #  
 
-tempValueLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40        # 
-tempValueLabel_CoordY = round(Vert_size*0.3206)-stackedWidget_CoordY1        # 
+tempValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+tempValueLabel_CoordY = round(Vert_size*0.3206)       # 
 tempValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 tempValueLabel_VertSize = round(Vert_size*0.05833) 
 
-tempUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1+40      # 
-tempUnidadesLabel_CoordY = round(Vert_size*0.3395)-stackedWidget_CoordY1        # 
+tempUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)      # 
+tempUnidadesLabel_CoordY = round(Vert_size*0.3395)       # 
 tempUnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 tempUnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de SpO2 
 # Formula                                           # Cordenada Original   1920 - 1080
-SpO2Label_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40       # 
-SpO2Label_CoordY = round(Vert_size*0.4862)-stackedWidget_CoordY1         # 
+SpO2Label_CoordX1 = round(Horiz_size*0.6151)      # 
+SpO2Label_CoordY = round(Vert_size*0.4862)         # 
 SpO2Label_HorizSize = round(Horiz_size*0.0744)      # 
 SpO2Label_VertSize = round(Vert_size*0.0314)        #  
 
-SpO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40      # 
-SpO2ValueLabel_CoordY = round(Vert_size*0.4325)-stackedWidget_CoordY1       # 
+SpO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)      # 
+SpO2ValueLabel_CoordY = round(Vert_size*0.4325)       # 
 SpO2ValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 SpO2ValueLabel_VertSize = round(Vert_size*0.05833) 
 
-SpO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1+40       # 
-SpO2UnidadesLabel_CoordY = round(Vert_size*0.4569)-stackedWidget_CoordY1        # 
+SpO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6704)      # 
+SpO2UnidadesLabel_CoordY = round(Vert_size*0.4569)        # 
 SpO2UnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 SpO2UnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de Pressure 
 # Formula                                           # Cordenada Original   1920 - 1080
-pressureLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40     # 
-pressureLabel_CoordY = round(Vert_size*0.5980)-stackedWidget_CoordY1      # 
+pressureLabel_CoordX1 = round(Horiz_size*0.6151)     # 
+pressureLabel_CoordY = round(Vert_size*0.5980)     # 
 pressureLabel_HorizSize = round(Horiz_size*0.0744)  # 
 pressureLabel_VertSize = round(Vert_size*0.0314)    #  
 
-pressureValueLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40       # 
-pressureValueLabel_CoordY = round(Vert_size*0.5444)-stackedWidget_CoordY1        # 
+pressureValueLabel_CoordX1 = round(Horiz_size*0.6151)       # 
+pressureValueLabel_CoordY = round(Vert_size*0.5444)        # 
 pressureValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 pressureValueLabel_VertSize = round(Vert_size*0.05833) 
 
-pressureUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1+40       # 
-pressureUnidadesLabel_CoordY = round(Vert_size*0.5747)-stackedWidget_CoordY1        # 
+pressureUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)       # 
+pressureUnidadesLabel_CoordY = round(Vert_size*0.5747)        # 
 pressureUnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 pressureUnidadesLabel_VertSize = round(Vert_size*0.02592) 
 # Medidas Coordenadas y dimenciones de  FR 
 # Formula                                           # Cordenada Original   1920 - 1080
-FRLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40        # 
-FRLabel_CoordY = round(Vert_size*0.7098)-stackedWidget_CoordY1           # 
+FRLabel_CoordX1 = round(Horiz_size*0.6151)        # 
+FRLabel_CoordY = round(Vert_size*0.7098)          # 
 FRLabel_HorizSize = round(Horiz_size*0.0744)        # 
 FRLabel_VertSize = round(Vert_size*0.0314)          #  
 
-FRValueLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40       # 
-FRValueLabel_CoordY = round(Vert_size*0.6551)-stackedWidget_CoordY1       # 
+FRValueLabel_CoordX1 = round(Horiz_size*0.6151)      # 
+FRValueLabel_CoordY = round(Vert_size*0.6551)      # 
 FRValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 FRValueLabel_VertSize = round(Vert_size*0.05833) 
 
-FRUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1+40        # 
-FRUnidadesLabel_CoordY = round(Vert_size*0.6820)-stackedWidget_CoordY1        # 
+FRUnidadesLabel_CoordX1 = round(Horiz_size*0.6704)       # 
+FRUnidadesLabel_CoordY = round(Vert_size*0.6820)       # 
 FRUnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 FRUnidadesLabel_VertSize = round(Vert_size*0.02592)
 # Medidas Coordenadas y dimenciones de  CO2 
 # Formula                                           # Cordenada Original   1920 - 1080
-CO2Label_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40          # 
-CO2Label_CoordY = round(Vert_size*0.8261)-stackedWidget_CoordY1          # 
+CO2Label_CoordX1 = round(Horiz_size*0.6151)          # 
+CO2Label_CoordY = round(Vert_size*0.8261)         # 
 CO2Label_HorizSize = round(Horiz_size*0.0744)       # 
 CO2Label_VertSize = round(Vert_size*0.0314)         #  
 
-CO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)-stackedWidget_CoordX1+40      # 
-CO2ValueLabel_CoordY = round(Vert_size*0.7705)-stackedWidget_CoordY1        # 
+CO2ValueLabel_CoordX1 = round(Horiz_size*0.6151)      # 
+CO2ValueLabel_CoordY = round(Vert_size*0.7705)        # 
 CO2ValueLabel_HorizSize = round(Horiz_size*0.0557)     # 
 CO2ValueLabel_VertSize = round(Vert_size*0.05833) 
 
-CO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6704)-stackedWidget_CoordX1+40       # 
-CO2UnidadesLabel_CoordY = round(Vert_size*0.8000)-stackedWidget_CoordY1        # 
+CO2UnidadesLabel_CoordX1 = round(Horiz_size*0.6704)       # 
+CO2UnidadesLabel_CoordY = round(Vert_size*0.8000)       # 
 CO2UnidadesLabel_HorizSize = round(Horiz_size*0.0400)     # 
 CO2UnidadesLabel_VertSize = round(Vert_size*0.02592)
 
-# Medidas Coordenadas y dimenciones del RoundRectVitalSignals en StackedWidget
+# Medidas Coordenadas y dimenciones del RoundRectVitalSignals 
 # Formula                                           # Cordenada Original   1920 - 1080
-roundRectVitalSignals_CoordX1 = round(Horiz_size*0.6041)- stackedWidget_CoordX1 
-roundRectVitalSignals_CoordY1 = round(Vert_size*0.0383)- stackedWidget_CoordY1
+roundRectVitalSignals_CoordX1 = round(Horiz_size*0.6041)
+roundRectVitalSignals_CoordY1 = round(Vert_size*0.0383)
 roundRectVitalSignals_HorizSize = round(Horiz_size*0.1171)
 roundRectVitalSignals_VertSize = round(Vert_size*0.8553)
 
@@ -407,9 +407,23 @@ defibLabel_HorizSize = round(Horiz_size*0.2609)           # 96
 defibLabel_VertSize = round(Vert_size*0.1379) 
 
 # Medidas Coordenadas y dimenciones del Pacer on StackedWidget
-# Formula                                           # Cordenada Original
+# Formula                                           # Cordenada Original        1920 - 1080
 pacerLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
 pacerLabel_CoordY1 = round(Vert_size*0.1620)-stackedWidget_CoordY1              # 841
 pacerLabel_HorizSize = round(Horiz_size*0.2609)           # 96
 pacerLabel_VertSize = round(Vert_size*0.1379) 
 
+pacerLabelText_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
+pacerLabelText_CoordY1 = round(Vert_size*0.1953)-stackedWidget_CoordY1              # 841
+pacerLabelText_HorizSize = round(Horiz_size*0.1609)           # 96
+pacerLabelText_VertSize = round(Vert_size*0.0351)
+
+pacerValuemA_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
+pacerValuemA_CoordY1 = round(Vert_size*0.2481)-stackedWidget_CoordY1              # 841
+pacerValuemA_HorizSize = round(Horiz_size*0.0804)           # 96
+pacerValuemA_VertSize = round(Vert_size*0.0351)
+
+pacerValueppm_CoordX1 = round(Horiz_size*0.3182)-stackedWidget_CoordX1             # 370
+pacerValueppm_CoordY1 = round(Vert_size*0.2481)-stackedWidget_CoordY1              # 841
+pacerValueppm_HorizSize = round(Horiz_size*0.0804)           # 96
+pacerValueppm_VertSize = round(Vert_size*0.0351)
