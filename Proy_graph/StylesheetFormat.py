@@ -63,7 +63,7 @@ Stylesheet = """
     border-radius: 8px; 
     border-color: rgb(0,127,55); 
     padding: 5px; 
-    font: bold 11px; 
+    font: bold 15px; 
 
 }
 #PPMLabel_pushButton, #mALabel_pushButton

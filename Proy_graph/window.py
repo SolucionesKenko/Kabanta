@@ -406,13 +406,13 @@ class Ui_window(object):
         self.energySelectLabel_pushButton.setObjectName("energySelectLabel_pushButton")
         self.energySelectLabel_pushButton.setStyleSheet(Stylesheet)
         
-        # self.MARCPLabel_pushButton = QtWidgets.QPushButton(Form)
-        # self.MARCPLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
-        #                                                             pantalla_config.MARCPLabel_CoordY ,
-        #                                                             pantalla_config.MARCPLabel_HorizSize ,
-        #                                                             pantalla_config.MARCPLabel_VertSize))
-        # self.MARCPLabel_pushButton.setObjectName("MARCPLabel_pushButton")
-        # self.MARCPLabel_pushButton.setStyleSheet(Stylesheet)
+        self.MARCPLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.MARCPLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
+                                                                    pantalla_config.MARCPLabel_CoordY ,
+                                                                    pantalla_config.MARCPLabel_HorizSize ,
+                                                                    pantalla_config.MARCPLabel_VertSize))
+        self.MARCPLabel_pushButton.setObjectName("MARCPLabel_pushButton")
+        self.MARCPLabel_pushButton.setStyleSheet(Stylesheet)
 
         self.mALabel_pushButton = QtWidgets.QPushButton(Form)
         self.mALabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.mALabel_CoordX1 ,
@@ -798,7 +798,7 @@ class Ui_window(object):
         self.sizeMenu_pushButton.setText(_translate('Form','SIZE'))
         self.LEADMenu_pushButton.setText(_translate('Form','LEAD'))
         self.energySelectLabel_pushButton.setText(_translate('Form','Energy Select'))
-        #self.MARCPLabel_pushButton.setText(_translate('Form','MARCP'))
+        self.MARCPLabel_pushButton.setText(_translate('Form','P\nA\nC\nE\nR'))
         self.mALabel_pushButton.setText(_translate('Form','mA'))
         self.PPMLabel_pushButton.setText(_translate('Form','PPM'))
         self.pacerOutput_Label.setText(_translate('Form','PACER \n OUTPUT'))

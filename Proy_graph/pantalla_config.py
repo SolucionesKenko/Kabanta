@@ -188,10 +188,10 @@ Triangle_RoundButtonSize = round(Horiz_size*0.0271)# 44
 
 # Medidas Coordenadas y dimenciones de MARCP Green button label 
 # Formula                                       # Cordenada Original
-MARCPLabel_CoordX1 = round(Horiz_size*0.8163)    # 1325
-MARCPLabel_CoordY = round(Vert_size*0.5520)      # 504
-MARCPLabel_HorizSize = round(Horiz_size*0.0788)  # 128
-MARCPLabel_VertSize = round(Vert_size*0.0405)    # 37 
+MARCPLabel_CoordX1 = round(Horiz_size*0.7453)    # 1325
+MARCPLabel_CoordY = round(Vert_size*0.6277)      # 504
+MARCPLabel_HorizSize = round(Horiz_size*0.025)  # 128
+MARCPLabel_VertSize = round(Vert_size*0.1370)    # 37 
 
 # Medidas Coordenadas y dimenciones de mA greed button label 
 # Formula                                     # Cordenada Original

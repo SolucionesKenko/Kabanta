@@ -32,6 +32,13 @@ class SignalState (Enum):
     Stop = auto()
     Idle = auto()
 
+class DEFIBState(Enum):
+    Off = auto()
+    Select = auto()
+    Charge = auto()
+    Shock = auto()
+
+
 HEART_RATE = "1"
 TEMPERATURE = "2"
 SPO = "3"
@@ -39,6 +46,11 @@ SYSPRESSURE = "4"
 DIAPRESSURE = "5"
 FR = "6"
 CO = "7"
+
+PACEMAKER_MA = "1"
+PACEMAKER_PPM = "2"
+DEFIB_SELECT = "3"
+DEFIB_CHARGE = "4"
 
 class PageState (IntEnum):
     OFFPAGE = 0
@@ -58,9 +70,11 @@ class MainWindow(QtWidgets.QWidget):
         self.signalState = SignalState.Idle
         self.state = State.IdleDisconnected
         self.pageState = PageState.OFFPAGE
+        self.defibState = DEFIBState.Off
 
         # Data Variables
         self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
+        self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
         self.generateSig = 0
         self.ecg12 = 0
         self.i = 0
@@ -71,7 +85,9 @@ class MainWindow(QtWidgets.QWidget):
         self.i_rsp = 0
         self.adder = 0
         # Manejo de tiempos
+            # Timers 
         self.timer = QtCore.QTimer()
+        self.timer2 = QtCore.QTimer()
         self.time = QtCore.QTime()
         self.elapsedTime = QtCore.QElapsedTimer()
 
@@ -88,7 +104,7 @@ class MainWindow(QtWidgets.QWidget):
 
         #Button Control
         self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
-        self.ui.Charge_pushButton.pressed.connect(self.displayHello)
+        self.ui.Charge_pushButton.pressed.connect(self.onChargeButtonClicked)
         self.ui.Shock_pushButton.pressed.connect(self.displayHello)
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
@@ -98,15 +114,19 @@ class MainWindow(QtWidgets.QWidget):
 
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
-        self.ui.sizeMenu_pushButton.pressed.connect(self.onPacerButtonClicked)
+        self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.DPO_pushButton.pressed.connect(self.displayHello)
-        self.ui.DPR_pushButton.pressed.connect(self.displayHello)
-        self.ui.UPO_pushButton.pressed.connect(self.displayHello)
-        self.ui.UPR_pushButton.pressed.connect(self.displayHello)
+        # mA Pacer Output 
+        self.ui.DPO_pushButton.pressed.connect(self.onPacerOutputDownButtonClicked)
+        self.ui.UPO_pushButton.pressed.connect(self.onPacerOutputUpButtonClicked)
+        # PPM Pacer Rate
+        self.ui.DPR_pushButton.pressed.connect(self.onPacerRateDownButtonClicked)
+        self.ui.UPR_pushButton.pressed.connect(self.onPacerRateUpButtonCliked)
+        # Defib Energy Select
+        self.ui.UpEnergySelect_pushButton.pressed.connect(self.onUpEnergySelectButtonClicked)
+        self.ui.DownEnergySelect_pushButton.pressed.connect(self.onDownEnergySelectButtonClicked)
+
         self.ui.config_pushButton.pressed.connect(self.displayHello)
-        self.ui.UpEnergySelect_pushButton.pressed.connect(self.displayHello)
-        self.ui.DownEnergySelect_pushButton.pressed.connect(self.displayHello)
         self.ui.play_RoundButton.pressed.connect(self.onPlayButtonClicked)
         self.ui.pause_RoundButton.pressed.connect(self.onPauseButtonClicked)
         self.ui.stop_RoundButton.pressed.connect(self.onStopButtonClicked)
@@ -114,7 +134,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.OnOff_RoundButton.pressed.connect(self.onOnOffButtonClicked)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
         self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
-    
+        self.ui.MARCPLabel_pushButton.pressed.connect(self.onPacerButtonClicked)
             
         ### Final de configuracion de los Widgets
         ### Codigo de main
@@ -123,7 +143,7 @@ class MainWindow(QtWidgets.QWidget):
     
 
     ##########################################################################################
-    # Funtiones del Interfaz Grafica (GUI)
+    # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
         #Eje en x 
         self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
@@ -171,6 +191,44 @@ class MainWindow(QtWidgets.QWidget):
         self.co2text = pg.TextItem('CO2', color = (171,171,171))
         self.co2text.setPos(-0.3, 10)
         self.ui.plt.addItem(self.co2text)
+    
+    def Update_Grahp(self):
+        # Manejo de indices de la senal
+        if(self.adder >= len(self.ecg12['I'])-1):
+            self.adder = 0
+        if(self.i_rsp >= 9999):
+            self.i_rsp = 0
+        self.adder = self.adder + 1
+        self.i_rsp = self.i_rsp + 1
+        self.i = self.i + 1
+        self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
+
+        # Add new values to the channels 
+        self.channel1.append((self.ecg12['I'][self.adder]*10) + 130)   
+        self.channel2.append((self.ecg12['II'][self.adder]*10)+ 110)
+        self.channel3.append((self.ecg12["III"][self.adder]*10) + 90)  
+        self.channel4_rsp.append((self.rsp[self.i_rsp]*10) + 30)
+        self.spo.dataIR.rotate(-1)
+        self.co2.data.rotate(-1)
+        self.bp.data.rotate(-1)
+
+        # Actualizacion posicion de labels
+        self.d1text.setPos(self.x[0]-0.2, 130)
+        self.d2text.setPos(self.x[0]-0.2, 110)
+        self.d3text.setPos(self.x[0]-0.2, 90)
+        self.plethtext.setPos(self.x[0]-0.3, 70)
+        self.prestext.setPos(self.x[0]-0.3, 50)
+        self.resptext.setPos(self.x[0]-0.3, 30)
+        self.co2text.setPos(self.x[0]-0.3, 10)
+
+        # Actualizacion de los datos
+        self.data_line_rsp.setData(self.x, self.channel4_rsp)
+        self.data_line_ppg.setData(self.x, list(self.spo.dataIR)[1:])
+        self.data_line_co2.setData(self.x, list(self.co2.data)[0:self.graphlength])
+        self.data_line_bp.setData(self.x, list(self.bp.data)[0:self.graphlength])
+        self.data_line_channel1.setData(self.x, self.channel1)
+        self.data_line_channel2.setData(self.x, self.channel2)
+        self.data_line_channel3.setData(self.x, self.channel3)
 
     ##########################################################################################
     # Funciones Callbacks de botones
@@ -280,53 +338,59 @@ class MainWindow(QtWidgets.QWidget):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.DEFIBPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             print(PageState.DEFIBPAGE)
+    
+    def onUpEnergySelectButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
+            if self.mi_pagevariables[DEFIB_SELECT] < 30:
+                self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]+5
+                self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            else:
+                self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]+10
+                self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+
+
+    def onDownEnergySelectButtonClicked(self):
+       if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
+            if self.mi_pagevariables[DEFIB_SELECT] < 30:
+                self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-5
+                self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            else:
+                self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-10
+                self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+
+    def onChargeButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
+            # Add Charge animation, posibly with timer
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J READY\nBIFASICO")
+            
 
     def onPacerButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
             print(PageState.PACERPAGE)
-            
+    
+    def onPacerOutputUpButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+            self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]+1
+            self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
+        
+    def onPacerOutputDownButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+            self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]-1
+            self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
 
-    def Update_Grahp(self):
-        # Manejo de indices de la senal
-        if(self.adder >= len(self.ecg12['I'])-1):
-            self.adder = 0
-        if(self.i_rsp >= 9999):
-            self.i_rsp = 0
-        self.adder = self.adder + 1
-        self.i_rsp = self.i_rsp + 1
-        self.i = self.i + 1
-        self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
-
-        # Add new values to the channels 
-        self.channel1.append((self.ecg12['I'][self.adder]*10) + 130)   
-        self.channel2.append((self.ecg12['II'][self.adder]*10)+ 110)
-        self.channel3.append((self.ecg12["III"][self.adder]*10) + 90)  
-        self.channel4_rsp.append((self.rsp[self.i_rsp]*10) + 30)
-        self.spo.dataIR.rotate(-1)
-        self.co2.data.rotate(-1)
-        self.bp.data.rotate(-1)
-
-        # Actualizacion posicion de labels
-        self.d1text.setPos(self.x[0]-0.2, 130)
-        self.d2text.setPos(self.x[0]-0.2, 110)
-        self.d3text.setPos(self.x[0]-0.2, 90)
-        self.plethtext.setPos(self.x[0]-0.3, 70)
-        self.prestext.setPos(self.x[0]-0.3, 50)
-        self.resptext.setPos(self.x[0]-0.3, 30)
-        self.co2text.setPos(self.x[0]-0.3, 10)
-
-        # Actualizacion de los datos
-        self.data_line_rsp.setData(self.x, self.channel4_rsp)
-        self.data_line_ppg.setData(self.x, list(self.spo.dataIR)[1:])
-        self.data_line_co2.setData(self.x, list(self.co2.data)[0:self.graphlength])
-        self.data_line_bp.setData(self.x, list(self.bp.data)[0:self.graphlength])
-        self.data_line_channel1.setData(self.x, self.channel1)
-        self.data_line_channel2.setData(self.x, self.channel2)
-        self.data_line_channel3.setData(self.x, self.channel3)
-
+    def onPacerRateUpButtonCliked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+            self.mi_pagevariables[PACEMAKER_PPM] = self.mi_pagevariables[PACEMAKER_PPM]+5
+            self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
+    
+    def onPacerRateDownButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+            self.mi_pagevariables[PACEMAKER_PPM] = self.mi_pagevariables[PACEMAKER_PPM]-5
+            self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
