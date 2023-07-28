@@ -17,6 +17,7 @@ class CO2():
 
         # Define deque to hold data with a maximum length of N_SAMPLES
         self.data = deque([], maxlen=self.N_SAMPLES)
+        self.databuffer = deque([], maxlen=self.N_SAMPLES)
         self.time = deque([], maxlen=self.N_SAMPLES)
 
         # Initialize timestamp to the current time
@@ -24,16 +25,18 @@ class CO2():
         self.init_timer()
 
     def init_timer(self):
+        self.databuffer.clear()
         self.timer.setInterval(10)
         self.timer.timeout.connect(self.init_signal)
         self.timer.start()
 
     def init_signal(self):
-        if (np.size(self.data)>=400):
+        if (np.size(self.databuffer)>=400):
             self.timer.stop()
-            size = np.size(self.data)
+            size = np.size(self.databuffer)
             for i in range (self.N_SAMPLES-size):
-                self.data.append(self.data[i])
+                self.databuffer.append(self.databuffer[i])
+            self.data = self.databuffer
             print(" CO2 Signal Created")
         else:
             self.update_plot()
@@ -53,5 +56,5 @@ class CO2():
         self.s = self.capno_parameters(np.array([self.tCapno]))
         # Add the new signals to the data buffers
         self.time.append(self.tCapno)
-        self.data.append(self.s[0]*10)
+        self.databuffer.append(self.s[0]*10)
 

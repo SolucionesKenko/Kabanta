@@ -21,6 +21,7 @@ class SPO():
         self.timer = QtCore.QTimer()
         self.dataR = deque([], maxlen = N_SAMPLES)
         self.dataIR = deque([], maxlen = N_SAMPLES)
+        self.dataIRbuffer = deque([], maxlen = N_SAMPLES)
         self.time = deque([], maxlen = N_SAMPLES)
         self.hr = 0
 
@@ -38,6 +39,7 @@ class SPO():
         self.init_timer()
 
     def init_timer(self):
+        self.reset_buffers()
         self.timer.setInterval(2)
         self.timer.timeout.connect(self.init_signal)
         self.timer.start()
@@ -117,20 +119,21 @@ class SPO():
         # store data into variables 
         self.time.append(self.tPPG)
         self.dataR.append(self.sR*8+70)
-        self.dataIR.append(self.sIR*8+70)
+        self.dataIRbuffer.append(self.sIR*8+70)
     
     def init_signal(self):
-        if (np.size(self.dataIR)>=50):
+        if (np.size(self.dataIRbuffer)>=50):
             self.timer.stop()
-            size = np.size(self.dataIR)
+            size = np.size(self.dataIRbuffer)
             for i in range (N_SAMPLES-size):
-                self.dataIR.append(self.dataIR[i])
+                self.dataIRbuffer.append(self.dataIRbuffer[i])
                 #print(f" indice {i}, tamano del variable {np.size(self.dataIR)}")
+            self.dataIR = self.dataIRbuffer
             print("ppg Signal Created")
         else:
             self.update_plot()
     
     def reset_buffers(self):
         self.dataR.clear()
-        self.dataIR.clear()
+        self.dataIRbuffer.clear()
     
