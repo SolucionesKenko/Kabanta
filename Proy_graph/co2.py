@@ -33,7 +33,7 @@ class CO2():
             self.timer.stop()
             size = np.size(self.data)
             for i in range (self.N_SAMPLES-size):
-                self.data.append(self.data[i])
+                self.data.append(self.data[i-1])
             print(" CO2 Signal Created")
         else:
             self.update_plot()
