@@ -125,6 +125,7 @@ class SPO():
             size = np.size(self.dataIR)
             for i in range (N_SAMPLES-size):
                 self.dataIR.append(self.dataIR[i])
+                #print(f" indice {i}, tamano del variable {np.size(self.dataIR)}")
             print("ppg Signal Created")
         else:
             self.update_plot()

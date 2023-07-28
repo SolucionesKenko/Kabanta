@@ -38,6 +38,7 @@ class BloodPressure():
             size = np.size(self.data)
             for i in range (self.N_SAMPLES-size):
                 self.data.append(self.data[i])
+                print(f" indice {i}, tamano del variable {np.size(self.data)}")
             print("Blood Pressure Signal Created")
         else:
             self.update_plot()
