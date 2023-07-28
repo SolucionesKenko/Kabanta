@@ -29,7 +29,7 @@ class CO2():
         self.timer.start()
 
     def init_signal(self):
-        if ((time() - self.timestamp) > 5):
+        if (np.size(self.data)>=400):
             self.timer.stop()
             size = np.size(self.data)
             for i in range (self.N_SAMPLES-size):

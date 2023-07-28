@@ -120,7 +120,7 @@ class SPO():
         self.dataIR.append(self.sIR*8+70)
     
     def init_signal(self):
-        if ((time() - self.timestamp) > 1):
+        if (np.size(self.dataIR)>=50):
             self.timer.stop()
             size = np.size(self.dataIR)
             for i in range (N_SAMPLES-size):

@@ -33,7 +33,7 @@ class BloodPressure():
         self.timer.start()
 
     def init_signal(self):
-        if ((time() - self.timestamp) > 1):
+        if (np.size(self.data)>=50):
             self.timer.stop()
             size = np.size(self.data)
             for i in range (self.N_SAMPLES-size):
