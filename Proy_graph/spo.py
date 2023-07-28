@@ -1,6 +1,7 @@
 import sys
 from typing import Any, Union, List
 from time import time
+from PyQt5 import QtCore
 
 import numpy as np
 import scipy.io as sio
@@ -17,6 +18,7 @@ PLOT_UPDATE_POINTS = -1
 
 class SPO():
     def __init__(self):
+        self.timer = QtCore.QTimer()
         self.dataR = deque([], maxlen = N_SAMPLES)
         self.dataIR = deque([], maxlen = N_SAMPLES)
         self.time = deque([], maxlen = N_SAMPLES)
@@ -32,6 +34,13 @@ class SPO():
         self.init_values(self.ampR, self.ampIR, 60, 100)
         self.spo2sl_change(100)
         self.timestamp = time()
+
+        self.init_timer()
+
+    def init_timer(self):
+        self.timer.setInterval(2)
+        self.timer.timeout.connect(self.init_signal)
+        self.timer.start()
     
     def ppg_parameters(self, minR, ampR, minIR, ampIR, t, HR):
         """
@@ -109,6 +118,16 @@ class SPO():
         self.time.append(self.tPPG)
         self.dataR.append(self.sR*8+70)
         self.dataIR.append(self.sIR*8+70)
+    
+    def init_signal(self):
+        if ((time() - self.timestamp) > 1):
+            self.timer.stop()
+            size = np.size(self.dataIR)
+            for i in range (N_SAMPLES-size):
+                self.dataIR.append(self.dataIR[i])
+            print("ppg Signal Created")
+        else:
+            self.update_plot()
     
     def reset_buffers(self):
         self.dataR.clear()

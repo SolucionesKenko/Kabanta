@@ -2,11 +2,13 @@ import pyqtgraph as pg
 import numpy as np
 from scipy.stats import exponnorm
 from collections import deque
+from PyQt5 import QtCore
 from time import time
 
 
 class CO2():
     def __init__(self):
+        self.timer = QtCore.QTimer()
         # Define parameters for the EMG distribution
         self.K = 4  # This is lambda in the EMG equation
         self.loc = 4  # This is mu in the EMG equation
@@ -19,6 +21,22 @@ class CO2():
 
         # Initialize timestamp to the current time
         self.timestamp = time()
+        self.init_timer()
+
+    def init_timer(self):
+        self.timer.setInterval(10)
+        self.timer.timeout.connect(self.init_signal)
+        self.timer.start()
+
+    def init_signal(self):
+        if ((time() - self.timestamp) > 5):
+            self.timer.stop()
+            size = np.size(self.data)
+            for i in range (self.N_SAMPLES-size):
+                self.data.append(self.data[i])
+            print(" CO2 Signal Created")
+        else:
+            self.update_plot()
 
     def capno_parameters(self, t_mod):
         y = exponnorm.pdf(t_mod, self.K, self.loc, self.scale)
