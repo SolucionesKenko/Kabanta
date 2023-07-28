@@ -37,7 +37,7 @@ class BloodPressure():
             self.timer.stop()
             size = np.size(self.data)
             for i in range (self.N_SAMPLES-size):
-                self.data.append(self.data[i-1])
+                self.data.append(self.data[i])
             print("Blood Pressure Signal Created")
         else:
             self.update_plot()
