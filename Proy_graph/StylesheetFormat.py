@@ -77,7 +77,7 @@ Stylesheet = """
     font: bold 14px; 
 }
 
-#pacerRate_Label, #pacerOutput_Label
+#pacerRate_Label, #pacerOutput_Label, #simulationTimeLabel_Label
 {
     color: white;
     border: none;
