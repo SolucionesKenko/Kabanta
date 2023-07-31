@@ -330,10 +330,13 @@ class MainWindow(QtWidgets.QWidget):
     
 
     def onCPRButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE:
+        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.CPRPAGE:
             self.pageState = PageState.CPRPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
             print(PageState.CPRPAGE)
+        else:
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.pageState = PageState.DEFAULTPAGE
     
     def onDEFIBButtonClicked(self):
         if self.pageState != PageState.OFFPAGE and self.pageState != PageState.DEFIBPAGE:
@@ -389,12 +392,12 @@ class MainWindow(QtWidgets.QWidget):
         else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J READY\nBIFASICO")
             self.timer2.stop()
+            self.timer2.timeout.disconnect(self.defibCharge)
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
         if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charge):
             self.timer2.setInterval(600)
-            self.timer2.timeout.disconnect(self.defibCharge)
             self.timer2.timeout.connect(self.defibDischarge)
             self.timer2.start()
             print("start of second timer ")
@@ -413,6 +416,7 @@ class MainWindow(QtWidgets.QWidget):
             self.mi_pagevariables[DEFIB_SELECT] = 0 
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             self.timer2.stop()
+            self.timer2.timeout.disconnect(self.defibDischarge)
             print(" second timer is stoped")
 
     
