@@ -25,6 +25,7 @@ class CO2():
         self.init_timer()
 
     def init_timer(self):
+        self.timestamp = time()
         self.databuffer.clear()
         self.timer.setInterval(10)
         self.timer.timeout.connect(self.init_signal)

@@ -103,9 +103,6 @@ class MainWindow(QtWidgets.QWidget):
         self.generate_crc32_table(self.poly)
 
         #Button Control
-        self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
-        self.ui.Charge_pushButton.pressed.connect(self.onChargeButtonClicked)
-        self.ui.Shock_pushButton.pressed.connect(self.displayHello)
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
         # Confirm es connect y return es scan 
@@ -122,9 +119,13 @@ class MainWindow(QtWidgets.QWidget):
         # PPM Pacer Rate
         self.ui.DPR_pushButton.pressed.connect(self.onPacerRateDownButtonClicked)
         self.ui.UPR_pushButton.pressed.connect(self.onPacerRateUpButtonCliked)
-        # Defib Energy Select
+        # Defib 
+        self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
+        self.ui.Charge_pushButton.pressed.connect(self.onChargeButtonClicked)
+        self.ui.Shock_pushButton.pressed.connect(self.displayHello)
         self.ui.UpEnergySelect_pushButton.pressed.connect(self.onUpEnergySelectButtonClicked)
         self.ui.DownEnergySelect_pushButton.pressed.connect(self.onDownEnergySelectButtonClicked)
+        self.ui.DISCHARGE_pushButton.pressed.connect(self.onDischargeButtonClicked)
 
         self.ui.config_pushButton.pressed.connect(self.displayHello)
         self.ui.play_RoundButton.pressed.connect(self.onPlayButtonClicked)
@@ -335,14 +336,21 @@ class MainWindow(QtWidgets.QWidget):
             print(PageState.CPRPAGE)
     
     def onDEFIBButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE:
+        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.DEFIBPAGE:
             self.pageState = PageState.DEFIBPAGE
+            self.defibState = DEFIBState.Select
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             print(PageState.DEFIBPAGE)
+        else:
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.pageState = PageState.DEFAULTPAGE
+            # reset page variables
+            self.mi_pagevariables[DEFIB_SELECT] = 0
+            self.mi_pagevariables[DEFIB_CHARGE] = 0
     
     def onUpEnergySelectButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
             if self.mi_pagevariables[DEFIB_SELECT] < 30:
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]+5
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
@@ -352,25 +360,80 @@ class MainWindow(QtWidgets.QWidget):
 
 
     def onDownEnergySelectButtonClicked(self):
-       if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
-            if self.mi_pagevariables[DEFIB_SELECT] < 30:
+       if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
+            if self.mi_pagevariables[DEFIB_SELECT] < (30 and self.mi_pagevariables[DEFIB_SELECT]-5 >= 0):
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-5
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
-            else:
+            elif self.mi_pagevariables[DEFIB_SELECT]-10 >= 0: # todo Agregar limite Superior
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-10
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
 
     def onChargeButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
-            # Add Charge animation, posibly with timer
+            self.defibState = DEFIBState.Charge
+            self.timer2.setInterval(600)
+            self.timer2.timeout.connect(self.defibCharge)
+            self.timer2.start()
+            print("charge button was clicked")
+    
+    def defibCharge(self):
+        print("first timer is working")
+        if self.mi_pagevariables[DEFIB_CHARGE] != self.mi_pagevariables[DEFIB_SELECT]:
+            if self.mi_pagevariables[DEFIB_CHARGE] < 10:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]+1
+            elif self.mi_pagevariables[DEFIB_CHARGE]>= 10 and self.mi_pagevariables[DEFIB_CHARGE]< 30:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]+5
+            else:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]+10
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J CHG\nBIFASICO")
+        else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J READY\nBIFASICO")
+            self.timer2.stop()
+            print("first timer is stoped")
+
+    def onDischargeButtonClicked(self):
+        if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charge):
+            self.timer2.setInterval(600)
+            self.timer2.timeout.disconnect(self.defibCharge)
+            self.timer2.timeout.connect(self.defibDischarge)
+            self.timer2.start()
+            print("start of second timer ")
+
+    def defibDischarge(self):
+        print("second timer is working")
+        if self.mi_pagevariables[DEFIB_CHARGE] != 0:
+            if self.mi_pagevariables[DEFIB_CHARGE] < 10:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]-1
+            elif self.mi_pagevariables[DEFIB_CHARGE]>= 10 and self.mi_pagevariables[DEFIB_CHARGE]< 30:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]-5
+            else:
+                self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]-10
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J DIS\nBIFASICO")
+        else:
+            self.mi_pagevariables[DEFIB_SELECT] = 0 
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.timer2.stop()
+            print(" second timer is stoped")
+
+    
+    def onShockButtonClicked(self):
+        print("shock")
             
 
     def onPacerButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE:
+        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.PACERPAGE:
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
             print(PageState.PACERPAGE)
+        else:
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.pageState = PageState.DEFAULTPAGE
+            # reset page variables
+            self.mi_pagevariables[PACEMAKER_MA] = 18
+            self.mi_pagevariables[PACEMAKER_PPM] = 70
+            self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
+            self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
+        
     
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
@@ -378,7 +441,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
         
     def onPacerOutputDownButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE) and (self.mi_pagevariables[PACEMAKER_MA]-1 >= 0):
             self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]-1
             self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
 
@@ -388,7 +451,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
     
     def onPacerRateDownButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE) and (self.mi_pagevariables[PACEMAKER_PPM]-5 >= 0):
             self.mi_pagevariables[PACEMAKER_PPM] = self.mi_pagevariables[PACEMAKER_PPM]-5
             self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
 
@@ -470,8 +533,8 @@ class MainWindow(QtWidgets.QWidget):
         elif(id == CO):
             self.ui.CO2Value_Label.setText(str(data))
             # Actualizacion de CO2
-            self.co2.loc = self.mi_diccionario[CO]
-            self.co2.init_timer()
+            #self.co2.loc = self.mi_diccionario[CO]
+            #self.co2.init_timer()
 
 
         else:

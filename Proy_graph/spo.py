@@ -33,13 +33,14 @@ class SPO():
         self.minIR = 0.45  # Displacement from zero for Red signal
         
         self.init_values(self.ampR, self.ampIR, 60, 100)
-        self.spo2sl_change(100)
+        self.spo2sl_change(98)
         self.timestamp = time()
 
         self.init_timer()
 
     def init_timer(self):
         self.reset_buffers()
+        self.timestamp = time()
         self.timer.setInterval(2)
         self.timer.timeout.connect(self.init_signal)
         self.timer.start()
