@@ -12,6 +12,17 @@ Stylesheet = """
     font: bold 18px; 
     }
 
+#DEFIB_pushButton::indicator:pressed
+{
+    color: black; 
+    background-color: rgb(254,22,27); 
+    border-width: 1px; 
+    border-radius: 12px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 18px; 
+}
+
 #DEA_pushButton, #SYNC_pushButton, #DISCHARGE_pushButton
 {
     color: black; 

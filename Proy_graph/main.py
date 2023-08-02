@@ -366,7 +366,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.CPRPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
             print(PageState.CPRPAGE)
-        elif (self.workingState != WorkingState.Busy):
+        elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
     
@@ -377,8 +377,9 @@ class MainWindow(QtWidgets.QWidget):
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            #self.ui.DEFIB_pushButton.setStyleSheet("background-color: rgb(254,22,27); ")
             print(PageState.DEFIBPAGE)
-        elif (self.workingState != WorkingState.Busy):
+        elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
@@ -495,7 +496,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
             print(PageState.PACERPAGE)
-        elif (self.workingState != WorkingState.Busy):
+        elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
