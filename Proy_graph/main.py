@@ -35,8 +35,13 @@ class SignalState (Enum):
 class DEFIBState(Enum):
     Off = auto()
     Select = auto()
-    Charge = auto()
+    Charging = auto()
+    Charged = auto()
     Shock = auto()
+
+class WorkingState(Enum):
+    Busy = auto()
+    Idle = auto()
 
 
 HEART_RATE = "1"
@@ -59,6 +64,7 @@ class PageState (IntEnum):
     DEFIBPAGE = 3
     PACERPAGE = 4
 
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,6 +77,7 @@ class MainWindow(QtWidgets.QWidget):
         self.state = State.IdleDisconnected
         self.pageState = PageState.OFFPAGE
         self.defibState = DEFIBState.Off
+        self.workingState = WorkingState.Idle
 
         # Data Variables
         self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
@@ -122,7 +129,7 @@ class MainWindow(QtWidgets.QWidget):
         # Defib 
         self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
         self.ui.Charge_pushButton.pressed.connect(self.onChargeButtonClicked)
-        self.ui.Shock_pushButton.pressed.connect(self.displayHello)
+        self.ui.Shock_pushButton.pressed.connect(self.onShockButtonClicked)
         self.ui.UpEnergySelect_pushButton.pressed.connect(self.onUpEnergySelectButtonClicked)
         self.ui.DownEnergySelect_pushButton.pressed.connect(self.onDownEnergySelectButtonClicked)
         self.ui.DISCHARGE_pushButton.pressed.connect(self.onDischargeButtonClicked)
@@ -199,6 +206,7 @@ class MainWindow(QtWidgets.QWidget):
             self.adder = 0
         if(self.i_rsp >= 9999):
             self.i_rsp = 0
+        
         self.adder = self.adder + 1
         self.i_rsp = self.i_rsp + 1
         self.i = self.i + 1
@@ -259,70 +267,94 @@ class MainWindow(QtWidgets.QWidget):
         
 
     def onPlayButtonClicked(self):
-        
-        if(self.signalState == SignalState.Idle):
-            self.setDefaultValues()
-            self.generateSig = obtainSignals()
-            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
-            self.rsp = list(self.generateSig.generate_rsp())
-            self.time.__init__(0,0,0,0)
-        
-        if(self.signalState != SignalState.Playing):
-            self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
-            self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
-            self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
-            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
-            self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
-            self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
-            self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
-
-            # ReInicializacion de la senal posterior a SignalState.Stop
-            if(self.signalState == SignalState.Stop):
-                self.initSignalGrahps()
+        if (self.pageState != PageState.OFFPAGE):
+            if(self.signalState == SignalState.Idle):
+                self.setDefaultValues()
+                self.generateSig = obtainSignals()
+                self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+                self.rsp = list(self.generateSig.generate_rsp())
+                self.time.__init__(0,0,0,0)
             
-            self.signalState = SignalState.Playing
+            if(self.signalState != SignalState.Playing):
+                self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
+                self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
+                self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
+                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
+                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
+                self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
+                self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
+
+                # ReInicializacion de la senal posterior a SignalState.Stop
+                if(self.signalState == SignalState.Stop):
+                    self.initSignalGrahps()
+                
+                self.signalState = SignalState.Playing
+                print(self.signalState)
+                # Envio de estado por serial 
+                if self.state != State.IdleDisconnected:
+                    self.worker.encodeMesage(8,1)
+                    self.worker.sendMessage()
+                
+                # Manejo de timer y time
+                self.elapsedTime.start()
+                self.timer.setInterval(2)
+                self.timer.timeout.connect(self.Update_Grahp)
+                self.timer.timeout.connect(self.Update_Time)
+                self.timer.start()
+
+    def onPauseButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE) and (self.signalState != SignalState.Idle):
+            self.timer.stop()
+            self.signalState = SignalState.Pause
             print(self.signalState)
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
-                self.worker.encodeMesage(8,1)
+                self.worker.encodeMesage(8,2)
                 self.worker.sendMessage()
-            
-            # Manejo de timer y time
-            self.elapsedTime.start()
-            self.timer.setInterval(2)
-            self.timer.timeout.connect(self.Update_Grahp)
-            self.timer.timeout.connect(self.Update_Time)
-            self.timer.start()
-
-    def onPauseButtonClicked(self):
-        
-        self.timer.stop()
-        self.signalState = SignalState.Pause
-        print(self.signalState)
-        # Envio de estado por serial 
-        if self.state != State.IdleDisconnected:
-            self.worker.encodeMesage(8,2)
-            self.worker.sendMessage()
         
     def onStopButtonClicked(self):
-        
-        self.timer.stop()
-        self.setDefaultValues()
-        self.ui.plt.clear()
-        self.adder = 0
-        self.signalState = SignalState.Stop
-        print(self.signalState)
+        if (self.pageState != PageState.OFFPAGE) and (self.signalState != SignalState.Idle):
+            self.timer.stop()
+            self.setDefaultValues()
+            self.ui.plt.clear()
+            self.adder = 0
+            self.signalState = SignalState.Stop
+            print(self.signalState)
 
-        # Envio de estado por serial 
-        if self.state != State.IdleDisconnected:
-            self.worker.encodeMesage(8,3)
-            self.worker.sendMessage()
+            # Envio de estado por serial 
+            if self.state != State.IdleDisconnected:
+                self.worker.encodeMesage(8,3)
+                self.worker.sendMessage()
             
     def onOnOffButtonClicked(self):
         if self.pageState != PageState.OFFPAGE:
             self.pageState = PageState.OFFPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE) 
-            self.enableDisableVitalSignalMenu(True) 
+            self.enableDisableVitalSignalMenu(True)
+            # reseteo de los valores de signos vitales
+            self.ui.heartRateValue_Label.setText('- - -')
+            self.ui.tempValue_Label.setText('- - -')
+            self.ui.SpO2Value_Label.setText('- - -')
+            self.ui.pressureValue_Label.setText('- - -')
+            self.ui.FRValue_Label.setText('- - -')
+            self.ui.CO2Value_Label.setText('- - -')
+            self.ui.simulationTimeValue_pushButton.setText('00:00:00')
+            # Restablecer timers
+            if self.timer.isActive():
+                self.timer.stop()
+                self.timer.disconnect()
+            if self.timer2.isActive():
+                self.timer2.stop()
+                self.timer2.disconnect()
+            # Restablecer graficas
+            self.adder = 0
+            self.i_rsp = 0
+            self.i = 0
+            self.ui.plt.clear()
+            self.initSignalGrahps()
+            self.signalState = SignalState.Idle
+            self.workingState = WorkingState.Idle
+
         else:
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
@@ -330,22 +362,23 @@ class MainWindow(QtWidgets.QWidget):
     
 
     def onCPRButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.CPRPAGE:
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.CPRPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.CPRPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
             print(PageState.CPRPAGE)
-        else:
+        elif (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
     
     def onDEFIBButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.DEFIBPAGE:
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.DEFIBPAGE
             self.defibState = DEFIBState.Select
+            self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             print(PageState.DEFIBPAGE)
-        else:
+        elif (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
@@ -372,14 +405,19 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
 
     def onChargeButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE):
-            self.defibState = DEFIBState.Charge
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select) and (self.mi_pagevariables[DEFIB_SELECT] != 0):
+            self.workingState = WorkingState.Busy
+            self.defibState = DEFIBState.Charging
+            # Asegurar disconnect y stop del timer
+            if self.timer2.isActive():
+                self.timer2.timeout.disconnect()
+                self.timer2.stop()
             self.timer2.setInterval(600)
-            self.timer2.timeout.connect(self.defibCharge)
+            self.timer2.timeout.connect(self.defibCharging)
             self.timer2.start()
             print("charge button was clicked")
     
-    def defibCharge(self):
+    def defibCharging(self):
         print("first timer is working")
         if self.mi_pagevariables[DEFIB_CHARGE] != self.mi_pagevariables[DEFIB_SELECT]:
             if self.mi_pagevariables[DEFIB_CHARGE] < 10:
@@ -390,13 +428,20 @@ class MainWindow(QtWidgets.QWidget):
                 self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]+10
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J CHG\nBIFASICO")
         else:
+            self.defibState = DEFIBState.Charged
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J READY\nBIFASICO")
             self.timer2.stop()
-            self.timer2.timeout.disconnect(self.defibCharge)
+            self.timer2.timeout.disconnect(self.defibCharging)
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
-        if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charge):
+        if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charged):
+            self.workingState = WorkingState.Busy
+            # Asegurar disconnect y stop del timer
+            if self.timer2.isActive():
+                self.timer2.timeout.disconnect()
+                self.timer2.stop()
+            # Inicializar descarga
             self.timer2.setInterval(600)
             self.timer2.timeout.connect(self.defibDischarge)
             self.timer2.start()
@@ -413,23 +458,44 @@ class MainWindow(QtWidgets.QWidget):
                 self.mi_pagevariables[DEFIB_CHARGE] = self.mi_pagevariables[DEFIB_CHARGE]-10
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J DIS\nBIFASICO")
         else:
-            self.mi_pagevariables[DEFIB_SELECT] = 0 
+            self.defibState = DEFIBState.Select
+            self.workingState = WorkingState.Idle
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibDischarge)
+            
             print(" second timer is stoped")
 
     
     def onShockButtonClicked(self):
-        print("shock")
+        if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charged):
+            self.defibState = DEFIBState.Shock
+            self.workingState = WorkingState.Busy
+            if self.timer2.isActive():
+                self.timer2.timeout.disconnect()
+                self.timer2.stop()
+            # Inicializar descarga
+            self.timer2.setInterval(600)
+            self.timer2.timeout.connect(self.defibShock)
+            self.timer2.start()
             
+    def defibShock(self):
+        if (self.defibState == DEFIBState.Shock):
+            self.defibState = DEFIBState.Select
+            self.workingState = WorkingState.Idle
+            self.mi_pagevariables[DEFIB_CHARGE] = 0
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J SHK\nBIFASICO")
+        else:
+            self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.timer2.stop()
+            self.timer2.timeout.disconnect(self.defibShock)  
 
     def onPacerButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE and self.pageState != PageState.PACERPAGE:
+        if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.PACERPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
             print(PageState.PACERPAGE)
-        else:
+        elif (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
