@@ -9,6 +9,7 @@ import numpy as np
 from data_test import ecg_signal, obtainSignals
 from window import Ui_window
 from collections import deque
+from StylesheetFormat import PressedStylesheet, Stylesheet
 
 # Manejo de puertos
 import serial 
@@ -120,12 +121,12 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
         self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
-        # mA Pacer Output 
+        # Pacer 
         self.ui.DPO_pushButton.pressed.connect(self.onPacerOutputDownButtonClicked)
         self.ui.UPO_pushButton.pressed.connect(self.onPacerOutputUpButtonClicked)
-        # PPM Pacer Rate
         self.ui.DPR_pushButton.pressed.connect(self.onPacerRateDownButtonClicked)
         self.ui.UPR_pushButton.pressed.connect(self.onPacerRateUpButtonCliked)
+        self.ui.pacerLabel_pushButton.pressed.connect(self.onPacerButtonClicked)
         # Defib 
         self.ui.DEFIB_pushButton.pressed.connect(self.onDEFIBButtonClicked)
         self.ui.Charge_pushButton.pressed.connect(self.onChargeButtonClicked)
@@ -142,7 +143,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.OnOff_RoundButton.pressed.connect(self.onOnOffButtonClicked)
         self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
         self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
-        self.ui.MARCPLabel_pushButton.pressed.connect(self.onPacerButtonClicked)
+        
             
         ### Final de configuracion de los Widgets
         ### Codigo de main
@@ -161,7 +162,6 @@ class MainWindow(QtWidgets.QWidget):
         self.channel3 = deque([90 for i in self.x],maxlen=self.graphlength)
         self.channel4_rsp = deque([30 for i in self.x], maxlen=self.graphlength)
 
-        
         self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
         self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
         self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
@@ -265,6 +265,18 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.roundRectVitalSignals_Qpaint.setHidden(status)
         self.ui.Graph_verticalLayoutWidget.setHidden(status)
         
+    def onOnOffButtonClicked(self):
+        if self.pageState != PageState.OFFPAGE:
+            self.pageState = PageState.OFFPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE) 
+            self.resetKabSim()
+            self.resetDefib()
+            self.resetPacerPage()
+            self.resetCPRPage()
+        else:
+            self.pageState = PageState.DEFAULTPAGE
+            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.enableDisableVitalSignalMenu(False)
 
     def onPlayButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE):
@@ -287,6 +299,8 @@ class MainWindow(QtWidgets.QWidget):
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
                     self.initSignalGrahps()
+                    if self.pageState != PageState.DEFAULTPAGE:
+                        self.ui.plt.removeItem(self.data_line_channel1)
                 
                 self.signalState = SignalState.Playing
                 print(self.signalState)
@@ -303,7 +317,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.timer.start()
 
     def onPauseButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE) and (self.signalState != SignalState.Idle):
+        if (self.pageState != PageState.OFFPAGE) and (self.signalState == SignalState.Playing) :
             self.timer.stop()
             self.signalState = SignalState.Pause
             print(self.signalState)
@@ -326,58 +340,66 @@ class MainWindow(QtWidgets.QWidget):
                 self.worker.encodeMesage(8,3)
                 self.worker.sendMessage()
             
-    def onOnOffButtonClicked(self):
-        if self.pageState != PageState.OFFPAGE:
-            self.pageState = PageState.OFFPAGE
-            self.ui.stackedWidget.setCurrentIndex(PageState.OFFPAGE) 
-            self.enableDisableVitalSignalMenu(True)
-            # reseteo de los valores de signos vitales
-            self.ui.heartRateValue_Label.setText('- - -')
-            self.ui.tempValue_Label.setText('- - -')
-            self.ui.SpO2Value_Label.setText('- - -')
-            self.ui.pressureValue_Label.setText('- - -')
-            self.ui.FRValue_Label.setText('- - -')
-            self.ui.CO2Value_Label.setText('- - -')
-            self.ui.simulationTimeValue_pushButton.setText('00:00:00')
-            # Restablecer timers
-            if self.timer.isActive():
-                self.timer.stop()
-                self.timer.disconnect()
-            if self.timer2.isActive():
-                self.timer2.stop()
-                self.timer2.disconnect()
-            # Restablecer graficas
-            self.adder = 0
-            self.i_rsp = 0
-            self.i = 0
-            self.ui.plt.clear()
-            self.initSignalGrahps()
-            self.signalState = SignalState.Idle
-            self.workingState = WorkingState.Idle
-
-        else:
-            self.pageState = PageState.DEFAULTPAGE
-            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
-            self.enableDisableVitalSignalMenu(False)
+    def resetKabSim(self):
+        self.enableDisableVitalSignalMenu(True)
+        # reseteo de los valores de signos vitales
+        self.ui.heartRateValue_Label.setText('- - -')
+        self.ui.tempValue_Label.setText('- - -')
+        self.ui.SpO2Value_Label.setText('- - -')
+        self.ui.pressureValue_Label.setText('- - -')
+        self.ui.FRValue_Label.setText('- - -')
+        self.ui.CO2Value_Label.setText('- - -')
+        self.ui.simulationTimeValue_pushButton.setText('00:00:00')
+        # Restablecer timers
+        if self.timer.isActive():
+            self.timer.stop()
+            self.timer.disconnect()
+        if self.timer2.isActive():
+            self.timer2.stop()
+            self.timer2.disconnect()
+        # Restablecer graficas
+        self.adder = 0
+        self.i_rsp = 0
+        self.i = 0
+        self.ui.plt.clear()
+        self.initSignalGrahps()
+        self.signalState = SignalState.Idle
+        self.workingState = WorkingState.Idle
     
+    def resetDefib(self):
+        self.ui.Shock_pushButton.setStyleSheet(Stylesheet)
+        self.ui.DEFIB_pushButton.setStyleSheet(Stylesheet)
+        self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
+        self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
 
+    def resetCPRPage(self):
+        self.ui.CPRMenu_pushButton.setStyleSheet(Stylesheet)
     def onCPRButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.CPRPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.CPRPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
+            self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
+            self.resetDefib()
+            self.resetPacerPage()
+            self.ui.plt.removeItem(self.data_line_channel1)
             print(PageState.CPRPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
+            self.resetCPRPage()
+            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
     
     def onDEFIBButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.DEFIBPAGE
             self.defibState = DEFIBState.Select
+            self.ui.plt.removeItem(self.data_line_channel1)
+            self.resetPacerPage()
+            self.resetCPRPage
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
-            #self.ui.DEFIB_pushButton.setStyleSheet("background-color: rgb(254,22,27); ")
+            self.ui.DEFIB_pushButton.setStyleSheet(PressedStylesheet)
             print(PageState.DEFIBPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
@@ -385,6 +407,8 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
+            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
+            self.resetDefib()
     
     def onUpEnergySelectButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
@@ -394,16 +418,26 @@ class MainWindow(QtWidgets.QWidget):
             else:
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]+10
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            
+            if self.mi_pagevariables[DEFIB_SELECT] != 0:
+                self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
+            else: 
+                self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
 
 
     def onDownEnergySelectButtonClicked(self):
        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
-            if self.mi_pagevariables[DEFIB_SELECT] < (30 and self.mi_pagevariables[DEFIB_SELECT]-5 >= 0):
+            if (self.mi_pagevariables[DEFIB_SELECT] < 30) and (self.mi_pagevariables[DEFIB_SELECT]-5 >= 0):
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-5
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             elif self.mi_pagevariables[DEFIB_SELECT]-10 >= 0: # todo Agregar limite Superior
                 self.mi_pagevariables[DEFIB_SELECT] = self.mi_pagevariables[DEFIB_SELECT]-10
                 self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            
+            if self.mi_pagevariables[DEFIB_SELECT] != 0:
+                self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
+            else: 
+                self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
 
     def onChargeButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select) and (self.mi_pagevariables[DEFIB_SELECT] != 0):
@@ -433,6 +467,8 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J READY\nBIFASICO")
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibCharging)
+            self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
+            self.ui.Shock_pushButton.setStyleSheet(PressedStylesheet)
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
@@ -442,6 +478,8 @@ class MainWindow(QtWidgets.QWidget):
             if self.timer2.isActive():
                 self.timer2.timeout.disconnect()
                 self.timer2.stop()
+            self.ui.DISCHARGE_pushButton.setStyleSheet(PressedStylesheet)
+            self.ui.Shock_pushButton.setStyleSheet(Stylesheet)
             # Inicializar descarga
             self.timer2.setInterval(600)
             self.timer2.timeout.connect(self.defibDischarge)
@@ -462,8 +500,11 @@ class MainWindow(QtWidgets.QWidget):
             self.defibState = DEFIBState.Select
             self.workingState = WorkingState.Idle
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
+            self.ui.Shock_pushButton.setStyleSheet(Stylesheet)
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibDischarge)
+            self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
             
             print(" second timer is stoped")
 
@@ -472,6 +513,7 @@ class MainWindow(QtWidgets.QWidget):
         if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charged):
             self.defibState = DEFIBState.Shock
             self.workingState = WorkingState.Busy
+            self.ui.Shock_pushButton.setStyleSheet(Stylesheet)
             if self.timer2.isActive():
                 self.timer2.timeout.disconnect()
                 self.timer2.stop()
@@ -488,22 +530,31 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J SHK\nBIFASICO")
         else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibShock)  
+
+    def resetPacerPage(self):
+        self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
+        self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
+        self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
+        self.ui.pacerLabel_pushButton.setStyleSheet(Stylesheet)
 
     def onPacerButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.PACERPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
+            self.ui.plt.removeItem(self.data_line_channel1)
+            self.ui.pacerLabel_pushButton.setStyleSheet(PressedStylesheet)
+            self.resetDefib()
+            self.resetCPRPage()
             print(PageState.PACERPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
-            self.mi_pagevariables[PACEMAKER_MA] = 18
-            self.mi_pagevariables[PACEMAKER_PPM] = 70
-            self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
-            self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
+            self.resetPacerPage()
+            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
         
     
     def onPacerOutputUpButtonClicked(self):

@@ -365,65 +365,65 @@ port_VertSize = round(Vert_size*0.0470)             # 43
 # Medidas Coordenadas y dimenciones del CRP on StackedWidget
 # Formula                                           # Cordenada Original
 CRPLabel_CoordX1 = round(Horiz_size*0.3708)-stackedWidget_CoordX1             # 370
-CRPLabel_CoordY1 = round(Vert_size*0.1768)-stackedWidget_CoordY1              # 841
+CRPLabel_CoordY1 = round(Vert_size*0.0768)-stackedWidget_CoordY1              # 841
 CRPLabel_HorizSize = round(Horiz_size*0.2015)           # 96
 CRPLabel_VertSize = round(Vert_size*0.1055)             # 43
 
 CRPRateLabel_CoordX1 = round(Horiz_size*0.3901)-stackedWidget_CoordX1             # 370
-CRPRateLabel_CoordY1 = round(Vert_size*0.1990)-stackedWidget_CoordY1              # 841
+CRPRateLabel_CoordY1 = round(Vert_size*0.0990)-stackedWidget_CoordY1              # 841
 CRPRateLabel_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPRateLabel_VertSize = round(Vert_size*0.0185) 
 
 CRPRateValue_CoordX1 = round(Horiz_size*0.3901)-stackedWidget_CoordX1             # 370
-CRPRateValue_CoordY1 = round(Vert_size*0.2277)-stackedWidget_CoordY1              # 841
+CRPRateValue_CoordY1 = round(Vert_size*0.1277)-stackedWidget_CoordY1              # 841
 CRPRateValue_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPRateValue_VertSize = round(Vert_size*0.0361) 
 
 CRPTimeLabel_CoordX1 = round(Horiz_size*0.4515)-stackedWidget_CoordX1             # 370
-CRPTimeLabel_CoordY1 = round(Vert_size*0.1990)-stackedWidget_CoordY1              # 841
+CRPTimeLabel_CoordY1 = round(Vert_size*0.0990)-stackedWidget_CoordY1              # 841
 CRPTimeLabel_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPTimeLabel_VertSize = round(Vert_size*0.0185) 
 
 CRPTimeValue_CoordX1 = round(Horiz_size*0.4515)-stackedWidget_CoordX1             # 370
-CRPTimeValue_CoordY1 = round(Vert_size*0.2277)-stackedWidget_CoordY1              # 841
+CRPTimeValue_CoordY1 = round(Vert_size*0.1277)-stackedWidget_CoordY1              # 841
 CRPTimeValue_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPTimeValue_VertSize = round(Vert_size*0.0361) 
 
 CRPFCTLabel_CoordX1 = round(Horiz_size*0.5067)-stackedWidget_CoordX1             # 370
-CRPFCTLabel_CoordY1 = round(Vert_size*0.1990)-stackedWidget_CoordY1              # 841
+CRPFCTLabel_CoordY1 = round(Vert_size*0.0990)-stackedWidget_CoordY1              # 841
 CRPFCTLabel_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPFCTLabel_VertSize = round(Vert_size*0.0185) 
 
 CRPFCTValue_CoordX1 = round(Horiz_size*0.5067)-stackedWidget_CoordX1             # 370
-CRPFCTValue_CoordY1 = round(Vert_size*0.2277)-stackedWidget_CoordY1              # 841
+CRPFCTValue_CoordY1 = round(Vert_size*0.1277)-stackedWidget_CoordY1              # 841
 CRPFCTValue_HorizSize = round(Horiz_size*0.0542)           # 96
 CRPFCTValue_VertSize = round(Vert_size*0.0361) 
 
 # Medidas Coordenadas y dimenciones del DEFIB on StackedWidget
 # Formula                                           # Cordenada Original
 defibLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
-defibLabel_CoordY1 = round(Vert_size*0.1620)-stackedWidget_CoordY1              # 841
+defibLabel_CoordY1 = round(Vert_size*0.0620)-stackedWidget_CoordY1              # 841
 defibLabel_HorizSize = round(Horiz_size*0.2609)           # 96
 defibLabel_VertSize = round(Vert_size*0.1379) 
 
 # Medidas Coordenadas y dimenciones del Pacer on StackedWidget
 # Formula                                           # Cordenada Original        1920 - 1080
-pacerLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
-pacerLabel_CoordY1 = round(Vert_size*0.1620)-stackedWidget_CoordY1              # 841
-pacerLabel_HorizSize = round(Horiz_size*0.2609)           # 96
-pacerLabel_VertSize = round(Vert_size*0.1379) 
+pacemakerLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
+pacemakerLabel_CoordY1 = round(Vert_size*0.0620)-stackedWidget_CoordY1              # 841
+pacemakerLabel_HorizSize = round(Horiz_size*0.2609)           # 96
+pacemakerLabel_VertSize = round(Vert_size*0.1379) 
 
 pacerLabelText_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
-pacerLabelText_CoordY1 = round(Vert_size*0.1953)-stackedWidget_CoordY1              # 841
+pacerLabelText_CoordY1 = round(Vert_size*0.0953)-stackedWidget_CoordY1              # 841
 pacerLabelText_HorizSize = round(Horiz_size*0.1609)           # 96
 pacerLabelText_VertSize = round(Vert_size*0.0351)
 
 pacerValuemA_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
-pacerValuemA_CoordY1 = round(Vert_size*0.2481)-stackedWidget_CoordY1              # 841
+pacerValuemA_CoordY1 = round(Vert_size*0.1481)-stackedWidget_CoordY1              # 841
 pacerValuemA_HorizSize = round(Horiz_size*0.0804)           # 96
 pacerValuemA_VertSize = round(Vert_size*0.0351)
 
 pacerValueppm_CoordX1 = round(Horiz_size*0.3182)-stackedWidget_CoordX1             # 370
-pacerValueppm_CoordY1 = round(Vert_size*0.2481)-stackedWidget_CoordY1              # 841
+pacerValueppm_CoordY1 = round(Vert_size*0.1481)-stackedWidget_CoordY1              # 841
 pacerValueppm_HorizSize = round(Horiz_size*0.0804)           # 96
 pacerValueppm_VertSize = round(Vert_size*0.0351)

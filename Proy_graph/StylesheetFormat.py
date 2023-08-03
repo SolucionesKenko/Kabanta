@@ -12,17 +12,6 @@ Stylesheet = """
     font: bold 18px; 
     }
 
-#DEFIB_pushButton::indicator:pressed
-{
-    color: black; 
-    background-color: rgb(254,22,27); 
-    border-width: 1px; 
-    border-radius: 12px; 
-    border-color: black; 
-    padding: 5px; 
-    font: bold 18px; 
-}
-
 #DEA_pushButton, #SYNC_pushButton, #DISCHARGE_pushButton
 {
     color: black; 
@@ -43,7 +32,18 @@ Stylesheet = """
     border-color: rgb(84,84,84); 
     padding: 5px; 
     font: bold 15px; 
-    }
+}
+
+#paniMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton
+{
+    color: white; 
+    background-color: rgb(84,84,84);  
+    border-width: 1px; 
+    border-radius: 15px; 
+    border-color: rgb(84,84,84); 
+    padding: 5px; 
+    font: 15px; 
+}
 
  #alarmMenu_pushButton
 {
@@ -66,7 +66,7 @@ Stylesheet = """
     font: bold 13px; 
 }
 
-#MARCPLabel_pushButton
+#pacerLabel_pushButton
 {
     color: white; 
     background-color: rgb(0,127,55);  
@@ -289,7 +289,7 @@ Stylesheet = """
     font: bold 19px;
 }
 
-#pacerLabel_pushButton
+#pacemakerLabel_pushButton
 {
     color: white;
     background-color: rgb(0,127,55);  
@@ -317,5 +317,73 @@ Stylesheet = """
 {
     color: white;
     font:  24px;
+}
+"""
+
+PressedStylesheet = """
+
+#DEFIB_pushButton
+{
+    color: black; 
+    background-color: rgb(254,22,27); 
+    border-width: 1px; 
+    border-radius: 12px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 18px; 
+}
+
+#Charge_pushButton 
+{
+    color: black; 
+    background-color: rgb(255,204,0); 
+    border-width: 1px; 
+    border-radius: 12px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 18px; 
+}
+#Shock_pushButton
+{
+    color: black; 
+    background-color: rgb(254,22,27); 
+    border-width: 1px; 
+    border-radius: 12px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 18px; 
+}
+
+#pacerLabel_pushButton
+{
+    color: rgb(255,204,0); 
+    background-color: rgb(0,127,55);  
+    border-width: 1px; 
+    border-radius: 8px; 
+    border-color: rgb(0,127,55); 
+    padding: 5px; 
+    font: bold 15px; 
+}
+#CPRMenu_pushButton
+{
+    color: rgb(255,204,0); 
+    background-color: rgb(84,84,84);  
+    border-width: 1px; 
+    border-radius: 15px; 
+    border-color: rgb(84,84,84); 
+    padding: 5px; 
+    font: bold 15px; 
+    }
+
+#DISCHARGE_pushButton
+{
+    color: black; 
+    background-color: rgb(254,22,27); 
+    border-width: 1px; 
+    border-radius: 8px; 
+    border-color: black; 
+    padding: 5px; 
+    font: bold 10px; 
+
 }
 """

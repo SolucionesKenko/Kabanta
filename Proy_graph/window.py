@@ -406,13 +406,13 @@ class Ui_window(object):
         self.energySelectLabel_pushButton.setObjectName("energySelectLabel_pushButton")
         self.energySelectLabel_pushButton.setStyleSheet(Stylesheet)
         
-        self.MARCPLabel_pushButton = QtWidgets.QPushButton(Form)
-        self.MARCPLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
+        self.pacerLabel_pushButton = QtWidgets.QPushButton(Form)
+        self.pacerLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.MARCPLabel_CoordX1 ,
                                                                     pantalla_config.MARCPLabel_CoordY ,
                                                                     pantalla_config.MARCPLabel_HorizSize ,
                                                                     pantalla_config.MARCPLabel_VertSize))
-        self.MARCPLabel_pushButton.setObjectName("MARCPLabel_pushButton")
-        self.MARCPLabel_pushButton.setStyleSheet(Stylesheet)
+        self.pacerLabel_pushButton.setObjectName("pacerLabel_pushButton")
+        self.pacerLabel_pushButton.setStyleSheet(Stylesheet)
 
         self.mALabel_pushButton = QtWidgets.QPushButton(Form)
         self.mALabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.mALabel_CoordX1 ,
@@ -743,13 +743,13 @@ class Ui_window(object):
         self.defibLabel_pushButton.setObjectName("defibLabel_pushButton")
         self.defibLabel_pushButton.setStyleSheet(Stylesheet)
 
-        self.pacerLabel_pushButton =QtWidgets.QPushButton(self.pacerPage)
-        self.pacerLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.pacerLabel_CoordX1,
-                                                pantalla_config.pacerLabel_CoordY1,
-                                                pantalla_config.pacerLabel_HorizSize,
-                                                pantalla_config.pacerLabel_VertSize))
-        self.pacerLabel_pushButton.setObjectName("pacerLabel_pushButton")
-        self.pacerLabel_pushButton.setStyleSheet(Stylesheet)
+        self.pacemakerLabel_pushButton =QtWidgets.QPushButton(self.pacerPage)
+        self.pacemakerLabel_pushButton.setGeometry(QtCore.QRect(pantalla_config.pacemakerLabel_CoordX1,
+                                                pantalla_config.pacemakerLabel_CoordY1,
+                                                pantalla_config.pacemakerLabel_HorizSize,
+                                                pantalla_config.pacemakerLabel_VertSize))
+        self.pacemakerLabel_pushButton.setObjectName("pacemakerLabel_pushButton")
+        self.pacemakerLabel_pushButton.setStyleSheet(Stylesheet)
 
         self.pacerLabelText_Label = QtWidgets.QLabel(self.pacerPage)
         self.pacerLabelText_Label.setGeometry(QtCore.QRect(pantalla_config.pacerLabelText_CoordX1,
@@ -798,7 +798,7 @@ class Ui_window(object):
         self.sizeMenu_pushButton.setText(_translate('Form','SIZE'))
         self.LEADMenu_pushButton.setText(_translate('Form','LEAD'))
         self.energySelectLabel_pushButton.setText(_translate('Form','Energy Select'))
-        self.MARCPLabel_pushButton.setText(_translate('Form','P\nA\nC\nE\nR'))
+        self.pacerLabel_pushButton.setText(_translate('Form','P\nA\nC\nE\nR'))
         self.mALabel_pushButton.setText(_translate('Form','mA'))
         self.PPMLabel_pushButton.setText(_translate('Form','PPM'))
         self.pacerOutput_Label.setText(_translate('Form','PACER \n OUTPUT'))
