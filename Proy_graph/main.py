@@ -44,6 +44,19 @@ class WorkingState(Enum):
     Busy = auto()
     Idle = auto()
 
+class ScenarioState(IntEnum):
+    Idle = 0
+    ParoCardiaco = 1
+    TaquicardiaSinusal = 2
+    BradicardiaSinusal = 3 
+    FlutterAuricular = 4
+    FibrilacionAuricular = 5
+    TaquicardiaAuricular = 6
+    ArritmiaSinusal = 7
+    FibrilacionVentricular = 8
+    TaquicardiaVentricular = 9
+    Asistolia = 10
+    
 
 HEART_RATE = "1"
 TEMPERATURE = "2"
@@ -52,6 +65,7 @@ SYSPRESSURE = "4"
 DIAPRESSURE = "5"
 FR = "6"
 CO = "7"
+SCENARIO = "8"
 
 PACEMAKER_MA = "1"
 PACEMAKER_PPM = "2"
@@ -79,6 +93,7 @@ class MainWindow(QtWidgets.QWidget):
         self.pageState = PageState.OFFPAGE
         self.defibState = DEFIBState.Off
         self.workingState = WorkingState.Idle
+        self.scenarioState = ScenarioState.Idle
 
         # Data Variables
         self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
@@ -90,8 +105,19 @@ class MainWindow(QtWidgets.QWidget):
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
         self.bp =bp.BloodPressure()
-        self.i_rsp = 0
-        self.adder = 0
+
+        self.dataChannel1 = 0
+        self.dataChannel2 = 0
+        self.dataChannel3 = 0
+        self.dataChannel4 = 0
+        self.dataChannel5 = 0
+        self.dataChannel6 = 0
+        
+        self.adderChannel1 = 0
+        self.adderChannel4 = 0
+        self.adderChannel5 = 0
+        self.adderChannel6 = 0
+        
         # Manejo de tiempos
             # Timers 
         self.timer = QtCore.QTimer()
@@ -141,8 +167,8 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.stop_RoundButton.pressed.connect(self.onStopButtonClicked)
         self.ui.question_RoundButton.pressed.connect(self.displayHello)
         self.ui.OnOff_RoundButton.pressed.connect(self.onOnOffButtonClicked)
-        self.ui.UpRoundTriangle.pressed.connect(self.displayHello)
-        self.ui.DownRoundTriangle.pressed.connect(self.displayHello)
+        self.ui.UpRoundTriangle.pressed.connect(self.scenDefalt)
+        self.ui.DownRoundTriangle.pressed.connect(self.scenExperiment)
         
             
         ### Final de configuracion de los Widgets
@@ -160,16 +186,18 @@ class MainWindow(QtWidgets.QWidget):
         self.channel1 = deque([130 for i in self.x],maxlen=self.graphlength)
         self.channel2 = deque([110 for i in self.x],maxlen= self.graphlength)
         self.channel3 = deque([90 for i in self.x],maxlen=self.graphlength)
-        self.channel4_rsp = deque([30 for i in self.x], maxlen=self.graphlength)
+        self.channel4 = deque([70 for i in self.x], maxlen=self.graphlength)
+        self.channel5 = deque([50 for i in self.x], maxlen=self.graphlength)
+        self.channel6 = deque([30 for i in self.x], maxlen=self.graphlength)
 
         self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
         self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
         self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
-        self.data_line_ppg = self.ui.plt.plot(self.x,[70]*self.graphlength, pen = (134,234,233))
-        self.data_line_rsp = self.ui.plt.plot(self.x, self.channel4_rsp, pen = (255,222,89))
-
+        self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
+        self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (136,51,64))
+        self.data_line_channel6 = self.ui.plt.plot(self.x, self.channel6, pen = (255,222,89))
         self.data_line_co2 = self.ui.plt.plot(self.x,[10]*self.graphlength, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
-        self.data_line_bp = self.ui.plt.plot(self.x,[50]*self.graphlength, pen = (136,51,64))
+        
         
         # getting plot item
         self.ui.plt.getPlotItem().hideAxis('left')
@@ -199,28 +227,60 @@ class MainWindow(QtWidgets.QWidget):
         self.co2text = pg.TextItem('CO2', color = (171,171,171))
         self.co2text.setPos(-0.3, 10)
         self.ui.plt.addItem(self.co2text)
-    
-    def Update_Grahp(self):
-        # Manejo de indices de la senal
-        if(self.adder >= len(self.ecg12['I'])-1):
-            self.adder = 0
-        if(self.i_rsp >= 9999):
-            self.i_rsp = 0
+            
+    def signalScenarioData(self):
+        if self.scenarioState == ScenarioState.Idle:
+            self.dataChannel1 = (self.ecg12['I']*10)
+            self.dataChannel2 = (self.ecg12['II']*10)
+            self.dataChannel3 = (self.ecg12["III"]*10)
+            self.dataChannel4 = list(self.spo.dataIR)
+            self.dataChannel5 = list(self.bp.data)
+            self.dataChannel6 = (self.rsp)
+        elif self.scenarioState == ScenarioState.ParoCardiaco:
+            self.dataChannel1 = ([0]*self.graphlength)
+            self.dataChannel2 = ([0]*self.graphlength)
+            self.dataChannel3 = ([0]*self.graphlength)
+            self.dataChannel4 = list(self.spo.dataIR)
+            self.dataChannel5 = list([50]*self.graphlength)
+            self.dataChannel6 = (self.rsp)
+
+
+
         
-        self.adder = self.adder + 1
-        self.i_rsp = self.i_rsp + 1
+
+    def Update_Grahp(self):
+        self.signalScenarioData()
+        # Manejo de indices de la senal
+        if(self.adderChannel1 >= len(self.dataChannel1)-1):
+            self.adderChannel1 = 0
+        if (self.adderChannel4 >= len(self.dataChannel4)-1):
+            self.adderChannel4 = 0
+        if (self.adderChannel5 >= len(self.dataChannel5)-1):
+            self.adderChannel5 = 0 
+        if(self.adderChannel6 >= len(self.dataChannel6)-1):
+            self.adderChannel6 = 0
+        
+        
+        self.adderChannel1 = self.adderChannel1 + 1
+        self.adderChannel4 = self.adderChannel4 + 1
+        self.adderChannel5 = self.adderChannel5 + 1
+        self.adderChannel6 = self.adderChannel6 + 1
         self.i = self.i + 1
         self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
 
-        # Add new values to the channels 
-        self.channel1.append((self.ecg12['I'][self.adder]*10) + 130)   
-        self.channel2.append((self.ecg12['II'][self.adder]*10)+ 110)
-        self.channel3.append((self.ecg12["III"][self.adder]*10) + 90)  
-        self.channel4_rsp.append((self.rsp[self.i_rsp]*10) + 30)
-        self.spo.dataIR.rotate(-1)
+        # Add new values to the channels
+        self.channel1.append((self.dataChannel1[self.adderChannel1]) + 130)   
+        self.channel2.append(self.dataChannel2[self.adderChannel1]+ 110)
+        self.channel3.append(self.dataChannel3[self.adderChannel1] + 90)
+        self.channel4.append(self.dataChannel4[self.adderChannel4])
+        self.channel5.append(self.dataChannel5[self.adderChannel5])
+        self.channel6.append(self.dataChannel6[self.adderChannel6]*10 + 30)
+        
+        #self.spo.dataIR.rotate(-1)
+        
         self.co2.data.rotate(-1)
-        self.bp.data.rotate(-1)
-
+        
+        
         # Actualizacion posicion de labels
         self.d1text.setPos(self.x[0]-0.2, 130)
         self.d2text.setPos(self.x[0]-0.2, 110)
@@ -231,13 +291,16 @@ class MainWindow(QtWidgets.QWidget):
         self.co2text.setPos(self.x[0]-0.3, 10)
 
         # Actualizacion de los datos
-        self.data_line_rsp.setData(self.x, self.channel4_rsp)
-        self.data_line_ppg.setData(self.x, list(self.spo.dataIR)[1:])
+        
+        
         self.data_line_co2.setData(self.x, list(self.co2.data)[0:self.graphlength])
-        self.data_line_bp.setData(self.x, list(self.bp.data)[0:self.graphlength])
+        
         self.data_line_channel1.setData(self.x, self.channel1)
         self.data_line_channel2.setData(self.x, self.channel2)
         self.data_line_channel3.setData(self.x, self.channel3)
+        self.data_line_channel4.setData(self.x, self.channel4)
+        self.data_line_channel5.setData(self.x, self.channel5)
+        self.data_line_channel6.setData(self.x, self.channel6)
 
     ##########################################################################################
     # Funciones Callbacks de botones
@@ -277,7 +340,8 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.enableDisableVitalSignalMenu(False)
-
+    
+    
     def onPlayButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
@@ -331,7 +395,10 @@ class MainWindow(QtWidgets.QWidget):
             self.timer.stop()
             self.setDefaultValues()
             self.ui.plt.clear()
-            self.adder = 0
+            self.adderChannel1 = 0
+            self.adderChannel4 = 0
+            self.adderChannel5 = 0
+            self.adderChannel6 = 0
             self.signalState = SignalState.Stop
             print(self.signalState)
 
@@ -358,8 +425,10 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.stop()
             self.timer2.disconnect()
         # Restablecer graficas
-        self.adder = 0
-        self.i_rsp = 0
+        self.adderChannel1 = 0
+        self.adderChannel4 = 0
+        self.adderChannel5 = 0
+        self.adderChannel6 = 0
         self.i = 0
         self.ui.plt.clear()
         self.initSignalGrahps()
@@ -526,7 +595,6 @@ class MainWindow(QtWidgets.QWidget):
         if (self.defibState == DEFIBState.Shock):
             self.defibState = DEFIBState.Select
             self.workingState = WorkingState.Idle
-            self.mi_pagevariables[DEFIB_CHARGE] = 0
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J SHK\nBIFASICO")
         else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
@@ -657,6 +725,29 @@ class MainWindow(QtWidgets.QWidget):
             # Actualizacion de CO2
             #self.co2.loc = self.mi_diccionario[CO]
             #self.co2.init_timer()
+        elif (id == SCENARIO):
+            if (data == ScenarioState.Idle):
+                self.scenarioState = ScenarioState.Idle
+            elif (data == ScenarioState.ParoCardiaco):
+                self.scenarioState =ScenarioState.ParoCardiaco
+            elif (data == ScenarioState.TaquicardiaSinusal):
+                self.scenarioState = ScenarioState.TaquicardiaSinusal
+            elif (data == ScenarioState.BradicardiaSinusal):
+                self.scenarioState = ScenarioState.BradicardiaSinusal
+            elif (data == ScenarioState.FlutterAuricular):
+                self.scenarioState = ScenarioState.FlutterAuricular
+            elif (data == ScenarioState.FibrilacionAuricular):
+                self.scenarioState = ScenarioState.FibrilacionAuricular
+            elif (data == ScenarioState.TaquicardiaAuricular):
+                self.scenarioState = ScenarioState.TaquicardiaAuricular
+            elif (data == ScenarioState.ArritmiaSinusal):
+                self.scenarioState = ScenarioState.ArritmiaSinusal
+            elif (data == ScenarioState.FibrilacionVentricular):
+                self.scenarioState.FibrilacionVentricular
+            elif (data == ScenarioState.TaquicardiaVentricular):
+                self.scenarioState = ScenarioState.TaquicardiaVentricular
+            elif (data == ScenarioState.Asistolia):
+                self.scenarioState = ScenarioState.Asistolia
 
 
         else:
@@ -669,7 +760,14 @@ class MainWindow(QtWidgets.QWidget):
         print(self.mi_diccionario)
         self.updateUI(s_id, data)
 
-    
+    ##########################################################################################
+    # Funciones de esenarios     
+    def scenExperiment(self):
+        self.scenarioState = ScenarioState.ParoCardiaco
+        print("ParoCardiaco")
+    def scenDefalt(self):
+        self.scenarioState = ScenarioState.Idle
+        
 
 
 main_Stylesheet = """
