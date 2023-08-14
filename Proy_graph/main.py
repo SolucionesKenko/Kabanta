@@ -78,6 +78,8 @@ class PageState (IntEnum):
     CPRPAGE = 2
     DEFIBPAGE = 3
     PACERPAGE = 4
+    LEADPAGE1 = 5 
+    LEADPAGE2 = 6
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -100,7 +102,6 @@ class MainWindow(QtWidgets.QWidget):
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
         self.generateSig = 0
         self.ecg12 = 0
-        self.i = 0
         self.parserState = ParserState.Type
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
@@ -114,6 +115,8 @@ class MainWindow(QtWidgets.QWidget):
         self.dataChannel6 = 0
         
         self.adderChannel1 = 0
+        self.adderChannel2 = 0
+        self.adderChannel3 = 0
         self.adderChannel4 = 0
         self.adderChannel5 = 0
         self.adderChannel6 = 0
@@ -146,7 +149,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
         self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.LEADMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.LEADMenu_pushButton.pressed.connect(self.onLeadMenuButtonClicked)
         # Pacer 
         self.ui.DPO_pushButton.pressed.connect(self.onPacerOutputDownButtonClicked)
         self.ui.UPO_pushButton.pressed.connect(self.onPacerOutputUpButtonClicked)
@@ -191,68 +194,94 @@ class MainWindow(QtWidgets.QWidget):
         self.channel6 = deque([30 for i in self.x], maxlen=self.graphlength)
 
         self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
-        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (162,249,161))
-        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (162,249,161))
-        self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (134,234,233))
-        self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (136,51,64))
-        self.data_line_channel6 = self.ui.plt.plot(self.x, self.channel6, pen = (255,222,89))
-        self.data_line_co2 = self.ui.plt.plot(self.x,[10]*self.graphlength, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
-        
+        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (134,234,233))
+        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (136,51,64))
+        self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+        self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
+        self.data_line_channel6 = self.ui.plt.plot(self.x, self.channel6, pen = (162,249,161))
+        self.ui.plt.removeItem(self.data_line_channel6)
         
         # getting plot item
         self.ui.plt.getPlotItem().hideAxis('left')
         self.plot_size = self.ui.plt.getPlotItem().height()
         self.plot_x = self.ui.plt.getPlotItem().viewGeometry()
 
-        self.ui.plt.setYRange(0, 140)
+        self.ui.plt.setYRange(40, 140)
 
-        self.d1text = pg.TextItem('I', color = (162,249,161))
-        self.d1text.setPos(-0.2, 130)
-        self.ui.plt.addItem(self.d1text)
-        self.d2text = pg.TextItem('II', color = (162,249,161))
-        self.d2text.setPos(-0.2, 110)
-        self.ui.plt.addItem(self.d2text)
-        self.d3text = pg.TextItem('III', color = (162,249,161))
-        self.d3text.setPos(-0.2, 90)
-        self.ui.plt.addItem(self.d3text)
-        self.plethtext = pg.TextItem('Pleth', color = (134,234,233))
-        self.plethtext.setPos(-0.3, 70)
-        self.ui.plt.addItem(self.plethtext)
-        self.prestext = pg.TextItem('ABP', color= (136,51,64))
-        self.prestext.setPos(-0.3, 50)
-        self.ui.plt.addItem(self.prestext)
-        self.resptext = pg.TextItem('Resp', color = (255,222,89))
-        self.resptext.setPos(-0.3, 30)
-        self.ui.plt.addItem(self.resptext)
-        self.co2text = pg.TextItem('CO2', color = (171,171,171))
-        self.co2text.setPos(-0.3, 10)
-        self.ui.plt.addItem(self.co2text)
+        self.channel1Text = pg.TextItem('II', color = (162,249,161))
+        self.channel1Text.setPos(-0.2, 130)
+        self.ui.plt.addItem(self.channel1Text)
+        self.channel2Text = pg.TextItem('Pleth', color = (134,234,233))
+        self.channel2Text.setPos(-0.3, 110)
+        self.ui.plt.addItem(self.channel2Text)
+        self.channel3Text = pg.TextItem('ABP', color= (136,51,64))
+        self.channel3Text.setPos(-0.3, 90)
+        self.ui.plt.addItem(self.channel3Text)
+        self.channel4Text = pg.TextItem('Resp', color = (255,222,89))
+        self.channel4Text.setPos(-0.3, 70)
+        self.ui.plt.addItem(self.channel4Text)
+        self.channel5Text = pg.TextItem('CO2', color = (171,171,171))
+        self.channel5Text.setPos(-0.3, 50)
+        self.ui.plt.addItem(self.channel5Text)
+        self.channel6Text = pg.TextItem('aFV', color = (162,249,161))
+        self.channel6Text.setPos(-0.2, 30)
+        self.ui.plt.addItem(self.channel6Text)
+        self.ui.plt.removeItem(self.channel6Text)
             
     def signalScenarioData(self):
         if self.scenarioState == ScenarioState.Idle:
-            self.dataChannel1 = (self.ecg12['I']*10)
-            self.dataChannel2 = (self.ecg12['II']*10)
-            self.dataChannel3 = (self.ecg12["III"]*10)
-            self.dataChannel4 = list(self.spo.dataIR)
-            self.dataChannel5 = list(self.bp.data)
-            self.dataChannel6 = (self.rsp)
+            self.dataChannel1 = (self.ecg12['II']*10)
+            self.dataChannel2 = list(self.spo.dataIR)
+            self.dataChannel3 = list(self.bp.data)
+            self.dataChannel4 = (self.rsp)
+            self.dataChannel5 = list(self.co2.data)
+            self.dataChannel6 = (self.ecg12["aVF"])
+            
         elif self.scenarioState == ScenarioState.ParoCardiaco:
             self.dataChannel1 = ([0]*self.graphlength)
-            self.dataChannel2 = ([0]*self.graphlength)
+            self.dataChannel2 = (list(self.spo.dataIR))
             self.dataChannel3 = ([0]*self.graphlength)
-            self.dataChannel4 = list(self.spo.dataIR)
-            self.dataChannel5 = list([50]*self.graphlength)
-            self.dataChannel6 = (self.rsp)
-
-
-
-        
+            self.dataChannel4 = (self.rsp)
+            self.dataChannel5 = list(self.co2.data)
+            self.dataChannel6 = (self.ecg12["aVF"])
+        elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
+            print(ScenarioState.TaquicardiaSinusal)
+        elif self.scenarioState == ScenarioState.BradicardiaSinusal:
+            print(ScenarioState.BradicardiaSinusal)
+        elif self.scenarioState == ScenarioState.FlutterAuricular:
+            print(ScenarioState.FlutterAuricular)
+        elif self.scenarioState == ScenarioState.FibrilacionAuricular:
+            print(ScenarioState.FibrilacionAuricular)
+        elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
+            print(ScenarioState.TaquicardiaAuricular)
+        elif self.scenarioState == ScenarioState.ArritmiaSinusal:
+            print(ScenarioState.ArritmiaSinusal)
+        elif self.scenarioState == ScenarioState.FibrilacionVentricular:
+            print(ScenarioState.FibrilacionVentricular)
+        elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
+            print(ScenarioState.TaquicardiaVentricular)
+        elif self.scenarioState == ScenarioState.Asistolia:
+            print(ScenarioState.Asistolia)
+            
 
     def Update_Grahp(self):
-        self.signalScenarioData()
+        if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+            self.signalScenarioData()
+        # else:
+        #     self.dataChannel1 = (([0] * 2000) + (self.ecg12[self.leadConfig["text1"]]*10))
+        #     self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
+        #     self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
+        #     self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
+        #     self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
+        #     self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
+
         # Manejo de indices de la senal
         if(self.adderChannel1 >= len(self.dataChannel1)-1):
             self.adderChannel1 = 0
+        if (self.adderChannel2 >= len(self.dataChannel2)-1):
+            self.adderChannel2 = 0
+        if (self.adderChannel3 >= len(self.dataChannel3)-1):
+            self.adderChannel3 = 0
         if (self.adderChannel4 >= len(self.dataChannel4)-1):
             self.adderChannel4 = 0
         if (self.adderChannel5 >= len(self.dataChannel5)-1):
@@ -260,40 +289,32 @@ class MainWindow(QtWidgets.QWidget):
         if(self.adderChannel6 >= len(self.dataChannel6)-1):
             self.adderChannel6 = 0
         
-        
         self.adderChannel1 = self.adderChannel1 + 1
+        self.adderChannel2 = self.adderChannel2 + 1
+        self.adderChannel3 = self.adderChannel3 + 1
         self.adderChannel4 = self.adderChannel4 + 1
         self.adderChannel5 = self.adderChannel5 + 1
         self.adderChannel6 = self.adderChannel6 + 1
-        self.i = self.i + 1
         self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
 
         # Add new values to the channels
         self.channel1.append((self.dataChannel1[self.adderChannel1]) + 130)   
-        self.channel2.append(self.dataChannel2[self.adderChannel1]+ 110)
-        self.channel3.append(self.dataChannel3[self.adderChannel1] + 90)
-        self.channel4.append(self.dataChannel4[self.adderChannel4])
-        self.channel5.append(self.dataChannel5[self.adderChannel5])
-        self.channel6.append(self.dataChannel6[self.adderChannel6]*10 + 30)
-        
-        #self.spo.dataIR.rotate(-1)
-        
-        self.co2.data.rotate(-1)
-        
+        self.channel2.append(self.dataChannel2[self.adderChannel2]+ 110)
+        self.channel3.append(self.dataChannel3[self.adderChannel3]+ 80)
+        self.channel4.append(self.dataChannel4[self.adderChannel4]*10+ 70)
+        self.channel5.append(self.dataChannel5[self.adderChannel5]+ 40)
+        self.channel6.append(self.dataChannel6[self.adderChannel6] + 30)
         
         # Actualizacion posicion de labels
-        self.d1text.setPos(self.x[0]-0.2, 130)
-        self.d2text.setPos(self.x[0]-0.2, 110)
-        self.d3text.setPos(self.x[0]-0.2, 90)
-        self.plethtext.setPos(self.x[0]-0.3, 70)
-        self.prestext.setPos(self.x[0]-0.3, 50)
-        self.resptext.setPos(self.x[0]-0.3, 30)
-        self.co2text.setPos(self.x[0]-0.3, 10)
+        self.channel1Text.setPos(self.x[0]-0.2, 130)
+        # self.d2text.setPos(self.x[0]-0.2, 110)
+        self.channel2Text.setPos(self.x[0]-0.3, 110)
+        self.channel3Text.setPos(self.x[0]-0.3, 90)
+        self.channel4Text.setPos(self.x[0]-0.3, 70)
+        self.channel5Text.setPos(self.x[0]-0.3, 50)
+        self.channel6Text.setPos(self.x[0]-0.2, 30)
 
         # Actualizacion de los datos
-        
-        
-        self.data_line_co2.setData(self.x, list(self.co2.data)[0:self.graphlength])
         
         self.data_line_channel1.setData(self.x, self.channel1)
         self.data_line_channel2.setData(self.x, self.channel2)
@@ -396,6 +417,8 @@ class MainWindow(QtWidgets.QWidget):
             self.setDefaultValues()
             self.ui.plt.clear()
             self.adderChannel1 = 0
+            self.adderChannel2 = 0
+            self.adderChannel3 = 0
             self.adderChannel4 = 0
             self.adderChannel5 = 0
             self.adderChannel6 = 0
@@ -429,7 +452,6 @@ class MainWindow(QtWidgets.QWidget):
         self.adderChannel4 = 0
         self.adderChannel5 = 0
         self.adderChannel6 = 0
-        self.i = 0
         self.ui.plt.clear()
         self.initSignalGrahps()
         self.signalState = SignalState.Idle
@@ -644,6 +666,53 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE) and (self.mi_pagevariables[PACEMAKER_PPM]-5 >= 0):
             self.mi_pagevariables[PACEMAKER_PPM] = self.mi_pagevariables[PACEMAKER_PPM]-5
             self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
+
+    def onLeadMenuButtonClicked(self):
+        if (self.pageState != PageState.OFFPAGE)  and (self.signalState == SignalState.Playing):
+            if self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+                self.pageState = PageState.LEADPAGE1
+                self.workingState = WorkingState.Busy
+                self.resetDefib()
+                self.resetCPRPage()
+                self.resetPacerPage()
+                self.ui.plt.setYRange(20, 140)
+                self.ui.plt.addItem(self.channel6Text)
+                self.leadConfig = {"text1":"I", "text2":"II","text3":"III","text4":"aVL","text5":"aVR", "text6":"aVF","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
+                self.ui.plt.addItem(self.data_line_channel6)
+            elif self.pageState == PageState.LEADPAGE1:
+                self.pageState = PageState.LEADPAGE2
+                self.leadConfig = {"text1":"V1", "text2":"V2","text3":"V3","text4":"V4","text5":"V5", "text6":"V6","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
+            elif self.pageState == PageState.LEADPAGE2:
+                self.pageState = PageState.DEFAULTPAGE
+                self.workingState = WorkingState.Idle
+                self.leadConfig = {"text1":"II", "text2":"Pleth","text3":"ABP","text4":"Resp","text5":"CO2", "text6":"aVF","ch1":(162,249,161),"ch2":(134,234,233),"ch3":(136,51,64), "ch4":(255,222,89),"ch5":(171,171,171),"ch6":(162,249,161)}
+                self.ui.plt.removeItem(self.data_line_channel6)
+                self.ui.plt.removeItem(self.channel6Text)
+                self.ui.plt.setYRange(40, 140)
+                
+            self.channel1Text.setText(self.leadConfig["text1"])
+            self.channel2Text.setText(self.leadConfig["text2"])
+            self.channel3Text.setText(self.leadConfig["text3"])
+            self.channel4Text.setText(self.leadConfig["text4"])
+            self.channel5Text.setText(self.leadConfig["text5"])
+            self.channel6Text.setText(self.leadConfig["text6"])
+
+            self.channel1Text.setColor(self.leadConfig["ch1"])
+            self.channel2Text.setColor(self.leadConfig["ch2"])
+            self.channel3Text.setColor(self.leadConfig["ch3"])
+            self.channel4Text.setColor(self.leadConfig["ch4"])
+            self.channel5Text.setColor(self.leadConfig["ch5"])
+            self.channel6Text.setColor(self.leadConfig["ch6"])
+
+            self.data_line_channel1.setPen(self.leadConfig["ch1"])
+            self.data_line_channel2.setPen(self.leadConfig["ch2"])
+            self.data_line_channel3.setPen(self.leadConfig["ch3"])
+            self.data_line_channel4.setPen(self.leadConfig["ch4"])
+            self.data_line_channel5.setPen(self.leadConfig["ch5"])
+            self.data_line_channel6.setPen(self.leadConfig["ch6"])
+
+            
+            
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  

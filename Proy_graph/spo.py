@@ -119,8 +119,8 @@ class SPO():
 
         # store data into variables 
         self.time.append(self.tPPG)
-        self.dataR.append(self.sR*8+70)
-        self.dataIRbuffer.append(self.sIR*8+70)
+        self.dataR.append(self.sR*8)
+        self.dataIRbuffer.append(self.sIR*8)
     
     def init_signal(self):
         if (np.size(self.dataIRbuffer)>=50):
