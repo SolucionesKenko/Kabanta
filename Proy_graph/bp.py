@@ -56,7 +56,7 @@ class BloodPressure():
         #print(P_out)
         # Add the new signals to the data buffers
         self.time.append(t)
-        self.databuffer.append((P_out[-1][0]))
+        self.databuffer.append((P_out[-1][0])-12)
     
     # Define the model with the square wave for the aortic pressure
     def model(self, P, t):

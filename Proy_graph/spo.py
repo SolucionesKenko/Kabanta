@@ -131,6 +131,7 @@ class SPO():
                 #print(f" indice {i}, tamano del variable {np.size(self.dataIR)}")
             self.dataIR = self.dataIRbuffer
             print("ppg Signal Created")
+            print(type(self.dataIR))
         else:
             self.update_plot()
     

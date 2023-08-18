@@ -1,24 +1,37 @@
-# from collections import deque
-# from PyQt5 import QtWidgets, QtCore
-# import pyqtgraph as pg 
-# import sys 
-# import numpy as np
-# number = 4
-# pokemon = deque(list([1,2,3,4,5,6,7,8,9,10]))
-# prueba = deque(list([0,0,0,0,0,0,0,0,0,0]),maxlen=10)
-
-# for i in range(number):
-#     prueba.append(list(pokemon)[i])
-# print(prueba[1])
-# print(list(pokemon)[0:number])
-# print(prueba)
-
+from PyQt5 import QtWidgets, QtCore
+import pyqtgraph as pg 
+import sys 
+import numpy as np
+from data_test import ecg_signal, obtainSignals
+from window import Ui_window
 from collections import deque
-number = 4
-pokemon = deque(range(1, 11))
-prueba = deque([9,10,11,12,13,0,0,0,0,0],maxlen=10)
-prueba = deque(list(prueba) + list(pokemon)[:number],maxlen=10)
+from StylesheetFormat import PressedStylesheet, Stylesheet
+import pandas as pd
+# Manejo de puertos
+import serial 
+import serial.tools.list_ports as portList 
+#from Bluetooth Variables
+from ESPmsg import ParserState, WorkerThread, State
+from serialCoder import SerialCoder
 
-print(prueba)
+from enum import Enum, auto, IntEnum
+import spo
+import co2
+import bp
+spo = spo.SPO()
+co2 = co2.CO2()
+bp =bp.BloodPressure()
+from time import time
+
+
+generateSig = obtainSignals()
+ecg12 = generateSig.generateSignals(60)
+
+rsp = list(generateSig.generate_rsp())
+pokemon = [1,2,3,4,5,6,7,8]
+pokemon2 = pd.DataFrame(pokemon)[0]
+print(pokemon[:0])
+print(deque(pokemon + list(pokemon2+10)[-3:],maxlen=12))
+
 
 

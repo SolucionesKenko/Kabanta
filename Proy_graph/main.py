@@ -10,7 +10,7 @@ from data_test import ecg_signal, obtainSignals
 from window import Ui_window
 from collections import deque
 from StylesheetFormat import PressedStylesheet, Stylesheet
-
+import pandas as pd
 # Manejo de puertos
 import serial 
 import serial.tools.list_ports as portList 
@@ -106,6 +106,7 @@ class MainWindow(QtWidgets.QWidget):
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
         self.bp =bp.BloodPressure()
+        self.zeros = 0
 
         self.dataChannel1 = 0
         self.dataChannel2 = 0
@@ -120,6 +121,7 @@ class MainWindow(QtWidgets.QWidget):
         self.adderChannel4 = 0
         self.adderChannel5 = 0
         self.adderChannel6 = 0
+        self.adderFlag = 0
         
         # Manejo de tiempos
             # Timers 
@@ -267,17 +269,19 @@ class MainWindow(QtWidgets.QWidget):
     def Update_Grahp(self):
         if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             self.signalScenarioData()
-        # else:
-        #     self.dataChannel1 = (([0] * 2000) + (self.ecg12[self.leadConfig["text1"]]*10))
-        #     self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
-        #     self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
-        #     self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
-        #     self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
-        #     self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
-
+        else:
+            self.dataChannel1 = (self.ecg12[self.leadConfig["text1"]]*10)
+            self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
+            self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
+            self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
+            self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
+            self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
         # Manejo de indices de la senal
+        if self.adderChannel1>1999:
+            self.adderFlag = 1
         if(self.adderChannel1 >= len(self.dataChannel1)-1):
             self.adderChannel1 = 0
+            self.zeros = self.adderChannel1
         if (self.adderChannel2 >= len(self.dataChannel2)-1):
             self.adderChannel2 = 0
         if (self.adderChannel3 >= len(self.dataChannel3)-1):
@@ -298,11 +302,12 @@ class MainWindow(QtWidgets.QWidget):
         self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
 
         # Add new values to the channels
+        
         self.channel1.append((self.dataChannel1[self.adderChannel1]) + 130)   
         self.channel2.append(self.dataChannel2[self.adderChannel2]+ 110)
-        self.channel3.append(self.dataChannel3[self.adderChannel3]+ 80)
+        self.channel3.append(self.dataChannel3[self.adderChannel3]+ 90)
         self.channel4.append(self.dataChannel4[self.adderChannel4]*10+ 70)
-        self.channel5.append(self.dataChannel5[self.adderChannel5]+ 40)
+        self.channel5.append(self.dataChannel5[self.adderChannel5]+ 50)
         self.channel6.append(self.dataChannel6[self.adderChannel6] + 30)
         
         # Actualizacion posicion de labels
@@ -370,6 +375,7 @@ class MainWindow(QtWidgets.QWidget):
                 self.generateSig = obtainSignals()
                 self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
                 self.rsp = list(self.generateSig.generate_rsp())
+        
                 self.time.__init__(0,0,0,0)
             
             if(self.signalState != SignalState.Playing):
@@ -679,16 +685,67 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.plt.addItem(self.channel6Text)
                 self.leadConfig = {"text1":"I", "text2":"II","text3":"III","text4":"aVL","text5":"aVR", "text6":"aVF","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
                 self.ui.plt.addItem(self.data_line_channel6)
+                self.data_line_channel5.setBrush(171,171,171, 0)
+                
+                if self.adderFlag == 0:
+                    self.adderChannel2 = self.adderChannel1 
+                    self.adderChannel3 = self.adderChannel1 
+                    self.adderChannel4 = self.adderChannel1 
+                    self.adderChannel5 = self.adderChannel1 
+                    self.adderChannel6 = self.adderChannel1 
+                
+                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
+                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
+                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
+                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
+                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
+                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+                
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
+                
                 self.leadConfig = {"text1":"V1", "text2":"V2","text3":"V3","text4":"V4","text5":"V5", "text6":"V6","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
+                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
+                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
+                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
+                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
+                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
+                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+            
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE2:
+                self.data_line_channel5.setBrush(171,171,171, 60)
                 self.pageState = PageState.DEFAULTPAGE
                 self.workingState = WorkingState.Idle
                 self.leadConfig = {"text1":"II", "text2":"Pleth","text3":"ABP","text4":"Resp","text5":"CO2", "text6":"aVF","ch1":(162,249,161),"ch2":(134,234,233),"ch3":(136,51,64), "ch4":(255,222,89),"ch5":(171,171,171),"ch6":(162,249,161)}
                 self.ui.plt.removeItem(self.data_line_channel6)
                 self.ui.plt.removeItem(self.channel6Text)
                 self.ui.plt.setYRange(40, 140)
+
+                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
+                startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
+                startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
+                startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
+                startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
+                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+                
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.adderChannel2],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.adderChannel3],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.adderChannel4],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.adderChannel5],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
                 
             self.channel1Text.setText(self.leadConfig["text1"])
             self.channel2Text.setText(self.leadConfig["text2"])
@@ -710,9 +767,6 @@ class MainWindow(QtWidgets.QWidget):
             self.data_line_channel4.setPen(self.leadConfig["ch4"])
             self.data_line_channel5.setPen(self.leadConfig["ch5"])
             self.data_line_channel6.setPen(self.leadConfig["ch6"])
-
-            
-            
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
