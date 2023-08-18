@@ -20,7 +20,7 @@ Stylesheet = """
     border-radius: 8px; 
     border-color: black; 
     padding: 5px; 
-    font: bold 10px; 
+    font: bold 14px; 
 
 }
 #confirmMenu_pushButton, #returnMenu_pushButton, #CPRMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton, #paniMenu_pushButton
@@ -34,7 +34,7 @@ Stylesheet = """
     font: bold 15px; 
 }
 
-#paniMenu_pushButton, #sizeMenu_pushButton, #LEADMenu_pushButton
+#paniMenu_pushButton, #sizeMenu_pushButton
 {
     color: white; 
     background-color: rgb(84,84,84);  

@@ -30,7 +30,7 @@ ecg12 = generateSig.generateSignals(60)
 rsp = list(generateSig.generate_rsp())
 pokemon = [1,2,3,4,5,6,7,8]
 pokemon2 = pd.DataFrame(pokemon)[0]
-print(pokemon[:0])
+print(pokemon[:2000])
 print(deque(pokemon + list(pokemon2+10)[-3:],maxlen=12))
 
 
