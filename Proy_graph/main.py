@@ -259,7 +259,7 @@ class MainWindow(QtWidgets.QWidget):
         elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
             print(ScenarioState.TaquicardiaAuricular)
         elif self.scenarioState == ScenarioState.ArritmiaSinusal:
-            self.data_line_channel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
+            self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
             print(ScenarioState.ArritmiaSinusal)
         elif self.scenarioState == ScenarioState.FibrilacionVentricular:
             print(ScenarioState.FibrilacionVentricular)
@@ -889,7 +889,7 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funciones de esenarios     
     def scenExperiment(self):
-        self.scenarioState = ScenarioState.FibrilacionAuricular
+        self.scenarioState = ScenarioState.FlutterAuricular
         print("ParoCardiaco")
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
