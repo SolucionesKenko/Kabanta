@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg 
 import sys 
 import numpy as np
-from data_test import ecg_signal, obtainSignals
+from data_test import ecg_signal, obtainSignals, Atrialflutter, Sinusarrhythmia, Atrialfibrillation
 from window import Ui_window
 from collections import deque
 from StylesheetFormat import PressedStylesheet, Stylesheet
@@ -44,17 +44,17 @@ class WorkingState(Enum):
     Busy = auto()
     Idle = auto()
 
-class ScenarioState(IntEnum):
-    Idle = 0
-    ParoCardiaco = 1
-    TaquicardiaSinusal = 2
-    BradicardiaSinusal = 3 
-    FlutterAuricular = 4
-    FibrilacionAuricular = 5
-    TaquicardiaAuricular = 6
-    ArritmiaSinusal = 7
-    FibrilacionVentricular = 8
-    TaquicardiaVentricular = 9
+class ScenarioState(IntEnum):   #   Estado para simular
+    Idle = 0                    #   Listo
+    ParoCardiaco = 1            #   Listo
+    TaquicardiaSinusal = 2      #   Pendiente
+    BradicardiaSinusal = 3      #   Pendiente
+    FlutterAuricular = 4        #   Listo
+    FibrilacionAuricular = 5    #   Listo
+    TaquicardiaAuricular = 6    #   Pendiente
+    ArritmiaSinusal = 7         #   Listo
+    FibrilacionVentricular = 8  #   Pendiente
+    TaquicardiaVentricular = 9  #   Pendiente
     Asistolia = 10
     
 
@@ -251,12 +251,15 @@ class MainWindow(QtWidgets.QWidget):
         elif self.scenarioState == ScenarioState.BradicardiaSinusal:
             print(ScenarioState.BradicardiaSinusal)
         elif self.scenarioState == ScenarioState.FlutterAuricular:
-            print(ScenarioState.FlutterAuricular)
+            self.dataChannel1 = list(pd.DataFrame(Atrialflutter)[0]*10)
+            #print(ScenarioState.FlutterAuricular)
         elif self.scenarioState == ScenarioState.FibrilacionAuricular:
-            print(ScenarioState.FibrilacionAuricular)
+            self.dataChannel1 = list(pd.DataFrame(Atrialfibrillation)[0]*10)
+            #print(ScenarioState.FibrilacionAuricular)
         elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
             print(ScenarioState.TaquicardiaAuricular)
         elif self.scenarioState == ScenarioState.ArritmiaSinusal:
+            self.data_line_channel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
             print(ScenarioState.ArritmiaSinusal)
         elif self.scenarioState == ScenarioState.FibrilacionVentricular:
             print(ScenarioState.FibrilacionVentricular)
@@ -279,6 +282,7 @@ class MainWindow(QtWidgets.QWidget):
         # Manejo de indices de la senal
         if self.adderChannel1>1999:
             self.adderFlag = 1
+
         if(self.adderChannel1 >= len(self.dataChannel1)-1):
             self.adderChannel1 = 0
             self.zeros = self.adderChannel1
@@ -302,9 +306,8 @@ class MainWindow(QtWidgets.QWidget):
         self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
 
         # Add new values to the channels
-        
-        self.channel1.append((self.dataChannel1[self.adderChannel1]) + 130)   
-        self.channel2.append(self.dataChannel2[self.adderChannel2]+ 110)
+        self.channel1.append(self.dataChannel1[self.adderChannel1]+ 130)
+        self.channel2.append((self.dataChannel2[self.adderChannel2])+ 110)   
         self.channel3.append(self.dataChannel3[self.adderChannel3]+ 90)
         self.channel4.append(self.dataChannel4[self.adderChannel4]*10+ 70)
         self.channel5.append(self.dataChannel5[self.adderChannel5]+ 50)
@@ -312,7 +315,6 @@ class MainWindow(QtWidgets.QWidget):
         
         # Actualizacion posicion de labels
         self.channel1Text.setPos(self.x[0]-0.2, 130)
-        # self.d2text.setPos(self.x[0]-0.2, 110)
         self.channel2Text.setPos(self.x[0]-0.3, 110)
         self.channel3Text.setPos(self.x[0]-0.3, 90)
         self.channel4Text.setPos(self.x[0]-0.3, 70)
@@ -674,10 +676,11 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
 
     def onLeadMenuButtonClicked(self):
-        if (self.pageState != PageState.OFFPAGE)  and (self.signalState == SignalState.Playing):
+        if (self.pageState != PageState.OFFPAGE)  and (self.signalState == SignalState.Playing) and (self.pageState in [PageState.DEFAULTPAGE, PageState.LEADPAGE1, PageState.LEADPAGE2]):
             if self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
                 self.pageState = PageState.LEADPAGE1
                 self.workingState = WorkingState.Busy
+                self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
                 self.resetDefib()
                 self.resetCPRPage()
                 self.resetPacerPage()
@@ -886,7 +889,7 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funciones de esenarios     
     def scenExperiment(self):
-        self.scenarioState = ScenarioState.ParoCardiaco
+        self.scenarioState = ScenarioState.FibrilacionAuricular
         print("ParoCardiaco")
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
