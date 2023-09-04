@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtCore
 import pyqtgraph as pg 
 import sys 
 import numpy as np
-from data_test import ecg_signal, obtainSignals, Atrialflutter, Sinusarrhythmia, Atrialfibrillation
+from data_test import ecg_signal, obtainSignals, Atrialflutter, Sinusarrhythmia, Atrialfibrillation, VTHR, VF, SBR
 from window import Ui_window
 from collections import deque
 from StylesheetFormat import PressedStylesheet, Stylesheet
@@ -48,13 +48,13 @@ class ScenarioState(IntEnum):   #   Estado para simular
     Idle = 0                    #   Listo
     ParoCardiaco = 1            #   Listo
     TaquicardiaSinusal = 2      #   Pendiente
-    BradicardiaSinusal = 3      #   Pendiente
+    BradicardiaSinusal = 3      #   Listo
     FlutterAuricular = 4        #   Listo
     FibrilacionAuricular = 5    #   Listo
     TaquicardiaAuricular = 6    #   Pendiente
     ArritmiaSinusal = 7         #   Listo
-    FibrilacionVentricular = 8  #   Pendiente
-    TaquicardiaVentricular = 9  #   Pendiente
+    FibrilacionVentricular = 8  #   Listo
+    TaquicardiaVentricular = 9  #   Listo
     Asistolia = 10
     
 
@@ -249,6 +249,7 @@ class MainWindow(QtWidgets.QWidget):
         elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
             print(ScenarioState.TaquicardiaSinusal)
         elif self.scenarioState == ScenarioState.BradicardiaSinusal:
+            self.dataChannel1 = list(pd.DataFrame(SBR)[0]*10)
             print(ScenarioState.BradicardiaSinusal)
         elif self.scenarioState == ScenarioState.FlutterAuricular:
             self.dataChannel1 = list(pd.DataFrame(Atrialflutter)[0]*10)
@@ -262,8 +263,10 @@ class MainWindow(QtWidgets.QWidget):
             self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
             print(ScenarioState.ArritmiaSinusal)
         elif self.scenarioState == ScenarioState.FibrilacionVentricular:
+            self.dataChannel1 = list(pd.DataFrame(VF)[0]*10)
             print(ScenarioState.FibrilacionVentricular)
         elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
+            self.dataChannel1 = list(pd.DataFrame(VTHR)[0]*10)
             print(ScenarioState.TaquicardiaVentricular)
         elif self.scenarioState == ScenarioState.Asistolia:
             print(ScenarioState.Asistolia)
@@ -889,7 +892,7 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funciones de esenarios     
     def scenExperiment(self):
-        self.scenarioState = ScenarioState.FlutterAuricular
+        self.scenarioState = ScenarioState.ArritmiaSinusal
         print("ParoCardiaco")
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
