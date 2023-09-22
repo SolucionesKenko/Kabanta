@@ -396,7 +396,7 @@ class MainWindow(QtWidgets.QWidget):
                 if(self.signalState == SignalState.Stop):
                     self.initSignalGrahps()
                     if self.pageState != PageState.DEFAULTPAGE:
-                        self.ui.plt.removeItem(self.data_line_channel1)
+                       self.ui.plt.removeItem(self.data_line_channel4)
                 
                 self.signalState = SignalState.Playing
                 print(self.signalState)
@@ -483,19 +483,19 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetPacerPage()
-            self.ui.plt.removeItem(self.data_line_channel1)
+            self.ui.plt.removeItem(self.data_line_channel4)
             print(PageState.CPRPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
-            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
+            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
     
     def onDEFIBButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.DEFIBPAGE
             self.defibState = DEFIBState.Select
-            self.ui.plt.removeItem(self.data_line_channel1)
+            self.ui.plt.removeItem(self.data_line_channel4)
             self.resetPacerPage()
             self.resetCPRPage
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
@@ -509,7 +509,7 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
-            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
+            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
             self.resetDefib()
     
     def onUpEnergySelectButtonClicked(self):
@@ -645,7 +645,7 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.PACERPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
-            self.ui.plt.removeItem(self.data_line_channel1)
+            self.ui.plt.removeItem(self.data_line_channel4)
             self.ui.pacerLabel_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetCPRPage()
@@ -655,7 +655,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.resetPacerPage()
-            self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
+            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
         
     
     def onPacerOutputUpButtonClicked(self):

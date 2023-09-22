@@ -402,28 +402,28 @@ CRPFCTValue_VertSize = round(Vert_size*0.0361)
 # Medidas Coordenadas y dimenciones del DEFIB on StackedWidget
 # Formula                                           # Cordenada Original
 defibLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
-defibLabel_CoordY1 = round(Vert_size*0.0620)-stackedWidget_CoordY1              # 841
+defibLabel_CoordY1 = round(Vert_size*0.5420)-stackedWidget_CoordY1              # 841
 defibLabel_HorizSize = round(Horiz_size*0.2609)           # 96
 defibLabel_VertSize = round(Vert_size*0.1379) 
 
 # Medidas Coordenadas y dimenciones del Pacer on StackedWidget
 # Formula                                           # Cordenada Original        1920 - 1080
 pacemakerLabel_CoordX1 = round(Horiz_size*0.1875)-stackedWidget_CoordX1             # 370
-pacemakerLabel_CoordY1 = round(Vert_size*0.0620)-stackedWidget_CoordY1              # 841
+pacemakerLabel_CoordY1 = round(Vert_size*0.5420)-stackedWidget_CoordY1              # 841
 pacemakerLabel_HorizSize = round(Horiz_size*0.2609)           # 96
 pacemakerLabel_VertSize = round(Vert_size*0.1379) 
 
 pacerLabelText_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
-pacerLabelText_CoordY1 = round(Vert_size*0.0953)-stackedWidget_CoordY1              # 841
+pacerLabelText_CoordY1 = round(Vert_size*0.5753)-stackedWidget_CoordY1              # 841
 pacerLabelText_HorizSize = round(Horiz_size*0.1609)           # 96
 pacerLabelText_VertSize = round(Vert_size*0.0351)
 
 pacerValuemA_CoordX1 = round(Horiz_size*0.2380)-stackedWidget_CoordX1             # 370
-pacerValuemA_CoordY1 = round(Vert_size*0.1481)-stackedWidget_CoordY1              # 841
+pacerValuemA_CoordY1 = round(Vert_size*0.6281)-stackedWidget_CoordY1              # 841
 pacerValuemA_HorizSize = round(Horiz_size*0.0804)           # 96
 pacerValuemA_VertSize = round(Vert_size*0.0351)
 
 pacerValueppm_CoordX1 = round(Horiz_size*0.3182)-stackedWidget_CoordX1             # 370
-pacerValueppm_CoordY1 = round(Vert_size*0.1481)-stackedWidget_CoordY1              # 841
+pacerValueppm_CoordY1 = round(Vert_size*0.6281)-stackedWidget_CoordY1              # 841
 pacerValueppm_HorizSize = round(Horiz_size*0.0804)           # 96
 pacerValueppm_VertSize = round(Vert_size*0.0351)
