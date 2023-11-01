@@ -17,8 +17,10 @@ import serial.tools.list_ports as portList
 #from Bluetooth Variables
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
+from connection import addPorts, generate_crc32_table, onScanReturnButtonClicked, onConnectConfirmButtonClicked
+from constants import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
 
-from enum import Enum, auto, IntEnum
+
 import spo
 import co2
 import bp
@@ -29,60 +31,6 @@ from timeit import default_timer as timerX
 
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
-
-class SignalState (Enum):
-    Playing = auto()
-    Pause = auto()
-    Stop = auto()
-    Idle = auto()
-
-class DEFIBState(Enum):
-    Off = auto()
-    Select = auto()
-    Charging = auto()
-    Charged = auto()
-    Shock = auto()
-
-class WorkingState(Enum):
-    Busy = auto()
-    Idle = auto()
-
-class ScenarioState(IntEnum):   #   Estado para simular
-    Idle = 0                    #   Listo
-    ParoCardiaco = 1            #   Listo
-    TaquicardiaSinusal = 2      #   Pendiente
-    BradicardiaSinusal = 3      #   Listo
-    FlutterAuricular = 4        #   Listo
-    FibrilacionAuricular = 5    #   Listo
-    TaquicardiaAuricular = 6    #   Pendiente
-    ArritmiaSinusal = 7         #   Listo
-    FibrilacionVentricular = 8  #   Listo
-    TaquicardiaVentricular = 9  #   Listo
-    Asistolia = 10
-    
-
-HEART_RATE = "1"
-TEMPERATURE = "2"
-SPO = "3"
-SYSPRESSURE = "4"
-DIAPRESSURE = "5"
-FR = "6"
-CO = "7"
-SCENARIO = "8"
-
-PACEMAKER_MA = "1"
-PACEMAKER_PPM = "2"
-DEFIB_SELECT = "3"
-DEFIB_CHARGE = "4"
-
-class PageState (IntEnum):
-    OFFPAGE = 0
-    DEFAULTPAGE = 1
-    CPRPAGE = 2
-    DEFIBPAGE = 3
-    PACERPAGE = 4
-    LEADPAGE1 = 5 
-    LEADPAGE2 = 6
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -139,19 +87,21 @@ class MainWindow(QtWidgets.QWidget):
         # Connections
         self.s = ""
         self.sCoder = SerialCoder()
+        self.worker = WorkerThread(self.s, self.sCoder)
         self.sPorts = list(portList.comports())
-        self.addPorts()
+        addPorts(self.ui, self.sPorts)
         self.sConnected = False
         self.custom_crc_table = {}
         self.poly = 0x04C11DB7
-        self.generate_crc32_table(self.poly)
+        generate_crc32_table(self.poly, self.custom_crc_table)
+
 
         #Button Control
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
         # Confirm es connect y return es scan 
-        self.ui.confirmMenu_pushButton.pressed.connect(self.onConnectConfirmButtonClicked)
-        self.ui.returnMenu_pushButton.pressed.connect(self.onScanReturnButtonClicked)
+        self.ui.confirmMenu_pushButton.pressed.connect(lambda: onConnectConfirmButtonClicked(self.ui, self.ui.port_comboBox, self.s, self.worker, self.sCoder))
+        self.ui.returnMenu_pushButton.pressed.connect(lambda: onScanReturnButtonClicked(self.ui, self.sPorts))
 
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
@@ -234,7 +184,8 @@ class MainWindow(QtWidgets.QWidget):
         self.channel6Text.setPos(-0.2, 30)
         self.ui.plt.addItem(self.channel6Text)
         self.ui.plt.removeItem(self.channel6Text)
-            
+        
+        
     def signalScenarioData(self):
         if self.scenarioState == ScenarioState.Idle:
             self.dataChannel1 = (self.ecg12['II']*10)
@@ -278,6 +229,8 @@ class MainWindow(QtWidgets.QWidget):
             
 
     def Update_Grahp(self):
+        # Initialize data channels with zeros if not in the correct page state
+        # Initialize data channels with zeros if not in the correct page state
         if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             self.signalScenarioData()
         else:
@@ -287,9 +240,7 @@ class MainWindow(QtWidgets.QWidget):
             self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
             self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
             self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
-        # Manejo de indices de la senal
-        if self.adderChannel1>1999:
-            self.adderFlag = 1
+
 
         if(self.adderChannel1 >= len(self.dataChannel1)-1):
             self.adderChannel1 = 0
@@ -304,32 +255,30 @@ class MainWindow(QtWidgets.QWidget):
             self.adderChannel5 = 0 
         if(self.adderChannel6 >= len(self.dataChannel6)-1):
             self.adderChannel6 = 0
-        
+
         self.adderChannel1 = self.adderChannel1 + 1
         self.adderChannel2 = self.adderChannel2 + 1
         self.adderChannel3 = self.adderChannel3 + 1
         self.adderChannel4 = self.adderChannel4 + 1
         self.adderChannel5 = self.adderChannel5 + 1
         self.adderChannel6 = self.adderChannel6 + 1
-
         self.end = timerX()
         self.x.append(self.x[-1] + (self.end - self.start) )  # Add a new value 1 higher than the last.
         self.start = timerX()
+
         # Add new values to the channels
         self.channel1.append(self.dataChannel1[self.adderChannel1]+ 130)
         self.channel2.append((self.dataChannel2[self.adderChannel2])+ 110)   
         self.channel3.append(self.dataChannel3[self.adderChannel3]+ 90)
-        self.channel4.append(self.dataChannel4[self.adderChannel4]*10+ 70)
+        self.channel4.append(self.dataChannel4[self.adderChannel4]+ 70)
         self.channel5.append(self.dataChannel5[self.adderChannel5]+ 50)
         self.channel6.append(self.dataChannel6[self.adderChannel6] + 30)
         
-        # Actualizacion posicion de labels
-        self.channel1Text.setPos(self.x[0]-0.2, 130)
-        self.channel2Text.setPos(self.x[0]-0.3, 110)
-        self.channel3Text.setPos(self.x[0]-0.3, 90)
-        self.channel4Text.setPos(self.x[0]-0.3, 70)
-        self.channel5Text.setPos(self.x[0]-0.3, 50)
-        self.channel6Text.setPos(self.x[0]-0.2, 30)
+        channel_texts = [self.channel1Text, self.channel2Text, self.channel3Text, self.channel4Text, self.channel5Text, self.channel6Text]
+    
+        for i, channel_text in enumerate(channel_texts):
+            channel_text.setPos(self.x[0] + CHANNEL_TEXT_POSITIONS[i], CHANNEL_OFFSETS[i])
+
 
         # Actualizacion de los datos
         
@@ -339,6 +288,7 @@ class MainWindow(QtWidgets.QWidget):
         self.data_line_channel4.setData(self.x, self.channel4)
         self.data_line_channel5.setData(self.x, self.channel5)
         self.data_line_channel6.setData(self.x, self.channel6)
+
 
     ##########################################################################################
     # Funciones Callbacks de botones
@@ -793,43 +743,6 @@ class MainWindow(QtWidgets.QWidget):
 
     def displayHello(self):
         print("hello")
-
-    ##########################################################################################
-    # Funciones serial
-    
-    def addPorts(self):
-        for p in self.sPorts:
-            print(p[0])
-            self.ui.port_comboBox.addItem(p[0])
-        print("New ports added")
-    
-    def generate_crc32_table(self, _poly):
-        for i in range(256):
-            c = i << 24
-            for j in range(8):
-                c = (c << 1) ^ _poly if (c & 0x80000000) else c << 1
-            self.custom_crc_table[i] = c & 0xffffffff
-
-    def onScanReturnButtonClicked(self):
-        print("Scan On")
-        self.sPorts.clear()
-        self.sPorts = list(portList.comports())
-        self.ui.port_comboBox.clear()
-        self.addPorts()
-
-    def onConnectConfirmButtonClicked(self):
-        self.s = serial.Serial(
-            self.ui.port_comboBox.currentText(), baudrate=115200, timeout=500)
-
-        self.sConnected = self.s.is_open
-        if(self.sConnected):
-            print("Conectado")
-            self.state = (State.IdleConnected)
-            self.worker = WorkerThread(self.s, self.sCoder)
-            self.worker.exiting = False
-            self.state = State.IdleConnected # Es correcto que el state sea conectado
-            self.worker.signal.sig.connect(self.testWorker)
-            self.worker.start()
     
     def setDefaultValues(self):
         self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
