@@ -24,6 +24,9 @@ import co2
 import bp
 
 from time import time
+from timeit import default_timer as timerX
+
+
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 
@@ -129,6 +132,8 @@ class MainWindow(QtWidgets.QWidget):
         self.timer2 = QtCore.QTimer()
         self.time = QtCore.QTime()
         self.elapsedTime = QtCore.QElapsedTimer()
+
+        self.start = timerX()
 
 
         # Connections
@@ -306,8 +311,10 @@ class MainWindow(QtWidgets.QWidget):
         self.adderChannel4 = self.adderChannel4 + 1
         self.adderChannel5 = self.adderChannel5 + 1
         self.adderChannel6 = self.adderChannel6 + 1
-        self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
 
+        self.end = timerX()
+        self.x.append(self.x[-1] + (self.end - self.start) )  # Add a new value 1 higher than the last.
+        self.start = timerX()
         # Add new values to the channels
         self.channel1.append(self.dataChannel1[self.adderChannel1]+ 130)
         self.channel2.append((self.dataChannel2[self.adderChannel2])+ 110)   
