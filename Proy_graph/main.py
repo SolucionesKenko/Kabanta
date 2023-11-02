@@ -22,6 +22,7 @@ from enum import Enum, auto, IntEnum
 import spo
 import co2
 import bp
+import subprocess 
 
 from time import time
 # Manejo de arreglos en la senal 
@@ -65,7 +66,7 @@ SYSPRESSURE = "4"
 DIAPRESSURE = "5"
 FR = "6"
 CO = "7"
-SCENARIO = "8"
+SCENARIO = "9"
 
 PACEMAKER_MA = "1"
 PACEMAKER_PPM = "2"
@@ -80,6 +81,9 @@ class PageState (IntEnum):
     PACERPAGE = 4
     LEADPAGE1 = 5 
     LEADPAGE2 = 6
+
+proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True,text=True)
+out = proc.stdout
 
 
 class MainWindow(QtWidgets.QWidget):
