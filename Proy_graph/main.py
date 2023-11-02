@@ -25,6 +25,11 @@ import bp
 import subprocess 
 
 from time import time
+
+try:
+    import RPi.GPIO as GPIO
+except ModuleNotFoundError or RuntimeError:
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges or you'r not on a Raspberry device.  You can achieve superuser privileges by using 'sudo' to run your script; ")
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 
@@ -901,6 +906,8 @@ class MainWindow(QtWidgets.QWidget):
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
         
+    #########################################################################################
+    # Funciones para GPIOS
 
 
 main_Stylesheet = """

@@ -5,71 +5,66 @@
 ###
     ## https://sourceforge.net/p/raspberry-gpio-python/wiki/install/
 import time
-
+from enum import Enum, auto, IntEnum
 try:
     import RPi.GPIO as GPIO
-except RuntimeError:
-    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges.  You can achieve this by using 'sudo' to run your script")
+except ModuleNotFoundError or RuntimeError:
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges or you'r not on a Raspberry device.  You can achieve superuser privileges by using 'sudo' to run your script; ")
 
-### specify Raspberry Pi Pin numbering
-GPIO.setmode(GPIO.BOARD)            # BOARD numbering system
-    # or
-#GPIO.setmode(GPIO.BCM)         # BCM numbering system
-# detecting numbering system
-mode = GPIO.getmode()
-print("The GPIO Pin mode is " + str(mode))
-print("To see details of the pinout use the command <pinout> in the terminar")
+class Gpios(IntEnum):   #   Estado para simular
+    LED = 1                    #   Listo
+    SHOCK1 = 2            #   Listo
+    SHOCK2 = 3      #   Pendiente
+    CHARGE = 4      #   Listo
+    UPENERGY = 5        #   Listo
+    DOWNENERGY = 6    #   Listo
 
-### Setup up a channel
-if mode == 10:
-    channel1 = 3
-    channel2 = 5
-elif mode == 11:
-    channel1 = 2
-    channel2 = 3
-# To configure a channel as an input output:
-    ## https://sourceforge.net/p/raspberry-gpio-python/wiki/Inputs/
+class PinoutMode(IntEnum):
+    BOARD = 10
+    BMC = 11
 
-GPIO.setup(channel1, GPIO.IN)        # input
-GPIO.setup(channel2, GPIO.OUT)       # output
+class LEDstate(IntEnum):
+    ON = 1
+    OFF = 0
 
+boardPinout = [3,5,7,11,13,15]
+BMCPinout = [2,3,4,17,17,22]
 
-#Setup a multichannel 
-chan_list = [11,12]    # add as many channels as you want!
-# ~ GPIO.setup(chan_list, GPIO.OUT)
-# ~ GPIO.setup(chan_list, GPIO.IN)
-
-# Read the value of a GPIO pin:
-#GPIO.input(channel)
-
-# Output Value of a GPIO pin:
-state = True                        # State can be 0 / GPIO.LOW / False or 1 / GPIO.HIGH / True.
-GPIO.output(channel2, state)
-
-# Output a multichannel 
-# ~ chan_list = [11,12]                             # also works with tuples
-# ~ GPIO.output(chan_list, GPIO.LOW)                # sets all to GPIO.LOW
-# ~ GPIO.output(chan_list, (GPIO.HIGH, GPIO.LOW))   # sets first HIGH and second LOW
-for i in range(10):
-    print(GPIO.input(channel1))
-    time.sleep(2)
-    if state == True:
-        state= False
-        GPIO.output(channel2,state)
+def init_Gpios():
+    ### specify Raspberry Pi Pin numbering
+    GPIO.setmode(GPIO.BOARD)            # BOARD numbering system
+    #GPIO.setmode(GPIO.BCM)             # BCM numbering system
+    pinoutMode = GPIO.getmode()
+    ### Setup up GPIO pin
+    if pinoutMode == PinoutMode.BOARD:
+        pinout = boardPinout
+    elif pinoutMode == PinoutMode.BMC:
+        pinout = BMCPinout
     else:
-        state = True
-        GPIO.output(channel2,state)
+        print("Error setting Raspberry GPIO mode")
     
-#### To clean up at the end of your script:
-GPIO.cleanup() # Only clean up GPIO channels that your script has used. Note that GPIO.cleanup() 
-                # also clears the pin numbering system in use.
+    # Configure GPIO pins
+    # To configure a channel as an input output:
+    ## https://sourceforge.net/p/raspberry-gpio-python/wiki/Inputs/
+    GPIO.setup(pinout[Gpios.LED], GPIO.OUT)        # input
+    GPIO.setup(pinout[Gpios.SHOCK1:], GPIO.IN)       # output
 
+    # Default LED State
+    GPIO.output(pinout[Gpios.LED], LEDstate.OFF)
 
+def clearGPIOS():
+    #### To clean up at the end of your script:
+    # Only clean up GPIO channels that your script has used. Note that GPIO.cleanup() 
+    # also clears the pin numbering system in use.
+    GPIO.cleanup()
     
-# Possible to clean up  individual channels, a list or a tuple of channels:
-# ~ GPIO.cleanup(channel)
-# ~ GPIO.cleanup( (channel1, channel2) )
-# ~ GPIO.cleanup( [channel1, channel2] )
+def detectPinoutMode():    # detecting numbering system
+    pinoutMode = GPIO.getmode()
+    print("BOARD numbering system = 10")
+    print("BMC numbering system = 11")
+    print("The GPIO Pin mode is " + str(pinoutMode))
+    print("To see details of the pinout use the command <pinout> in the terminar")
+
 
 # to see more interacción with the gpios you can see the input documentation:
     # https://sourceforge.net/p/raspberry-gpio-python/wiki/Inputs/
