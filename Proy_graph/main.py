@@ -910,16 +910,16 @@ class MainWindow(QtWidgets.QWidget):
         
     #########################################################################################
     # Funciones para GPIOS
-    def setGPIOSEventCallbacks(self):
-        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK1], self.onShockButttonPressed())
-        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK2], self.onShockButttonPressed())
-        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.CHARGE], self.onChargeButtonClicked())
-        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.UPENERGY], self.onUpEnergySelectButtonClicked())
-        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.DOWNENERGY], self.onDownEnergySelectButtonClicked())
+    # def setGPIOSEventCallbacks(self):
+    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK1], self.onShockButttonPressed())
+    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK2], self.onShockButttonPressed())
+    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.CHARGE], self.onChargeButtonClicked())
+    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.UPENERGY], self.onUpEnergySelectButtonClicked())
+    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.DOWNENERGY], self.onDownEnergySelectButtonClicked())
     
-    def onShockButttonPressed(self):
-        if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
-            self.onShockButtonClicked()
+    # def onShockButttonPressed(self):
+    #     if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
+    #         self.onShockButtonClicked()
 
 
 main_Stylesheet = """
