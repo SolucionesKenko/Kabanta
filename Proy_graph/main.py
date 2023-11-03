@@ -26,6 +26,7 @@ import subprocess
 
 from time import time
 
+import gpios
 try:
     import RPi.GPIO as GPIO
 except ModuleNotFoundError or RuntimeError:
@@ -116,7 +117,8 @@ class MainWindow(QtWidgets.QWidget):
         self.co2 = co2.CO2()
         self.bp =bp.BloodPressure()
         self.zeros = 0
-
+        self.gpios = gpios.GPIOS()
+    
         self.dataChannel1 = 0
         self.dataChannel2 = 0
         self.dataChannel3 = 0
@@ -908,6 +910,16 @@ class MainWindow(QtWidgets.QWidget):
         
     #########################################################################################
     # Funciones para GPIOS
+    def setGPIOSEventCallbacks(self):
+        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK1], self.onShockButttonPressed())
+        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK2], self.onShockButttonPressed())
+        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.CHARGE], self.onChargeButtonClicked())
+        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.UPENERGY], self.onUpEnergySelectButtonClicked())
+        GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.DOWNENERGY], self.onDownEnergySelectButtonClicked())
+    
+    def onShockButttonPressed(self):
+        if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
+            self.onShockButtonClicked()
 
 
 main_Stylesheet = """

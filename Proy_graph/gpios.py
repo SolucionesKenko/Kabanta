@@ -67,12 +67,6 @@ class GPIOS():
     def setEventDetects(self):
         GPIO.add_event_detect(self.pinout[Gpios.SHOCK1:],GPIO.RISING,bouncetime=200)
 
-        GPIO.add_event_callback(self.pinout[Gpios.SHOCK1], self.onShockButttonPressed())
-        # GPIO.add_event_callback(self.pinout[Gpios.SHOCK2], self.onShockButttonPressed())
-        # GPIO.add_event_callback(self.pinout[Gpios.CHARGE], self.onChargeButtonPressed())
-        # GPIO.add_event_callback(self.pinout[Gpios.UPENERGY], self.onUpEnergyButtonPressed())
-       # GPIO.add_event_callback(self.pinout[Gpios.DOWNENERGY], self.onDownEnergyButtonPressed())
-
 
         
     def detectPinoutMode(self):    # detecting numbering system
