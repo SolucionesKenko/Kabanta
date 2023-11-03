@@ -19,12 +19,12 @@ class ScriptState(Enum):
     NOTTESTING = auto()
 
 class Gpios(IntEnum):   #   Estado para simular
-    LED = 1                    #   Listo
-    SHOCK1 = 2            #   Listo
-    SHOCK2 = 3      #   Pendiente
-    CHARGE = 4      #   Listo
-    UPENERGY = 5        #   Listo
-    DOWNENERGY = 6    #   Listo
+    LED = 0                    #   Listo
+    SHOCK1 = 1            #   Listo
+    SHOCK2 = 2      #   Pendiente
+    CHARGE = 3      #   Listo
+    UPENERGY = 4        #   Listo
+    DOWNENERGY = 5    #   Listo
 
 class PinoutMode(IntEnum):
     BOARD = 10
@@ -39,6 +39,7 @@ class GPIOS():
         self.boardPinout = [3,5,7,11,13,15]
         self.BMCPinout = [2,3,4,17,17,22]
         self.scriptState = ScriptState.NOTTESTING
+        self.texto = "Hola"
         
         ### specify Raspberry Pi Pin numbering
         GPIO.setmode(GPIO.BOARD)            # BOARD numbering system
@@ -74,32 +75,38 @@ class GPIOS():
         self.setEventDetects()
 
     def setEventDetects(self):
-        GPIO.add_event_detect(self.pinout[Gpios.SHOCK1:],GPIO.RISING,bouncetime=200)
+        print("Your have enterd the setEventDetects")
+        #GPIO.add_event_detect(self.pinout[Gpios.SHOCK1:],GPIO.RISING,bouncetime=200)
         if __name__ == "__main__":
-            GPIO.add_event_callback(self.pinout[Gpios.SHOCK1], self.onShockButttonPressed())
-            GPIO.add_event_callback(self.pinout[Gpios.SHOCK2], self.onShockButttonPressed())
-            GPIO.add_event_callback(self.pinout[Gpios.CHARGE], self.onChargeButtonPressed())
-            GPIO.add_event_callback(self.pinout[Gpios.UPENERGY], self.onDownEnergyButtonPressed())
+            GPIO.add_event_detect(self.pinout[Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
+            GPIO.add_event_detect(self.pinout[Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
+            GPIO.add_event_detect(self.pinout[Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
+            GPIO.add_event_detect(self.pinout[Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
+            print(self.pinout[Gpios.SHOCK1])
+            print(self.pinout[Gpios.SHOCK2])
+            print(self.pinout[Gpios.CHARGE])
+            print(self.pinout[Gpios.UPENERGY])     
+            print(self.pinout[Gpios.DOWNENERGY])       
+            print("Event callbacks created")
     
-    if __name__ == "__main__":
-        def onDownEnergyButtonPressed(self):
-            print(self.texto +" onDownEnergyButtonPressed")
-        def onUpEnergyButtonPressed(self):
-            print(self.texto +" onUpEnergyButtonChanged")
-        def onShockButttonPressed(self):
-            print(self.texto +" onShockButttonPressed")
-        def onChargeButtonPressed(self):
-            print(self.texto +" onChargeButtonPressed")
-        def LEDOn(self):
-            print(self.texto +" LEDOn")
-        def LEDOff(self):
-            print(self.texto +" LEDOff")
-        def LEDToggle(self):
-            print(self.texto +" LEDToggle")
-        def onShockButttonPressed(self):
-            print(self.texto +" onUpEnergyButtonPressed")
-            if (GPIO.input(self.pinout[Gpios.SHOCK1]) == 1) and (GPIO.input(self.pinout[Gpios.SHOCK2]) == 1):
-                self.onShockButttonPressed()
+    def onDownEnergyButtonPressed(self,channel):
+        print(self.texto +" onDownEnergyButtonPressed")
+    def onUpEnergyButtonPressed(self,channel):
+        print(self.texto +" onUpEnergyButtonChanged")
+    def onShockButttonDoblePressed(self):
+        print(self.texto +" onShockButttonDoblePressed")
+    def onChargeButtonPressed(self,channel):
+        print(self.texto +" onChargeButtonPressed")
+    def LEDOn(self):
+        print(self.texto +" LEDOn")
+    def LEDOff(self):
+        print(self.texto +" LEDOff")
+    def LEDToggle(self):
+        print(self.texto +" LEDToggle")
+    def onShockButttonPressed(self, channel):
+        print(self.texto +" onShockButttonPressed")
+        if (GPIO.input(self.pinout[Gpios.SHOCK1]) == 1) and (GPIO.input(self.pinout[Gpios.SHOCK2]) == 1):
+            self.onShockButttonDoblePressed()
 
     def detectPinoutMode(self):    # detecting numbering system
         self.pinoutMode = GPIO.getmode()
@@ -109,11 +116,14 @@ class GPIOS():
         print("To see details of the pinout use the command <pinout> in the terminar")
 
 if __name__ == "__main__":
+    print("testing has started")
     scriptState = ScriptState.TESTING
     test = GPIOS()
+    test.init_Gpios()
     test.scriptState = scriptState
     while True:
-        time.sleep(1)
+        x =1
+
 
 
 
