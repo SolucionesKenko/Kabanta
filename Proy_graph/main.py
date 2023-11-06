@@ -92,6 +92,7 @@ proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True
 out = proc.stdout
 
 
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -117,8 +118,11 @@ class MainWindow(QtWidgets.QWidget):
         self.co2 = co2.CO2()
         self.bp =bp.BloodPressure()
         self.zeros = 0
+        
+        ## GPIO Config
         self.gpios = gpios.GPIOS()
-    
+        self.gpios.init_Gpios()       
+        
         self.dataChannel1 = 0
         self.dataChannel2 = 0
         self.dataChannel3 = 0
@@ -152,6 +156,12 @@ class MainWindow(QtWidgets.QWidget):
         self.poly = 0x04C11DB7
         self.generate_crc32_table(self.poly)
 
+        # GPIOS signal Connects
+        self.gpios.DownEnergy.sig.connect(self.onDownEnergySelectButtonClicked)
+        self.gpios.UpEnergy.sig.connect(self.onUpEnergySelectButtonClicked)
+        self.gpios.Shock.sig.connect(self.onShockButtonClicked)
+        self.gpios.Charge.sig.connect(self.onChargeButtonClicked)
+        
         #Button Control
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
@@ -897,7 +907,7 @@ class MainWindow(QtWidgets.QWidget):
         # Cambiar diccionario
         s_id = str(id)
         self.mi_diccionario[s_id] = data
-        print(self.mi_diccionario)
+        print("UiUpdate Values" + str(self.mi_diccionario))
         self.updateUI(s_id, data)
 
     ##########################################################################################
@@ -910,16 +920,36 @@ class MainWindow(QtWidgets.QWidget):
         
     #########################################################################################
     # Funciones para GPIOS
-    # def setGPIOSEventCallbacks(self):
-    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK1], self.onShockButttonPressed())
-    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.SHOCK2], self.onShockButttonPressed())
-    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.CHARGE], self.onChargeButtonClicked())
-    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.UPENERGY], self.onUpEnergySelectButtonClicked())
-    #     GPIO.add_event_callback(self.gpios.pinout[gpios.Gpios.DOWNENERGY], self.onDownEnergySelectButtonClicked())
-    
-    # def onShockButttonPressed(self):
-    #     if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
-    #         self.onShockButtonClicked()
+#     def setGPIOSEventCallbacks(self):
+#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
+#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
+#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
+#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
+#     
+#     def onDownEnergyButtonPressed(self,channel):
+#         print(self.gpios.texto +" onDownEnergyButtonPressed")
+#         #self.onDownEnergySelectButtonClicked()
+#         self.signalOnDownEnergyButton.button_pressed_callback()
+#     def onUpEnergyButtonPressed(self,channel):
+#         print(self.gpios.texto +" onUpEnergyButtonChanged")
+#         self.onUpEnergySelectButtonClicked()
+#     def onShockButttonDoblePressed(self):
+#         print(self.gpios.texto +" onShockButttonDoblePressed")
+#         self.onShockButtonClicked()
+#     def onChargeButtonPressed(self,channel):
+#         self.onChargeButtonClicked()
+#         print(self.gpios.texto +" onChargeButtonPressed")
+#     def LEDOn(self):
+#         print(self.gpios.texto +" LEDOn")
+#     def LEDOff(self):
+#         print(self.gpios.texto +" LEDOff")
+#     def LEDToggle(self):
+#         print(self.gpios.texto +" LEDToggle")
+#     
+#     def onShockButttonPressed(self, channel):
+#         print(self.gpios.texto +" onShockButttonPressed")
+#         if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
+#             self.onShockButttonDoblePressed()
 
 
 main_Stylesheet = """

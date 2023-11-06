@@ -5,6 +5,7 @@
 ###
     ## https://sourceforge.net/p/raspberry-gpio-python/wiki/install/
 import time
+from PyQt5 import QtCore
 from enum import Enum, auto, IntEnum
 try:
     import RPi.GPIO as GPIO
@@ -33,6 +34,12 @@ class PinoutMode(IntEnum):
 class LEDstate(IntEnum):
     ON = 1
     OFF = 0
+class GPIOHandler(QtCore.QObject):
+    sig = QtCore.pyqtSignal()
+    def __ini__(self):
+        super().__init__()
+    def button_pressed_callback(self):
+        self.sig.emit()
 
 class GPIOS():
     def __init__(self):
@@ -40,7 +47,10 @@ class GPIOS():
         self.BMCPinout = [2,3,4,17,17,22]
         self.scriptState = ScriptState.NOTTESTING
         self.texto = "Hola"
-        
+        self.DownEnergy = GPIOHandler()
+        self.UpEnergy = GPIOHandler()
+        self.Shock = GPIOHandler()
+        self.Charge = GPIOHandler()
         ### specify Raspberry Pi Pin numbering
         GPIO.setmode(GPIO.BOARD)            # BOARD numbering system
         #GPIO.setmode(GPIO.BCM)             # BCM numbering system
@@ -76,33 +86,36 @@ class GPIOS():
 
     def setEventDetects(self):
         print("Your have enterd the setEventDetects")
-        #GPIO.add_event_detect(self.pinout[Gpios.SHOCK1:],GPIO.RISING,bouncetime=200)
-        if __name__ == "__main__":
-            GPIO.add_event_detect(self.pinout[Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
-            GPIO.add_event_detect(self.pinout[Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
-            GPIO.add_event_detect(self.pinout[Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
-            GPIO.add_event_detect(self.pinout[Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
-            print(self.pinout[Gpios.SHOCK1])
-            print(self.pinout[Gpios.SHOCK2])
-            print(self.pinout[Gpios.CHARGE])
-            print(self.pinout[Gpios.UPENERGY])     
-            print(self.pinout[Gpios.DOWNENERGY])       
-            print("Event callbacks created")
+        GPIO.add_event_detect(self.pinout[Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
+        GPIO.add_event_detect(self.pinout[Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
+        GPIO.add_event_detect(self.pinout[Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
+        GPIO.add_event_detect(self.pinout[Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
+        print(self.pinout[Gpios.SHOCK1])
+        print(self.pinout[Gpios.SHOCK2])
+        print(self.pinout[Gpios.CHARGE])
+        print(self.pinout[Gpios.UPENERGY])     
+        print(self.pinout[Gpios.DOWNENERGY])       
+        print("Event callbacks created")
     
     def onDownEnergyButtonPressed(self,channel):
         print(self.texto +" onDownEnergyButtonPressed")
+        self.DownEnergy.button_pressed_callback()
     def onUpEnergyButtonPressed(self,channel):
         print(self.texto +" onUpEnergyButtonChanged")
+        self.UpEnergy.button_pressed_callback()
     def onShockButttonDoblePressed(self):
         print(self.texto +" onShockButttonDoblePressed")
+        self.Shock.button_pressed_callback()
     def onChargeButtonPressed(self,channel):
         print(self.texto +" onChargeButtonPressed")
+        self.Charge.button_pressed_callback()
     def LEDOn(self):
         print(self.texto +" LEDOn")
     def LEDOff(self):
         print(self.texto +" LEDOff")
     def LEDToggle(self):
         print(self.texto +" LEDToggle")
+    
     def onShockButttonPressed(self, channel):
         print(self.texto +" onShockButttonPressed")
         if (GPIO.input(self.pinout[Gpios.SHOCK1]) == 1) and (GPIO.input(self.pinout[Gpios.SHOCK2]) == 1):
