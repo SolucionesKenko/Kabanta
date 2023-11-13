@@ -86,7 +86,8 @@ class GPIOS():
 
     def setEventDetects(self):
         print("Your have enterd the setEventDetects")
-        GPIO.add_event_detect(self.pinout[Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
+        GPIO.add_event_detect(self.pinout[Gpios.SHOCK1], GPIO.RISING, callback =self.onShockButttonPressed1, bouncetime=200)
+        GPIO.add_event_detect(self.pinout[Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed2, bouncetime=200)
         GPIO.add_event_detect(self.pinout[Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
         GPIO.add_event_detect(self.pinout[Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
         GPIO.add_event_detect(self.pinout[Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
@@ -116,7 +117,11 @@ class GPIOS():
     def LEDToggle(self):
         print(self.texto +" LEDToggle")
     
-    def onShockButttonPressed(self, channel):
+    def onShockButttonPressed1(self, channel):
+        print(self.texto +" onShockButttonPressed")
+        if (GPIO.input(self.pinout[Gpios.SHOCK1]) == 1) and (GPIO.input(self.pinout[Gpios.SHOCK2]) == 1):
+            self.onShockButttonDoblePressed()
+    def onShockButttonPressed2(self, channel):
         print(self.texto +" onShockButttonPressed")
         if (GPIO.input(self.pinout[Gpios.SHOCK1]) == 1) and (GPIO.input(self.pinout[Gpios.SHOCK2]) == 1):
             self.onShockButttonDoblePressed()
