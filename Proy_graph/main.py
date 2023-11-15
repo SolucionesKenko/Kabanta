@@ -20,7 +20,6 @@ from serialCoder import SerialCoder
 from connection import addPorts, generate_crc32_table, onScanReturnButtonClicked, onConnectConfirmButtonClicked
 from constants import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
 
-
 import spo
 import co2
 import bp
@@ -49,7 +48,7 @@ class MainWindow(QtWidgets.QWidget):
         self.scenarioState = ScenarioState.Idle
 
         # Data Variables
-        self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
+        self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
         self.generateSig = 0
         self.ecg12 = 0
@@ -57,22 +56,18 @@ class MainWindow(QtWidgets.QWidget):
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
         self.bp =bp.BloodPressure()
-        self.zeros = 0
 
-        self.dataChannel1 = 0
-        self.dataChannel2 = 0
-        self.dataChannel3 = 0
-        self.dataChannel4 = 0
-        self.dataChannel5 = 0
-        self.dataChannel6 = 0
-        
-        self.adderChannel1 = 0
-        self.adderChannel2 = 0
-        self.adderChannel3 = 0
-        self.adderChannel4 = 0
-        self.adderChannel5 = 0
-        self.adderChannel6 = 0
-        self.adderFlag = 0
+        self.timestamp = 0.0
+
+        self.generateSig = obtainSignals()
+        self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+        self.rsp = list(self.generateSig.generate_rsp())
+
+        self.data = []
+        self.channels = [] #data to graph
+        self.data_lines = [] #plot data
+        self.text_items = []
+        self.signalIndex = 0
         
         # Manejo de tiempos
             # Timers 
@@ -140,154 +135,132 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
-        #Eje en x 
-        self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
-        # Senales Derivaciones cardiacas
-        self.channel1 = deque([130 for i in self.x],maxlen=self.graphlength)
-        self.channel2 = deque([110 for i in self.x],maxlen= self.graphlength)
-        self.channel3 = deque([90 for i in self.x],maxlen=self.graphlength)
-        self.channel4 = deque([70 for i in self.x], maxlen=self.graphlength)
-        self.channel5 = deque([50 for i in self.x], maxlen=self.graphlength)
-        self.channel6 = deque([30 for i in self.x], maxlen=self.graphlength)
 
-        self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
-        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (134,234,233))
-        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (136,51,64))
-        self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
-        self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
-        self.data_line_channel6 = self.ui.plt.plot(self.x, self.channel6, pen = (162,249,161))
-        self.ui.plt.removeItem(self.data_line_channel6)
-        
-        # getting plot item
-        self.ui.plt.getPlotItem().hideAxis('left')
-        self.plot_size = self.ui.plt.getPlotItem().height()
-        self.plot_x = self.ui.plt.getPlotItem().viewGeometry()
+        channel_configs = [
+                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None},
+                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None},
+                            {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None},
+                            {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3},
+                            {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None},
+                            # Add or remove channel configs as needed
+                        ]
 
-        self.ui.plt.setYRange(40, 140)
+        # Plot configuration
+        # self.ui.plt.getPlotItem().hideAxis('left')
+        # self.ui.plt.setYRange(40, 140)
 
-        self.channel1Text = pg.TextItem('II', color = (162,249,161))
-        self.channel1Text.setPos(-0.2, 130)
-        self.ui.plt.addItem(self.channel1Text)
-        self.channel2Text = pg.TextItem('Pleth', color = (134,234,233))
-        self.channel2Text.setPos(-0.3, 110)
-        self.ui.plt.addItem(self.channel2Text)
-        self.channel3Text = pg.TextItem('ABP', color= (136,51,64))
-        self.channel3Text.setPos(-0.3, 90)
-        self.ui.plt.addItem(self.channel3Text)
-        self.channel4Text = pg.TextItem('Resp', color = (255,222,89))
-        self.channel4Text.setPos(-0.3, 70)
-        self.ui.plt.addItem(self.channel4Text)
-        self.channel5Text = pg.TextItem('CO2', color = (171,171,171))
-        self.channel5Text.setPos(-0.3, 50)
-        self.ui.plt.addItem(self.channel5Text)
-        self.channel6Text = pg.TextItem('aFV', color = (162,249,161))
-        self.channel6Text.setPos(-0.2, 30)
-        self.ui.plt.addItem(self.channel6Text)
-        self.ui.plt.removeItem(self.channel6Text)
-        
+        # #Eje en x 
+        # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
+        self.x = deque([], maxlen=self.graphlength)
+
+        for i, config in enumerate(channel_configs):
+            y_offset = config['pos'][0]
+            # Create the deque with initial values
+            #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
+            channel_deque = deque([], maxlen=self.graphlength)
+            self.channels.append(channel_deque)
+
+        #     # Create the plot line with an optional fillLevel
+            if config.get('fillLevel') is not None:
+                brush = pg.mkBrush(config['color'] + (60,))
+                data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush)
+            else:
+                data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
+            self.data_lines.append(data_line)
+
+        #     # Create the label text
+        #     text_item = pg.TextItem(config['label'], color=config['color'])
+        #     text_item.setPos(config['pos'][1], y_offset)
+        #     self.ui.plt.addItem(text_item)
+        #     self.text_items.append(text_item)
         
     def signalScenarioData(self):
         if self.scenarioState == ScenarioState.Idle:
-            self.dataChannel1 = (self.ecg12['II']*10)
-            self.dataChannel2 = list(self.spo.dataIR)
-            self.dataChannel3 = list(self.bp.data)
-            self.dataChannel4 = (self.rsp)
-            self.dataChannel5 = list(self.co2.data)
-            self.dataChannel6 = (self.ecg12["aVF"])
+            channel_sources = [
+            self.ecg12['II']*10,
+            self.spo.sR,
+            self.bp.data,
+            self.rsp,
+            self.co2.data,
+            self.ecg12["aVF"]
+            ]
+            self.data = [list(source) if not isinstance(source, list) else source for source in channel_sources]
             
         elif self.scenarioState == ScenarioState.ParoCardiaco:
             self.dataChannel1 = ([0]*self.graphlength)
-            self.dataChannel2 = (list(self.spo.dataIR))
+            self.dataChannel2 = (list(self.spo.sR))
             self.dataChannel3 = ([0]*self.graphlength)
             self.dataChannel4 = (self.rsp)
             self.dataChannel5 = list(self.co2.data)
             self.dataChannel6 = (self.ecg12["aVF"])
-        elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
-            print(ScenarioState.TaquicardiaSinusal)
+        # elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
+        #     print(ScenarioState.TaquicardiaSinusal)
         elif self.scenarioState == ScenarioState.BradicardiaSinusal:
             self.dataChannel1 = list(pd.DataFrame(SBR)[0]*10)
-            print(ScenarioState.BradicardiaSinusal)
+            #print(ScenarioState.BradicardiaSinusal)
         elif self.scenarioState == ScenarioState.FlutterAuricular:
             self.dataChannel1 = list(pd.DataFrame(Atrialflutter)[0]*10)
             #print(ScenarioState.FlutterAuricular)
         elif self.scenarioState == ScenarioState.FibrilacionAuricular:
             self.dataChannel1 = list(pd.DataFrame(Atrialfibrillation)[0]*10)
             #print(ScenarioState.FibrilacionAuricular)
-        elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
-            print(ScenarioState.TaquicardiaAuricular)
-        elif self.scenarioState == ScenarioState.ArritmiaSinusal:
-            self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
-            print(ScenarioState.ArritmiaSinusal)
-        elif self.scenarioState == ScenarioState.FibrilacionVentricular:
-            self.dataChannel1 = list(pd.DataFrame(VF)[0]*10)
-            print(ScenarioState.FibrilacionVentricular)
-        elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
-            self.dataChannel1 = list(pd.DataFrame(VTHR)[0]*10)
-            print(ScenarioState.TaquicardiaVentricular)
-        elif self.scenarioState == ScenarioState.Asistolia:
-            print(ScenarioState.Asistolia)
+        # elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
+        #     print(ScenarioState.TaquicardiaAuricular)
+        # elif self.scenarioState == ScenarioState.ArritmiaSinusal:
+        #     self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
+        #     print(ScenarioState.ArritmiaSinusal)
+        # elif self.scenarioState == ScenarioState.FibrilacionVentricular:
+        #     self.dataChannel1 = list(pd.DataFrame(VF)[0]*10)
+        #     print(ScenarioState.FibrilacionVentricular)
+        # elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
+        #     self.dataChannel1 = list(pd.DataFrame(VTHR)[0]*10)
+        #     print(ScenarioState.TaquicardiaVentricular)
+        # elif self.scenarioState == ScenarioState.Asistolia:
+        #     print(ScenarioState.Asistolia)
             
 
     def Update_Grahp(self):
+        self.tPPG = time() - self.timestamp
+        self.spo.update(self.mi_diccionario[HEART_RATE], self.tPPG)
         # Initialize data channels with zeros if not in the correct page state
-        # Initialize data channels with zeros if not in the correct page state
-        if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
-            self.signalScenarioData()
-        else:
-            self.dataChannel1 = (self.ecg12[self.leadConfig["text1"]]*10)
-            self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
-            self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
-            self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
-            self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
-            self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
+        #if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+            #self.signalScenarioData()
+        # else:
+        #     self.dataChannel1 = (self.ecg12[self.leadConfig["text1"]]*10)
+        #     self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
+        #     self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
+        #     self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]]*10)
+        #     self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
+        #     self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
 
+        if(self.signalIndex >= (self.graphlength)-1):
+            self.signalIndex = 0
 
-        if(self.adderChannel1 >= len(self.dataChannel1)-1):
-            self.adderChannel1 = 0
-            self.zeros = self.adderChannel1
-        if (self.adderChannel2 >= len(self.dataChannel2)-1):
-            self.adderChannel2 = 0
-        if (self.adderChannel3 >= len(self.dataChannel3)-1):
-            self.adderChannel3 = 0
-        if (self.adderChannel4 >= len(self.dataChannel4)-1):
-            self.adderChannel4 = 0
-        if (self.adderChannel5 >= len(self.dataChannel5)-1):
-            self.adderChannel5 = 0 
-        if(self.adderChannel6 >= len(self.dataChannel6)-1):
-            self.adderChannel6 = 0
+        self.signalIndex = self.signalIndex + 1
 
-        self.adderChannel1 = self.adderChannel1 + 1
-        self.adderChannel2 = self.adderChannel2 + 1
-        self.adderChannel3 = self.adderChannel3 + 1
-        self.adderChannel4 = self.adderChannel4 + 1
-        self.adderChannel5 = self.adderChannel5 + 1
-        self.adderChannel6 = self.adderChannel6 + 1
-        self.end = timerX()
-        self.x.append(self.x[-1] + (self.end - self.start) )  # Add a new value 1 higher than the last.
-        self.start = timerX()
+        # self.end = timerX()
+        # self.x.append(self.x[-1] + (self.end - self.start) )  # Add a new value 1 higher than the last.
+        # self.start = timerX()
 
-        # Add new values to the channels
-        self.channel1.append(self.dataChannel1[self.adderChannel1]+ 130)
-        self.channel2.append((self.dataChannel2[self.adderChannel2])+ 110)   
-        self.channel3.append(self.dataChannel3[self.adderChannel3]+ 90)
-        self.channel4.append(self.dataChannel4[self.adderChannel4]+ 70)
-        self.channel5.append(self.dataChannel5[self.adderChannel5]+ 50)
-        self.channel6.append(self.dataChannel6[self.adderChannel6] + 30)
+        # for i in range (NUM_CHANNELS):
+        #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
+        #     # Update the position of each channel's text label
+        #     self.text_items[i].setPos(self.x[0] - 0.2, CHANNEL_OFFSETS[i])
+        #     # Update the data line for each channel with the new data
+        #     self.data_lines[i].setData(self.x, self.channels[i])
+
         
-        channel_texts = [self.channel1Text, self.channel2Text, self.channel3Text, self.channel4Text, self.channel5Text, self.channel6Text]
-    
-        for i, channel_text in enumerate(channel_texts):
-            channel_text.setPos(self.x[0] + CHANNEL_TEXT_POSITIONS[i], CHANNEL_OFFSETS[i])
-
-
-        # Actualizacion de los datos
         
-        self.data_line_channel1.setData(self.x, self.channel1)
-        self.data_line_channel2.setData(self.x, self.channel2)
-        self.data_line_channel3.setData(self.x, self.channel3)
-        self.data_line_channel4.setData(self.x, self.channel4)
-        self.data_line_channel5.setData(self.x, self.channel5)
-        self.data_line_channel6.setData(self.x, self.channel6)
+        self.channels[0].append(self.ecg12['II'][self.signalIndex])
+        self.channels[1].append(self.spo.sR)
+        self.channels[2].append(self.bp.data[self.signalIndex]/8)
+        self.x.append(self.tPPG)
+        self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
+        self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
+        self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
+        #self.ui.plt.clear()
+        #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
 
 
     ##########################################################################################
@@ -328,13 +301,12 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.enableDisableVitalSignalMenu(False)
-    
-    
+      
     def onPlayButtonClicked(self):
+        self.timestamp = time()
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
-                self.generateSig = obtainSignals()
                 self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
                 self.rsp = list(self.generateSig.generate_rsp())
         
@@ -356,7 +328,6 @@ class MainWindow(QtWidgets.QWidget):
                        self.ui.plt.removeItem(self.data_line_channel4)
                 
                 self.signalState = SignalState.Playing
-                print(self.signalState)
                 # Envio de estado por serial 
                 if self.state != State.IdleDisconnected:
                     self.worker.encodeMesage(8,1)
@@ -366,14 +337,13 @@ class MainWindow(QtWidgets.QWidget):
                 self.elapsedTime.start()
                 self.timer.setInterval(2)
                 self.timer.timeout.connect(self.Update_Grahp)
-                self.timer.timeout.connect(self.Update_Time)
+                #self.timer.timeout.connect(self.Update_Time)
                 self.timer.start()
 
     def onPauseButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.signalState == SignalState.Playing) :
             self.timer.stop()
             self.signalState = SignalState.Pause
-            print(self.signalState)
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
                 self.worker.encodeMesage(8,2)
@@ -384,14 +354,9 @@ class MainWindow(QtWidgets.QWidget):
             self.timer.stop()
             self.setDefaultValues()
             self.ui.plt.clear()
-            self.adderChannel1 = 0
-            self.adderChannel2 = 0
-            self.adderChannel3 = 0
-            self.adderChannel4 = 0
-            self.adderChannel5 = 0
-            self.adderChannel6 = 0
+            self.signalIndex = 0
+
             self.signalState = SignalState.Stop
-            print(self.signalState)
 
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
@@ -416,10 +381,7 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.stop()
             self.timer2.disconnect()
         # Restablecer graficas
-        self.adderChannel1 = 0
-        self.adderChannel4 = 0
-        self.adderChannel5 = 0
-        self.adderChannel6 = 0
+        self.signalIndex = 0
         self.ui.plt.clear()
         self.initSignalGrahps()
         self.signalState = SignalState.Idle
@@ -433,6 +395,7 @@ class MainWindow(QtWidgets.QWidget):
 
     def resetCPRPage(self):
         self.ui.CPRMenu_pushButton.setStyleSheet(Stylesheet)
+  
     def onCPRButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.CPRPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.CPRPAGE
@@ -454,7 +417,7 @@ class MainWindow(QtWidgets.QWidget):
             self.defibState = DEFIBState.Select
             self.ui.plt.removeItem(self.data_line_channel4)
             self.resetPacerPage()
-            self.resetCPRPage
+            self.resetCPRPage()
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
@@ -482,7 +445,6 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             else: 
                 self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
-
 
     def onDownEnergySelectButtonClicked(self):
        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
@@ -567,7 +529,6 @@ class MainWindow(QtWidgets.QWidget):
             
             print(" second timer is stoped")
 
-    
     def onShockButtonClicked(self):
         if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charged):
             self.defibState = DEFIBState.Shock
@@ -613,8 +574,7 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.resetPacerPage()
             self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
-        
-    
+          
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
             self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]+1
@@ -650,13 +610,6 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.plt.addItem(self.data_line_channel6)
                 self.data_line_channel5.setBrush(171,171,171, 0)
                 
-                if self.adderFlag == 0:
-                    self.adderChannel2 = self.adderChannel1 
-                    self.adderChannel3 = self.adderChannel1 
-                    self.adderChannel4 = self.adderChannel1 
-                    self.adderChannel5 = self.adderChannel1 
-                    self.adderChannel6 = self.adderChannel1 
-                
                 startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
                 startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
                 startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
@@ -664,12 +617,12 @@ class MainWindow(QtWidgets.QWidget):
                 startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
                 startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
                 
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
                 
@@ -681,12 +634,12 @@ class MainWindow(QtWidgets.QWidget):
                 startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
                 startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
             
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE2:
                 self.data_line_channel5.setBrush(171,171,171, 60)
                 self.pageState = PageState.DEFAULTPAGE
@@ -703,12 +656,12 @@ class MainWindow(QtWidgets.QWidget):
                 startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
                 startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
                 
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
+                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
+                self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.signalIndex],maxlen = 2000)
+                self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.signalIndex],maxlen = 2000)
+                self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
+                self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.signalIndex],maxlen = 2000)
+                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
                 
             self.channel1Text.setText(self.leadConfig["text1"])
             self.channel2Text.setText(self.leadConfig["text2"])
@@ -806,14 +759,12 @@ class MainWindow(QtWidgets.QWidget):
         # Cambiar diccionario
         s_id = str(id)
         self.mi_diccionario[s_id] = data
-        print(self.mi_diccionario)
         self.updateUI(s_id, data)
 
     ##########################################################################################
     # Funciones de esenarios     
     def scenExperiment(self):
         self.scenarioState = ScenarioState.ArritmiaSinusal
-        print("ParoCardiaco")
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
         
