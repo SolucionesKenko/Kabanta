@@ -10,13 +10,13 @@ import pandas as pd
 record = wfdb.rdrecord('Signals/430_C_SBR_880_7s_frag',channels=[0],sampfrom=0)
 signal = record.p_signal
 ecg_signal = signal.tolist()
-#print(ecg_signal)
+
 save = deque([])
-print(np.size(ecg_signal))
+#print(np.size(ecg_signal))
 for i in range(302):
     save.append(ecg_signal[i][0])
 save = list(save)
-print(save)
+#print(save)
 
 # record_name = 'Proy_graph/Signals/cu01'
 # record_name = 'Signals/418_C_VTHR_1074_9s_frag'

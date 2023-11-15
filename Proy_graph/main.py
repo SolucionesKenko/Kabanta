@@ -25,12 +25,14 @@ import bp
 import subprocess 
 
 from time import time
-
-import gpios
 try:
     import RPi.GPIO as GPIO
+    OS_RASPBERRY = 1
 except ModuleNotFoundError or RuntimeError:
     print("Error importing RPi.GPIO!  This is probably because you need superuser privileges or you'r not on a Raspberry device.  You can achieve superuser privileges by using 'sudo' to run your script; ")
+    OS_RASPBERRY = 0
+if OS_RASPBERRY == 1:
+    import gpios
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 
@@ -63,7 +65,7 @@ class ScenarioState(IntEnum):   #   Estado para simular
     FibrilacionVentricular = 8  #   Listo
     TaquicardiaVentricular = 9  #   Listo
     Asistolia = 10
-    
+
 
 HEART_RATE = "1"
 TEMPERATURE = "2"
@@ -88,8 +90,9 @@ class PageState (IntEnum):
     LEADPAGE1 = 5 
     LEADPAGE2 = 6
 
-proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True,text=True)
-out = proc.stdout
+if OS_RASPBERRY == 1:
+    proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True,text=True)
+    out = proc.stdout
 
 
 
@@ -100,6 +103,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.setupUi(self)
         self.graphlength = 2000
         
+
         #Session
         self.signalState = SignalState.Idle
         self.state = State.IdleDisconnected
@@ -120,8 +124,9 @@ class MainWindow(QtWidgets.QWidget):
         self.zeros = 0
         
         ## GPIO Config
-        self.gpios = gpios.GPIOS()
-        self.gpios.init_Gpios()       
+        if OS_RASPBERRY == 1:
+            self.gpios = gpios.GPIOS()
+            self.gpios.init_Gpios()       
         
         self.dataChannel1 = 0
         self.dataChannel2 = 0
@@ -157,10 +162,11 @@ class MainWindow(QtWidgets.QWidget):
         self.generate_crc32_table(self.poly)
 
         # GPIOS signal Connects
-        self.gpios.DownEnergy.sig.connect(self.onDownEnergySelectButtonClicked)
-        self.gpios.UpEnergy.sig.connect(self.onUpEnergySelectButtonClicked)
-        self.gpios.Shock.sig.connect(self.onShockButtonClicked)
-        self.gpios.Charge.sig.connect(self.onChargeButtonClicked)
+        if OS_RASPBERRY == 1:
+            self.gpios.DownEnergy.sig.connect(self.onDownEnergySelectButtonClicked)
+            self.gpios.UpEnergy.sig.connect(self.onUpEnergySelectButtonClicked)
+            self.gpios.Shock.sig.connect(self.onShockButtonClicked)
+            self.gpios.Charge.sig.connect(self.onChargeButtonClicked)
         
         #Button Control
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
@@ -510,7 +516,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            self.ui.plt.addItem(self.data_line_channel4)
     
     def onDEFIBButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
@@ -530,7 +536,8 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            if self.signalState != SignalState.Stop:
+                self.ui.plt.addItem(self.data_line_channel4)
             self.resetDefib()
     
     def onUpEnergySelectButtonClicked(self):
@@ -652,6 +659,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J SHK\nBIFASICO")
         else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.mi_pagevariables[DEFIB_CHARGE] = 0
             self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibShock)  
@@ -676,7 +684,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.resetPacerPage()
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            self.ui.plt.addItem(self.data_line_channel4)
         
     
     def onPacerOutputUpButtonClicked(self):
@@ -852,26 +860,33 @@ class MainWindow(QtWidgets.QWidget):
         if(id == HEART_RATE):
             self.ui.heartRateValue_Label.setText(str(data))
             self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de BP
             self.bp.HR = HEART_RATE
 
         elif(id == TEMPERATURE):
             self.ui.tempValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == SPO):
             self.ui.SpO2Value_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de Spo2
             self.spo.spo2sl_change(self.mi_diccionario[SPO])
             self.spo.init_timer()
         elif(id == SYSPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de Blood Pressure
             self.bp.P_in = self.mi_diccionario[SYSPRESSURE]
         elif(id == DIAPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == FR):
             self.ui.FRValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == CO):
             self.ui.CO2Value_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de CO2
             #self.co2.loc = self.mi_diccionario[CO]
             #self.co2.init_timer()
@@ -914,42 +929,8 @@ class MainWindow(QtWidgets.QWidget):
     # Funciones de esenarios     
     def scenExperiment(self):
         self.scenarioState = ScenarioState.ArritmiaSinusal
-        print("ParoCardiaco")
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
-        
-    #########################################################################################
-    # Funciones para GPIOS
-#     def setGPIOSEventCallbacks(self):
-#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.SHOCK2], GPIO.RISING, callback =self.onShockButttonPressed, bouncetime=200)
-#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.CHARGE], GPIO.RISING, callback = self.onChargeButtonPressed, bouncetime=200)
-#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.UPENERGY], GPIO.RISING, callback = self.onUpEnergyButtonPressed, bouncetime=200)
-#         GPIO.add_event_detect(self.gpios.pinout[gpios.Gpios.DOWNENERGY], GPIO.RISING, callback = self.onDownEnergyButtonPressed, bouncetime=200)
-#     
-#     def onDownEnergyButtonPressed(self,channel):
-#         print(self.gpios.texto +" onDownEnergyButtonPressed")
-#         #self.onDownEnergySelectButtonClicked()
-#         self.signalOnDownEnergyButton.button_pressed_callback()
-#     def onUpEnergyButtonPressed(self,channel):
-#         print(self.gpios.texto +" onUpEnergyButtonChanged")
-#         self.onUpEnergySelectButtonClicked()
-#     def onShockButttonDoblePressed(self):
-#         print(self.gpios.texto +" onShockButttonDoblePressed")
-#         self.onShockButtonClicked()
-#     def onChargeButtonPressed(self,channel):
-#         self.onChargeButtonClicked()
-#         print(self.gpios.texto +" onChargeButtonPressed")
-#     def LEDOn(self):
-#         print(self.gpios.texto +" LEDOn")
-#     def LEDOff(self):
-#         print(self.gpios.texto +" LEDOff")
-#     def LEDToggle(self):
-#         print(self.gpios.texto +" LEDToggle")
-#     
-#     def onShockButttonPressed(self, channel):
-#         print(self.gpios.texto +" onShockButttonPressed")
-#         if (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK1]) == 1) and (GPIO.input(self.gpios.pinout[gpios.Gpios.SHOCK2]) == 1):
-#             self.onShockButttonDoblePressed()
 
 
 main_Stylesheet = """
