@@ -147,8 +147,8 @@ class MainWindow(QtWidgets.QWidget):
                         ]
 
         # Plot configuration
-        # self.ui.plt.getPlotItem().hideAxis('left')
-        # self.ui.plt.setYRange(40, 140)
+        self.ui.plt.getPlotItem().hideAxis('left')
+        self.ui.plt.setYRange(0, 2)
 
         # #Eje en x 
         # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
@@ -223,6 +223,8 @@ class MainWindow(QtWidgets.QWidget):
     def Update_Grahp(self):
         self.tPPG = time() - self.timestamp
         self.spo.update(self.mi_diccionario[HEART_RATE], self.tPPG)
+        self.bp.update_plot(self.mi_diccionario[HEART_RATE], self.tPPG)
+        self.co2.update_plot(self.mi_diccionario[FR], self.tPPG)
         # Initialize data channels with zeros if not in the correct page state
         #if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             #self.signalScenarioData()
@@ -239,10 +241,6 @@ class MainWindow(QtWidgets.QWidget):
 
         self.signalIndex = self.signalIndex + 1
 
-        # self.end = timerX()
-        # self.x.append(self.x[-1] + (self.end - self.start) )  # Add a new value 1 higher than the last.
-        # self.start = timerX()
-
         # for i in range (NUM_CHANNELS):
         #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
         #     # Update the position of each channel's text label
@@ -254,11 +252,13 @@ class MainWindow(QtWidgets.QWidget):
         
         self.channels[0].append(self.ecg12['II'][self.signalIndex])
         self.channels[1].append(self.spo.sR)
-        self.channels[2].append(self.bp.data[self.signalIndex]/8)
+        self.channels[2].append(self.bp.p)
+        self.channels[4].append(self.co2.co)
         self.x.append(self.tPPG)
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
+        self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
         #self.ui.plt.clear()
         #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
 

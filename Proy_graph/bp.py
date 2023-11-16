@@ -18,45 +18,23 @@ class BloodPressure():
 
         self.N_SAMPLES = 2000
 
+        self.p = 0
+
         # Define deque to hold data with a maximum length of N_SAMPLES
-        self.data = deque([], maxlen=self.N_SAMPLES)
-        self.databuffer = deque([],maxlen=self.N_SAMPLES)
-        self.time = deque([], maxlen=self.N_SAMPLES)
+
         
         # Initialize timestamp to the current time
-        self.timestamp = time()
+        #self.timestamp = time()
 
-        self.init_timer()
-    
-        
-    def init_timer(self):
-        self.databuffer.clear()
-        self.timer.setInterval(2)
-        self.timer.timeout.connect(self.init_signal)
-        self.timer.start()
+        #self.init_timer()
 
-
-    def init_signal(self):
-        if (np.size(self.databuffer)>=50):
-            self.timer.stop()
-            size = np.size(self.databuffer)
-            for i in range (self.N_SAMPLES-size):
-                self.databuffer.append(self.databuffer[i])
-                #print(f" indice {i}, tamano del variable {np.size(self.data)}")
-            self.data = self.databuffer
-            print("Blood Pressure Signal Created")
-        else:
-            self.update_plot()
-
-    def update_plot(self):
-        # Get the current time since the start of the simulation
-        t = (time() - self.timestamp) % 5
+    def update_plot(self, hr, t):
+        self.HR = hr
         # Solve the differential equation for the current time
         P_out = odeint(self.model, self.P_in, [t, t+1])
         #print(P_out)
         # Add the new signals to the data buffers
-        self.time.append(t)
-        self.databuffer.append((P_out[-1][0])-12)
+        self.p = ((P_out[-1][0])-12)/48
     
     # Define the model with the square wave for the aortic pressure
     def model(self, P, t):
