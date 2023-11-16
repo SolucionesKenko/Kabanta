@@ -44,7 +44,7 @@ class GPIOHandler(QtCore.QObject):
 class GPIOS():
     def __init__(self):
         self.boardPinout = [3,5,7,11,13,15]
-        self.BMCPinout = [2,3,4,17,17,22]
+        self.BMCPinout = [2,3,4,17,27,22]
         self.scriptState = ScriptState.NOTTESTING
         self.texto = "Hola"
         self.DownEnergy = GPIOHandler()
