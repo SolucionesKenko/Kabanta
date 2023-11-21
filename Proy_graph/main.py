@@ -18,7 +18,7 @@ import serial.tools.list_ports as portList
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
 from connection import addPorts, generate_crc32_table, onScanReturnButtonClicked, onConnectConfirmButtonClicked
-from constants import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
+from constantsk import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
 
 import spo
 import co2
@@ -251,16 +251,16 @@ class MainWindow(QtWidgets.QWidget):
 
         
         
-        self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
+        #self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
         self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
         self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
-        self.channels[3].append(self.rsp[self.signalIndex] + CHANNEL_OFFSETS[4])
+        #self.channels[3].append(self.rsp[self.signalIndex] + CHANNEL_OFFSETS[4])
         self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
         self.x.append(self.tPPG)
-        self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
+        #self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
-        self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
+        #self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
         #self.ui.plt.clear()
         #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
