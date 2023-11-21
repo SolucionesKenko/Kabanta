@@ -636,7 +636,6 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibDischarge)
             self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
-            self.gpios.LEDOff()
             print(" second timer is stoped")
 
     
@@ -663,7 +662,8 @@ class MainWindow(QtWidgets.QWidget):
             self.mi_pagevariables[DEFIB_CHARGE] = 0
             self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             self.timer2.stop()
-            self.timer2.timeout.disconnect(self.defibShock)  
+            self.timer2.timeout.disconnect(self.defibShock)
+            self.gpios.LEDOff()
 
     def resetPacerPage(self):
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
