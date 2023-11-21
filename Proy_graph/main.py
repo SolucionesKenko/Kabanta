@@ -599,6 +599,7 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.timeout.disconnect(self.defibCharging)
             self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
             self.ui.Shock_pushButton.setStyleSheet(PressedStylesheet)
+            self.gpios.LEDOn()
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
@@ -635,7 +636,7 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibDischarge)
             self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
-            
+            self.gpios.LEDOff()
             print(" second timer is stoped")
 
     

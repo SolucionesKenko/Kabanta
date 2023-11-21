@@ -111,8 +111,10 @@ class GPIOS():
         print(self.texto +" onChargeButtonPressed")
         self.Charge.button_pressed_callback()
     def LEDOn(self):
+        GPIO.output(self.pinout[Gpios.LED], GPIO.LOW)
         print(self.texto +" LEDOn")
     def LEDOff(self):
+        GPIO.output(self.pinout[Gpios.LED], GPIO.HIGH)
         print(self.texto +" LEDOff")
     def LEDToggle(self):
         print(self.texto +" LEDToggle")
