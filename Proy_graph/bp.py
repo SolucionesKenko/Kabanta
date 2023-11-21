@@ -34,7 +34,7 @@ class BloodPressure():
         P_out = odeint(self.model, self.P_in, [t, t+1])
         #print(P_out)
         # Add the new signals to the data buffers
-        self.p = ((P_out[-1][0])-12)/48
+        self.p = ((P_out[-1][0])-12)/18
     
     # Define the model with the square wave for the aortic pressure
     def model(self, P, t):

@@ -147,8 +147,8 @@ class MainWindow(QtWidgets.QWidget):
                         ]
 
         # Plot configuration
-        self.ui.plt.getPlotItem().hideAxis('left')
-        self.ui.plt.setYRange(0, 2)
+        #self.ui.plt.getPlotItem().hideAxis('left')
+        self.ui.plt.setYRange(0, 5.5)
 
         # #Eje en x 
         # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
@@ -176,6 +176,7 @@ class MainWindow(QtWidgets.QWidget):
         #     self.text_items.append(text_item)
         
     def signalScenarioData(self):
+       
         if self.scenarioState == ScenarioState.Idle:
             channel_sources = [
             self.ecg12['II']*10,
@@ -250,14 +251,16 @@ class MainWindow(QtWidgets.QWidget):
 
         
         
-        self.channels[0].append(self.ecg12['II'][self.signalIndex])
-        self.channels[1].append(self.spo.sR)
-        self.channels[2].append(self.bp.p)
-        self.channels[4].append(self.co2.co)
+        self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
+        self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
+        self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
+        self.channels[3].append(self.rsp[self.signalIndex] + CHANNEL_OFFSETS[4])
+        self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
         self.x.append(self.tPPG)
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
+        self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
         #self.ui.plt.clear()
         #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])

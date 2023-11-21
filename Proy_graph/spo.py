@@ -87,3 +87,5 @@ class SPO():
     
     def update(self, hr, tppg):
         self.sR, self.sIR = self.ppg_parameters(self.minR, self.ampR, self.minIR, self.ampIR, tppg, hr)
+        self.sR = self.sR * 1.5 
+        self.sIR = self.sIR * 1.5 
