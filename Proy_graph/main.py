@@ -139,12 +139,12 @@ class MainWindow(QtWidgets.QWidget):
     def initSignalGrahps(self):
 
         channel_configs = [
-                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None},
-                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None},
-                            {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None},
-                            {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None},
-                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3},
-                            {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None},
+                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             # Add or remove channel configs as needed
                         ]
 
