@@ -91,16 +91,19 @@ class MainWindow(QtWidgets.QWidget):
 
 
         #Button Control
+        ## Unused Buttons
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
+        self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
+        self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
         # Confirm es connect y return es scan 
         self.ui.confirmMenu_pushButton.pressed.connect(lambda: onConnectConfirmButtonClicked(self.ui, self.ui.port_comboBox, self.s, self.worker, self.sCoder))
         self.ui.returnMenu_pushButton.pressed.connect(lambda: onScanReturnButtonClicked(self.ui, self.sPorts))
 
-        self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
+        # Menu Bar Buttons 
         self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
-        self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
         self.ui.LEADMenu_pushButton.pressed.connect(self.onLeadMenuButtonClicked)
+        
         # Pacer 
         self.ui.DPO_pushButton.pressed.connect(self.onPacerOutputDownButtonClicked)
         self.ui.UPO_pushButton.pressed.connect(self.onPacerOutputUpButtonClicked)
@@ -140,8 +143,20 @@ class MainWindow(QtWidgets.QWidget):
                             {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'I', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'III', 'color': (162,249,161), 'pos': (110, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'avL', 'color': (162,249,161), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'avR', 'color': (162,249,161), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'avF', 'color': (162,249,161), 'pos': (30, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V1', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V2', 'color': (162,249,161), 'pos': (110, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V3', 'color': (162,249,161), 'pos': (90, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V4', 'color': (162,249,161), 'pos': (70, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V5', 'color': (162,249,161), 'pos': (50, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'V6', 'color': (162,249,161), 'pos': (30, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             # Add or remove channel configs as needed
                         ]
 
@@ -406,7 +421,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetPacerPage()
-            self.ui.plt.removeItem(self.data_line_channel4)
+            self.ui.plt.removeItem(self.data_line_channel4) # todo
             print(PageState.CPRPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
