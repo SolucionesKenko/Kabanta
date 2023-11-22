@@ -23,6 +23,7 @@ from constants import SignalState, DEFIBState, WorkingState, ScenarioState, Page
 import spo
 import co2
 import bp
+import rsp
 
 from time import time
 from timeit import default_timer as timerX
@@ -37,7 +38,7 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
-        self.graphlength = 2000
+        self.graphlength = 1000
         
         #Session
         self.signalState = SignalState.Idle
@@ -55,13 +56,14 @@ class MainWindow(QtWidgets.QWidget):
         self.parserState = ParserState.Type
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
-        self.bp =bp.BloodPressure()
+        self.bp = bp.BloodPressure()
+        self.rsp = rsp.RSP()
 
         self.timestamp = 0.0
 
         self.generateSig = obtainSignals()
         self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
-        self.rsp = list(self.generateSig.generate_rsp())
+        #self.rsp = list(self.generateSig.generate_rsp())
 
         self.data = []
         self.channels = [] #data to graph
@@ -192,7 +194,7 @@ class MainWindow(QtWidgets.QWidget):
             self.dataChannel1 = ([0]*self.graphlength)
             self.dataChannel2 = (list(self.spo.sR))
             self.dataChannel3 = ([0]*self.graphlength)
-            self.dataChannel4 = (self.rsp)
+            self.dataChannel4 = (self.rsp.rsp)
             self.dataChannel5 = list(self.co2.data)
             self.dataChannel6 = (self.ecg12["aVF"])
         # elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
@@ -221,11 +223,12 @@ class MainWindow(QtWidgets.QWidget):
         #     print(ScenarioState.Asistolia)
             
 
-    def Update_Grahp(self):
+    def Update_Graph(self):
         self.tPPG = time() - self.timestamp
         self.spo.update(self.mi_diccionario[HEART_RATE], self.tPPG)
         self.bp.update_plot(self.mi_diccionario[HEART_RATE], self.tPPG)
         self.co2.update_plot(self.mi_diccionario[FR], self.tPPG)
+        self.rsp.update_plot(self.mi_diccionario[FR], self.tPPG )
         # Initialize data channels with zeros if not in the correct page state
         #if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             #self.signalScenarioData()
@@ -254,7 +257,7 @@ class MainWindow(QtWidgets.QWidget):
         self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
         self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
         self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
-        self.channels[3].append(self.rsp[self.signalIndex] + CHANNEL_OFFSETS[4])
+        self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
         self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
         self.x.append(self.tPPG)
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
@@ -311,7 +314,7 @@ class MainWindow(QtWidgets.QWidget):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
                 self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
-                self.rsp = list(self.generateSig.generate_rsp())
+                #self.rsp = list(self.generateSig.generate_rsp())
         
                 self.time.__init__(0,0,0,0)
             
@@ -338,8 +341,8 @@ class MainWindow(QtWidgets.QWidget):
                 
                 # Manejo de timer y time
                 self.elapsedTime.start()
-                self.timer.setInterval(2)
-                self.timer.timeout.connect(self.Update_Grahp)
+                self.timer.setInterval(5)
+                self.timer.timeout.connect(self.Update_Graph)
                 #self.timer.timeout.connect(self.Update_Time)
                 self.timer.start()
 
@@ -655,14 +658,14 @@ class MainWindow(QtWidgets.QWidget):
                 startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
                 startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
                 startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
+                #startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
                 startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
                 startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
                 
                 self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
                 self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.signalIndex],maxlen = 2000)
                 self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.signalIndex],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
+                #self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
                 self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.signalIndex],maxlen = 2000)
                 self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
                 
