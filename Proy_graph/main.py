@@ -599,7 +599,8 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.timeout.disconnect(self.defibCharging)
             self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
             self.ui.Shock_pushButton.setStyleSheet(PressedStylesheet)
-            self.gpios.LEDOn()
+            if OS_RASPBERRY == 1:
+                self.gpios.LEDOn()
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
@@ -663,7 +664,8 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibShock)
-            self.gpios.LEDOff()
+            if OS_RASPBERRY == 1:
+                self.gpios.LEDOff()
 
     def resetPacerPage(self):
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
