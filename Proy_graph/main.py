@@ -26,7 +26,7 @@ import bp
 import rsp
 
 from time import time
-from timeit import default_timer as timerX
+from datetime import timedelta
 
 
 # Manejo de arreglos en la senal 
@@ -49,7 +49,7 @@ class MainWindow(QtWidgets.QWidget):
         self.scenarioState = ScenarioState.Idle
 
         # Data Variables
-        self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
+        self.default_config = {HEART_RATE:60,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
         self.generateSig = 0
         self.ecg12 = 0
@@ -59,10 +59,10 @@ class MainWindow(QtWidgets.QWidget):
         self.bp = bp.BloodPressure()
         self.rsp = rsp.RSP()
 
-        self.timestamp = 0.0
+        self.init_time = 0.0
 
         self.generateSig = obtainSignals()
-        self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+        self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
         #self.rsp = list(self.generateSig.generate_rsp())
 
         self.data = []
@@ -76,7 +76,6 @@ class MainWindow(QtWidgets.QWidget):
         self.timer = QtCore.QTimer()
         self.timer2 = QtCore.QTimer()
         self.time = QtCore.QTime()
-        self.elapsedTime = QtCore.QElapsedTimer()
 
         # Connections
         self.s = ""
@@ -236,11 +235,11 @@ class MainWindow(QtWidgets.QWidget):
             
 
     def Update_Graph(self):
-        self.tPPG = time() - self.timestamp
-        self.spo.update(self.mi_diccionario[HEART_RATE], self.tPPG)
-        self.bp.update_plot(self.mi_diccionario[HEART_RATE], self.tPPG)
-        self.co2.update_plot(self.mi_diccionario[FR], self.tPPG)
-        self.rsp.update_plot(self.mi_diccionario[FR], self.tPPG )
+        self.timestamp = time() - self.init_time
+        self.spo.update(self.default_config[HEART_RATE], self.timestamp)
+        self.bp.update_plot(self.default_config[HEART_RATE], self.timestamp)
+        self.co2.update_plot(self.default_config[FR], self.timestamp)
+        self.rsp.update_plot(self.default_config[FR], self.timestamp )
         # Initialize data channels with zeros if not in the correct page state
         #if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             #self.signalScenarioData()
@@ -271,7 +270,7 @@ class MainWindow(QtWidgets.QWidget):
         self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
         self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
         self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
-        self.x.append(self.tPPG)
+        self.x.append(self.timestamp)
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
@@ -321,23 +320,23 @@ class MainWindow(QtWidgets.QWidget):
             self.enableDisableVitalSignalMenu(False)
       
     def onPlayButtonClicked(self):
-        self.timestamp = time()
+        self.init_time = time()
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
-                self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+                self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
                 #self.rsp = list(self.generateSig.generate_rsp())
         
                 self.time.__init__(0,0,0,0)
             
             if(self.signalState != SignalState.Playing):
-                self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
-                self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
-                self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
-                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
-                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
-                self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
-                self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
+                self.ui.heartRateValue_Label.setText(str(self.default_config[HEART_RATE]))
+                self.ui.tempValue_Label.setText(str(self.default_config[TEMPERATURE]))
+                self.ui.SpO2Value_Label.setText(str(self.default_config[SPO]))
+                self.ui.pressureValue_Label.setText(str(self.default_config[SYSPRESSURE]))
+                self.ui.pressureValue_Label.setText(str(self.default_config[DIAPRESSURE]))
+                self.ui.FRValue_Label.setText(str(self.default_config[FR]))
+                self.ui.CO2Value_Label.setText(str(self.default_config[CO]))
 
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
@@ -352,10 +351,9 @@ class MainWindow(QtWidgets.QWidget):
                     self.worker.sendMessage()
                 
                 # Manejo de timer y time
-                self.elapsedTime.start()
                 self.timer.setInterval(5)
                 self.timer.timeout.connect(self.Update_Graph)
-                #self.timer.timeout.connect(self.Update_Time)
+                self.timer.timeout.connect(self.Update_Time)
                 self.timer.start()
 
     def onPauseButtonClicked(self):
@@ -707,21 +705,21 @@ class MainWindow(QtWidgets.QWidget):
 
     def Update_Time(self):
         self.updateElapsedTime()
-        self.ui.simulationTimeValue_pushButton.setText(str(self.elapsed_time))
+        self.ui.simulationTimeValue_pushButton.setText(str(self.elapsed_time).split(".")[0])
     
     def updateElapsedTime(self):
-        self.elapsed_time = self.time.addMSecs(self.elapsedTime.elapsed()).toString("hh:mm:ss")
+        self.elapsed_time = timedelta(seconds = self.timestamp )
 
     def displayHello(self):
         print("hello")
     
     def setDefaultValues(self):
-        self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
+        self.default_config = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
 
     def updateUI(self, id, data):
         if(id == HEART_RATE):
             self.ui.heartRateValue_Label.setText(str(data))
-            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+            self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
             # Actualizacion de BP
             self.bp.HR = HEART_RATE
 
@@ -730,12 +728,12 @@ class MainWindow(QtWidgets.QWidget):
         elif(id == SPO):
             self.ui.SpO2Value_Label.setText(str(data))
             # Actualizacion de Spo2
-            self.spo.spo2sl_change(self.mi_diccionario[SPO])
+            self.spo.spo2sl_change(self.default_config[SPO])
             self.spo.init_timer()
         elif(id == SYSPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
             # Actualizacion de Blood Pressure
-            self.bp.P_in = self.mi_diccionario[SYSPRESSURE]
+            self.bp.P_in = self.default_config[SYSPRESSURE]
         elif(id == DIAPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
         elif(id == FR):
@@ -743,7 +741,7 @@ class MainWindow(QtWidgets.QWidget):
         elif(id == CO):
             self.ui.CO2Value_Label.setText(str(data))
             # Actualizacion de CO2
-            #self.co2.loc = self.mi_diccionario[CO]
+            #self.co2.loc = self.default_config[CO]
             #self.co2.init_timer()
         elif (id == SCENARIO):
             if (data == ScenarioState.Idle):
@@ -776,7 +774,7 @@ class MainWindow(QtWidgets.QWidget):
     def testWorker(self, id, data):
         # Cambiar diccionario
         s_id = str(id)
-        self.mi_diccionario[s_id] = data
+        self.default_config[s_id] = data
         self.updateUI(s_id, data)
 
     ##########################################################################################
