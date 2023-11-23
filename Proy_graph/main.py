@@ -135,27 +135,25 @@ class MainWindow(QtWidgets.QWidget):
     def initSignalGrahps(self):
 
         channel_configs = [
-                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'II', 'color': (162,249,161), 'pos': (-0.8, 4.6 ), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (-0.8, 3.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'ABP', 'color': (136,51,64), 'pos': (-0.8,2.1), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'Resp', 'color': (255,222,89), 'pos': (-0.8, 1), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (-0.8, 0), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+                            #{'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
                             # Add or remove channel configs as needed
                         ]
 
         # Plot configuration
-        #self.ui.plt.getPlotItem().hideAxis('left')
-        self.ui.plt.setYRange(0, 5.5)
+        self.ui.plt.getPlotItem().hideAxis('left')
+        self.ui.plt.setYRange(0, 6)
 
         # #Eje en x 
-        # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
         self.x = deque([], maxlen=self.graphlength)
 
         for i, config in enumerate(channel_configs):
             y_offset = config['pos'][0]
             # Create the deque with initial values
-            #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
             channel_deque = deque([], maxlen=self.graphlength)
             self.channels.append(channel_deque)
 
@@ -167,11 +165,11 @@ class MainWindow(QtWidgets.QWidget):
                 data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
             self.data_lines.append(data_line)
 
-        #     # Create the label text
-        #     text_item = pg.TextItem(config['label'], color=config['color'])
-        #     text_item.setPos(config['pos'][1], y_offset)
-        #     self.ui.plt.addItem(text_item)
-        #     self.text_items.append(text_item)
+            # Create the label text
+            text_item = pg.TextItem(config['label'], color=config['color'])
+            text_item.setPos(config['pos'][1], y_offset)
+            self.ui.plt.addItem(text_item)
+            self.text_items.append(text_item)
         
     def signalScenarioData(self):
        
@@ -240,15 +238,6 @@ class MainWindow(QtWidgets.QWidget):
             self.signalIndex = 0
 
         self.signalIndex = self.signalIndex + 1
-
-        # for i in range (NUM_CHANNELS):
-        #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
-        #     # Update the position of each channel's text label
-        #     self.text_items[i].setPos(self.x[0] - 0.2, CHANNEL_OFFSETS[i])
-        #     # Update the data line for each channel with the new data
-        #     self.data_lines[i].setData(self.x, self.channels[i])
-
-        
         
         self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
         self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
@@ -256,13 +245,20 @@ class MainWindow(QtWidgets.QWidget):
         self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
         self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
         self.x.append(self.timestamp)
+
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
         self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
+
+        for i in range (NUM_CHANNELS):
+            #self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
+            # Update the position of each channel's text label
+            self.text_items[i].setPos(self.x[0] - 0.8, CHANNEL_OFFSETS[i+1])
+
         #self.ui.plt.clear()
-        #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
+
 
 
     ##########################################################################################
@@ -309,9 +305,7 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
-                self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
-                #self.rsp = list(self.generateSig.generate_rsp())
-        
+                self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])        
                 self.time.__init__(0,0,0,0)
             
             if(self.signalState != SignalState.Playing):
