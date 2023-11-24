@@ -130,48 +130,45 @@ class MainWindow(QtWidgets.QWidget):
         ### Final de configuracion de los Widgets
         ### Codigo de main
         # Inicializacion de las senales de las graficas
+        self.setDefaultValues()
         self.initSignalGrahps()
     
 
     ##########################################################################################
     # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
-
-        channel_configs = [
-                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'Pleth', 'color': (134,234,233), 'pos': (110, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'ABP', 'color': (136,51,64), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'Resp', 'color': (255,222,89), 'pos': (70, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'avF', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'CO2', 'color': (171,171,171), 'pos': (50, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'I', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'II', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'III', 'color': (162,249,161), 'pos': (110, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'avL', 'color': (162,249,161), 'pos': (90, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'avR', 'color': (162,249,161), 'pos': (50, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'avF', 'color': (162,249,161), 'pos': (30, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V1', 'color': (162,249,161), 'pos': (130, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V2', 'color': (162,249,161), 'pos': (110, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V3', 'color': (162,249,161), 'pos': (90, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V4', 'color': (162,249,161), 'pos': (70, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V5', 'color': (162,249,161), 'pos': (50, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
-                            {'label': 'V6', 'color': (162,249,161), 'pos': (30, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True},
+        self.channel_configs = [
+                            {'label': 'II', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Pleth', 'color': (134,234,233), 'pos':(3.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':1},
+                            {'label': 'ABP', 'color': (136,51,64), 'pos': (2, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Resp', 'color': (255,222,89), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (0, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'I', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'II', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':2},
+                            {'label': 'III', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'avL', 'color': (162,249,161), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'avR', 'color': (162,249,161), 'pos': (0, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'avF', 'color': (162,249,161), 'pos': (-0.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'V1', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V2', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V3', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V4', 'color': (162,249,161), 'pos': (1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V5', 'color': (162,249,161), 'pos': (0, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V6', 'color': (162,249,161), 'pos': (-0.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
                             # Add or remove channel configs as needed
                         ]
 
         # Plot configuration
         #self.ui.plt.getPlotItem().hideAxis('left')
         self.ui.plt.setYRange(0, 5.5)
-
         # #Eje en x 
         # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
-        self.x = deque([], maxlen=self.graphlength)
-
-        for i, config in enumerate(channel_configs):
+        self.x = deque(np.linspace(-17,1,self.graphlength), maxlen=self.graphlength)
+        for i, config in enumerate(self.channel_configs):
             y_offset = config['pos'][0]
             # Create the deque with initial values
             #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
-            channel_deque = deque([], maxlen=self.graphlength)
+            channel_deque = deque([y_offset for i in self.x], maxlen=self.graphlength)
             self.channels.append(channel_deque)
 
         #     # Create the plot line with an optional fillLevel
@@ -181,6 +178,10 @@ class MainWindow(QtWidgets.QWidget):
             else:
                 data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
             self.data_lines.append(data_line)
+            
+            # Clear other screen Datalines
+            if config['Screen'] != 1:
+                self.ui.plt.removeItem(data_line)
 
         #     # Create the label text
         #     text_item = pg.TextItem(config['label'], color=config['color'])
@@ -189,17 +190,13 @@ class MainWindow(QtWidgets.QWidget):
         #     self.text_items.append(text_item)
         
     def signalScenarioData(self):
-       
         if self.scenarioState == ScenarioState.Idle:
-            channel_sources = [
-            self.ecg12['II']*10,
-            self.spo.sR,
-            self.bp.data,
-            self.rsp,
-            self.co2.data,
-            self.ecg12["aVF"]
-            ]
-            self.data = [list(source) if not isinstance(source, list) else source for source in channel_sources]
+            self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
+            self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
+            self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
+            self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
+            self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
+            self.channels[10].append(self.ecg12['aVF'][self.signalIndex] + CHANNEL_OFFSETS[5])
             
         elif self.scenarioState == ScenarioState.ParoCardiaco:
             self.dataChannel1 = ([0]*self.graphlength)
@@ -207,7 +204,7 @@ class MainWindow(QtWidgets.QWidget):
             self.dataChannel3 = ([0]*self.graphlength)
             self.dataChannel4 = (self.rsp.rsp)
             self.dataChannel5 = list(self.co2.data)
-            self.dataChannel6 = (self.ecg12["aVF"])
+            self.dataChannel6 = (self.ecg12["avF"])
         # elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
         #     print(ScenarioState.TaquicardiaSinusal)
         elif self.scenarioState == ScenarioState.BradicardiaSinusal:
@@ -240,42 +237,40 @@ class MainWindow(QtWidgets.QWidget):
         self.bp.update_plot(self.default_config[HEART_RATE], self.timestamp)
         self.co2.update_plot(self.default_config[FR], self.timestamp)
         self.rsp.update_plot(self.default_config[FR], self.timestamp )
-        # Initialize data channels with zeros if not in the correct page state
-        #if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
-            #self.signalScenarioData()
-        # else:
-        #     self.dataChannel1 = (self.ecg12[self.leadConfig["text1"]]*10)
-        #     self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
-        #     self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
-        #     self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]]*10)
-        #     self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
-        #     self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
 
         if(self.signalIndex >= (self.graphlength)-1):
             self.signalIndex = 0
 
         self.signalIndex = self.signalIndex + 1
 
+        #Initialize data channels with zeros if not in the correct page state
+        if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+            self.signalScenarioData()
+        else:
+            telfon = 'hellos'
+            self.channels[0].append(self.ecg12[self.leadConfig["text1"]][self.signalIndex] + CHANNEL_OFFSETS[1])
+            self.channels[1].append(self.ecg12[self.leadConfig["text2"]][self.signalIndex] + CHANNEL_OFFSETS[2])
+            self.channels[2].append(self.ecg12[self.leadConfig["text3"]][self.signalIndex] + CHANNEL_OFFSETS[3])
+            self.channels[3].append (self.ecg12[self.leadConfig["text4"]][self.signalIndex] + CHANNEL_OFFSETS[4])
+            self.channels[4].append(self.ecg12[self.leadConfig["text5"]][self.signalIndex] + CHANNEL_OFFSETS[5])
+            self.channels[10].append(self.ecg12[self.leadConfig["text6"]][self.signalIndex] + CHANNEL_OFFSETS[5])
+        
         # for i in range (NUM_CHANNELS):
         #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
         #     # Update the position of each channel's text label
         #     self.text_items[i].setPos(self.x[0] - 0.2, CHANNEL_OFFSETS[i])
         #     # Update the data line for each channel with the new data
-        #     self.data_lines[i].setData(self.x, self.channels[i])
-
+        #     self.data_lines[i].setData(self.x, self.channels[i])    
         
-        
-        self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
-        self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
-        self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
-        self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
-        self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
         self.x.append(self.timestamp)
+ 
+
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
         self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
+        self.data_lines[10].setData(x=list(self.x)[1:], y = list(self.channels[10])[1:])
         #self.ui.plt.clear()
         #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
 
@@ -620,25 +615,25 @@ class MainWindow(QtWidgets.QWidget):
                 self.resetDefib()
                 self.resetCPRPage()
                 self.resetPacerPage()
-                self.ui.plt.setYRange(20, 140)
-                self.ui.plt.addItem(self.channel6Text)
+                self.ui.plt.setYRange(-1, 5)
+                #self.ui.plt.addItem(self.channel6Text)
                 self.leadConfig = {"text1":"I", "text2":"II","text3":"III","text4":"aVL","text5":"aVR", "text6":"aVF","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
-                self.ui.plt.addItem(self.data_line_channel6)
-                self.data_line_channel5.setBrush(171,171,171, 0)
+                self.ui.plt.addItem(self.data_lines[10])
+                # self.data_line_channel5.setBrush(171,171,171, 0)
                 
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+                # startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
+                # startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
+                # startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
+                # startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
+                # startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
+                # startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
                 
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
+                # self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
+                # self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
+                # self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
+                # self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
+                # self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
+                # self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
                 
@@ -661,44 +656,44 @@ class MainWindow(QtWidgets.QWidget):
                 self.pageState = PageState.DEFAULTPAGE
                 self.workingState = WorkingState.Idle
                 self.leadConfig = {"text1":"II", "text2":"Pleth","text3":"ABP","text4":"Resp","text5":"CO2", "text6":"aVF","ch1":(162,249,161),"ch2":(134,234,233),"ch3":(136,51,64), "ch4":(255,222,89),"ch5":(171,171,171),"ch6":(162,249,161)}
-                self.ui.plt.removeItem(self.data_line_channel6)
-                self.ui.plt.removeItem(self.channel6Text)
+                self.ui.plt.removeItem(self.data_lines[5])
+                #self.ui.plt.removeItem(self.channel6Text)
                 self.ui.plt.setYRange(40, 140)
 
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
-                #startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+                # startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
+                # startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
+                # startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
+                # #startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
+                # startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
+                # startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
                 
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.signalIndex],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.signalIndex],maxlen = 2000)
-                #self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.signalIndex],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
+                # self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
+                # self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.signalIndex],maxlen = 2000)
+                # self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.signalIndex],maxlen = 2000)
+                # #self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
+                # self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.signalIndex],maxlen = 2000)
+                # self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
                 
-            self.channel1Text.setText(self.leadConfig["text1"])
-            self.channel2Text.setText(self.leadConfig["text2"])
-            self.channel3Text.setText(self.leadConfig["text3"])
-            self.channel4Text.setText(self.leadConfig["text4"])
-            self.channel5Text.setText(self.leadConfig["text5"])
-            self.channel6Text.setText(self.leadConfig["text6"])
+            # self.channel1Text.setText(self.leadConfig["text1"])
+            # self.channel2Text.setText(self.leadConfig["text2"])
+            # self.channel3Text.setText(self.leadConfig["text3"])
+            # self.channel4Text.setText(self.leadConfig["text4"])
+            # self.channel5Text.setText(self.leadConfig["text5"])
+            # self.channel6Text.setText(self.leadConfig["text6"])
 
-            self.channel1Text.setColor(self.leadConfig["ch1"])
-            self.channel2Text.setColor(self.leadConfig["ch2"])
-            self.channel3Text.setColor(self.leadConfig["ch3"])
-            self.channel4Text.setColor(self.leadConfig["ch4"])
-            self.channel5Text.setColor(self.leadConfig["ch5"])
-            self.channel6Text.setColor(self.leadConfig["ch6"])
+            # self.channel1Text.setColor(self.leadConfig["ch1"])
+            # self.channel2Text.setColor(self.leadConfig["ch2"])
+            # self.channel3Text.setColor(self.leadConfig["ch3"])
+            # self.channel4Text.setColor(self.leadConfig["ch4"])
+            # self.channel5Text.setColor(self.leadConfig["ch5"])
+            # self.channel6Text.setColor(self.leadConfig["ch6"])
 
-            self.data_line_channel1.setPen(self.leadConfig["ch1"])
-            self.data_line_channel2.setPen(self.leadConfig["ch2"])
-            self.data_line_channel3.setPen(self.leadConfig["ch3"])
-            self.data_line_channel4.setPen(self.leadConfig["ch4"])
-            self.data_line_channel5.setPen(self.leadConfig["ch5"])
-            self.data_line_channel6.setPen(self.leadConfig["ch6"])
+            # self.data_line_channel1.setPen(self.leadConfig["ch1"])
+            # self.data_line_channel2.setPen(self.leadConfig["ch2"])
+            # self.data_line_channel3.setPen(self.leadConfig["ch3"])
+            # self.data_line_channel4.setPen(self.leadConfig["ch4"])
+            # self.data_line_channel5.setPen(self.leadConfig["ch5"])
+            # self.data_line_channel6.setPen(self.leadConfig["ch6"])
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
