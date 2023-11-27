@@ -58,6 +58,7 @@ class MainWindow(QtWidgets.QWidget):
         self.co2 = co2.CO2()
         self.bp = bp.BloodPressure()
         self.rsp = rsp.RSP()
+        self.adderFlag = 0
 
         self.init_time = 0.0
 
@@ -130,7 +131,6 @@ class MainWindow(QtWidgets.QWidget):
         ### Final de configuracion de los Widgets
         ### Codigo de main
         # Inicializacion de las senales de las graficas
-        self.setDefaultValues()
         self.initSignalGrahps()
     
 
@@ -143,18 +143,20 @@ class MainWindow(QtWidgets.QWidget):
                             {'label': 'ABP', 'color': (136,51,64), 'pos': (2, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
                             {'label': 'Resp', 'color': (255,222,89), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
                             {'label': 'CO2', 'color': (171,171,171), 'pos': (0, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Free', 'color': (162,249,161), 'pos': (-1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
                             {'label': 'I', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
                             {'label': 'II', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':2},
                             {'label': 'III', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
-                            {'label': 'avL', 'color': (162,249,161), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
-                            {'label': 'avR', 'color': (162,249,161), 'pos': (0, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
-                            {'label': 'avF', 'color': (162,249,161), 'pos': (-0.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVL', 'color': (162,249,161), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVR', 'color': (162,249,161), 'pos': (0, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVF', 'color': (162,249,161), 'pos': (-1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
                             {'label': 'V1', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
                             {'label': 'V2', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
                             {'label': 'V3', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
                             {'label': 'V4', 'color': (162,249,161), 'pos': (1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
                             {'label': 'V5', 'color': (162,249,161), 'pos': (0, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
-                            {'label': 'V6', 'color': (162,249,161), 'pos': (-0.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V6', 'color': (162,249,161), 'pos': (-1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            
                             # Add or remove channel configs as needed
                         ]
 
@@ -196,7 +198,13 @@ class MainWindow(QtWidgets.QWidget):
             self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
             self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
             self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
-            self.channels[10].append(self.ecg12['aVF'][self.signalIndex] + CHANNEL_OFFSETS[5])
+            self.channels[6].append(self.ecg12['aVF'][self.signalIndex] + CHANNEL_OFFSETS[5])
+            
+            self.channels[7].append(self.spo.sR + CHANNEL_OFFSETS[2])
+            self.channels[8].append(self.bp.p + CHANNEL_OFFSETS[3])
+            self.channels[9].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
+            self.channels[10].append(self.co2.co+ CHANNEL_OFFSETS[5])
+
             
         elif self.scenarioState == ScenarioState.ParoCardiaco:
             self.dataChannel1 = ([0]*self.graphlength)
@@ -239,6 +247,7 @@ class MainWindow(QtWidgets.QWidget):
         self.rsp.update_plot(self.default_config[FR], self.timestamp )
 
         if(self.signalIndex >= (self.graphlength)-1):
+            self.adderFlag = 1
             self.signalIndex = 0
 
         self.signalIndex = self.signalIndex + 1
@@ -247,13 +256,9 @@ class MainWindow(QtWidgets.QWidget):
         if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             self.signalScenarioData()
         else:
-            telfon = 'hellos'
-            self.channels[0].append(self.ecg12[self.leadConfig["text1"]][self.signalIndex] + CHANNEL_OFFSETS[1])
-            self.channels[1].append(self.ecg12[self.leadConfig["text2"]][self.signalIndex] + CHANNEL_OFFSETS[2])
-            self.channels[2].append(self.ecg12[self.leadConfig["text3"]][self.signalIndex] + CHANNEL_OFFSETS[3])
-            self.channels[3].append (self.ecg12[self.leadConfig["text4"]][self.signalIndex] + CHANNEL_OFFSETS[4])
-            self.channels[4].append(self.ecg12[self.leadConfig["text5"]][self.signalIndex] + CHANNEL_OFFSETS[5])
-            self.channels[10].append(self.ecg12[self.leadConfig["text6"]][self.signalIndex] + CHANNEL_OFFSETS[5])
+
+            for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                self.channels[i].append(self.ecg12[config["label"]][self.signalIndex] + CHANNEL_OFFSETS[i])
         
         # for i in range (NUM_CHANNELS):
         #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
@@ -270,9 +275,7 @@ class MainWindow(QtWidgets.QWidget):
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
         self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
-        self.data_lines[10].setData(x=list(self.x)[1:], y = list(self.channels[10])[1:])
-        #self.ui.plt.clear()
-        #self.ui.plt.plot(x=list(self.x)[1:], y = list(self.channels[1])[1:])
+        self.data_lines[5].setData(x=list(self.x)[1:], y = list(self.channels[5])[1:])
 
 
     ##########################################################################################
@@ -320,7 +323,6 @@ class MainWindow(QtWidgets.QWidget):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
                 self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
-                #self.rsp = list(self.generateSig.generate_rsp())
         
                 self.time.__init__(0,0,0,0)
             
@@ -337,7 +339,7 @@ class MainWindow(QtWidgets.QWidget):
                 if(self.signalState == SignalState.Stop):
                     self.initSignalGrahps()
                     if self.pageState != PageState.DEFAULTPAGE:
-                       self.ui.plt.removeItem(self.data_line_channel4)
+                       self.ui.plt.removeItem(self.data_lines[3])
                 
                 self.signalState = SignalState.Playing
                 # Envio de estado por serial 
@@ -414,19 +416,19 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetPacerPage()
-            self.ui.plt.removeItem(self.data_line_channel4) # todo
+            self.ui.plt.removeItem(self.data_lines[3]) # todo
             print(PageState.CPRPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            self.ui.plt.addItem(self.data_lines[3])
     
     def onDEFIBButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.DEFIBPAGE
             self.defibState = DEFIBState.Select
-            self.ui.plt.removeItem(self.data_line_channel4)
+            self.ui.plt.removeItem(self.data_lines[3])
             self.resetPacerPage()
             self.resetCPRPage()
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
@@ -440,7 +442,7 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            self.ui.plt.addItem(self.data_lines[3])
             self.resetDefib()
     
     def onUpEnergySelectButtonClicked(self):
@@ -574,7 +576,7 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.PACERPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.PACERPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
-            self.ui.plt.removeItem(self.data_line_channel4)
+            self.ui.plt.removeItem(self.data_lines[3])
             self.ui.pacerLabel_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetCPRPage()
@@ -584,7 +586,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.resetPacerPage()
-            self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
+            self.ui.plt.addItem(self.data_lines[3])
           
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
@@ -616,64 +618,43 @@ class MainWindow(QtWidgets.QWidget):
                 self.resetCPRPage()
                 self.resetPacerPage()
                 self.ui.plt.setYRange(-1, 5)
-                #self.ui.plt.addItem(self.channel6Text)
-                self.leadConfig = {"text1":"I", "text2":"II","text3":"III","text4":"aVL","text5":"aVR", "text6":"aVF","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
-                self.ui.plt.addItem(self.data_lines[10])
-                # self.data_line_channel5.setBrush(171,171,171, 0)
-                
-                # startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                # startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
-                # startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
-                # startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
-                # startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
-                # startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
-                
-                # self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
-                # self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
-                # self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
-                # self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
-                # self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
-                # self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
+                self.ui.plt.addItem(self.data_lines[5])
+                self.data_lines[5].setBrush(171,171,171, 0)
+                self.qwer, self.asdf = [6, 12]
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
+                self.qwer, self.asdf = [12, None]
                 
-                self.leadConfig = {"text1":"V1", "text2":"V2","text3":"V3","text4":"V4","text5":"V5", "text6":"V6","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
-            
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.signalIndex],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.signalIndex],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.signalIndex],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.signalIndex],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE2:
-                self.data_line_channel5.setBrush(171,171,171, 60)
                 self.pageState = PageState.DEFAULTPAGE
                 self.workingState = WorkingState.Idle
-                self.leadConfig = {"text1":"II", "text2":"Pleth","text3":"ABP","text4":"Resp","text5":"CO2", "text6":"aVF","ch1":(162,249,161),"ch2":(134,234,233),"ch3":(136,51,64), "ch4":(255,222,89),"ch5":(171,171,171),"ch6":(162,249,161)}
                 self.ui.plt.removeItem(self.data_lines[5])
-                #self.ui.plt.removeItem(self.channel6Text)
-                self.ui.plt.setYRange(40, 140)
+                self.qwer, self.asdf = [0, 7]
+                self.ui.plt.setYRange(0, 5.5)
+                self.data_lines[5].setBrush(171,171,171, 60)
+                
+            if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+                
+                channel_list0 = [self.channel_configs[0]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12["II"])+self.channel_configs[0]["pos"][0])[:self.graphlength]
+                channel_list1 = [self.channel_configs[1]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[1]))[0] +self.channel_configs[1]["pos"][0])[:self.graphlength]
+                channel_list2 = [self.channel_configs[2]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[2]))[0]+self.channel_configs[2]["pos"][0])[:self.graphlength]
+                channel_list3 = [self.channel_configs[3]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[3]))[0]+self.channel_configs[3]["pos"][0])[:self.graphlength]
+                channel_list4 = [self.channel_configs[4]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[4]))[0]+self.channel_configs[4]["pos"][0])[:self.graphlength]
+                channel_list5 = [self.channel_configs[5]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12["aVF"])+self.channel_configs[5]["pos"][0])[:self.graphlength]
 
-                # startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                # startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
-                # startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
-                # #startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
-                # startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
-                # startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
-                
-                # self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.signalIndex],maxlen = 2000)
-                # self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.signalIndex],maxlen = 2000)
-                # self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.signalIndex],maxlen = 2000)
-                # #self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.signalIndex],maxlen = 2000)
-                # self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.signalIndex],maxlen = 2000)
-                # self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.signalIndex],maxlen = 2000)
-                
+                self.channels[0] = deque(channel_list0 + list((self.ecg12["II"])+self.channel_configs[0]["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                self.channels[1] = deque(channel_list1 + list(self.channels[7]),maxlen = self.graphlength) 
+                self.channels[2] = deque(channel_list2 + list(self.channels[8]),maxlen = self.graphlength) 
+                self.channels[3] = deque(channel_list3 + list(self.channels[9]),maxlen = self.graphlength) 
+                self.channels[4] = deque(channel_list4 + list(self.channels[10]),maxlen = self.graphlength) 
+                self.channels[5] = deque(channel_list5 + list((self.ecg12["aVF"])+self.channel_configs[5]["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                    self.data_lines[i].setPen(config["color"])
+            else:
+                for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                    channel_list = [config["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12[config["label"]])+config["pos"][0])[:self.graphlength]
+                    self.channels[i] = deque(channel_list + list((self.ecg12[config["label"]])+config["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                    self.data_lines[i].setPen(config["color"])
             # self.channel1Text.setText(self.leadConfig["text1"])
             # self.channel2Text.setText(self.leadConfig["text2"])
             # self.channel3Text.setText(self.leadConfig["text3"])
@@ -687,13 +668,6 @@ class MainWindow(QtWidgets.QWidget):
             # self.channel4Text.setColor(self.leadConfig["ch4"])
             # self.channel5Text.setColor(self.leadConfig["ch5"])
             # self.channel6Text.setColor(self.leadConfig["ch6"])
-
-            # self.data_line_channel1.setPen(self.leadConfig["ch1"])
-            # self.data_line_channel2.setPen(self.leadConfig["ch2"])
-            # self.data_line_channel3.setPen(self.leadConfig["ch3"])
-            # self.data_line_channel4.setPen(self.leadConfig["ch4"])
-            # self.data_line_channel5.setPen(self.leadConfig["ch5"])
-            # self.data_line_channel6.setPen(self.leadConfig["ch6"])
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
