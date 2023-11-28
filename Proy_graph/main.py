@@ -165,26 +165,35 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.plt.setYRange(0, 5.5)
         # #Eje en x 
         # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
-        self.x = deque(np.linspace(-17,1,self.graphlength), maxlen=self.graphlength)
+        self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
         for i, config in enumerate(self.channel_configs):
             y_offset = config['pos'][0]
-            # Create the deque with initial values
-            #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
-            channel_deque = deque([y_offset for i in self.x], maxlen=self.graphlength)
-            self.channels.append(channel_deque)
-
-        #     # Create the plot line with an optional fillLevel
-            if config.get('fillLevel') is not None:
-                brush = pg.mkBrush(config['color'] + (60,))
-                data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush, clipToView = config['clipToView'], dynamicRangeLimit = config['dynamicRangeLimit'], SkipFiniteCheck = config['SkipFiniteCheck'])
-            else:
-                data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
-            self.data_lines.append(data_line)
+            if self.signalState == SignalState.Idle:
+                
+                # Create the deque with initial values
+                #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
+                channel_deque = deque([y_offset for i in self.x], maxlen=self.graphlength)
+                self.channels.append(channel_deque)
             
-            # Clear other screen Datalines
-            if config['Screen'] != 1:
-                self.ui.plt.removeItem(data_line)
+                # Create the plot line with an optional fillLevel
+            
+                print("Entering dataline create")
+                if config.get('fillLevel') is not None:
+                    # Probar en la Raspberry sin la configuración de dynamicRangeLimit
+                    brush = pg.mkBrush(config['color'] + (60,))
+                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush, clipToView = config['clipToView'], dynamicRangeLimit = config['dynamicRangeLimit'], SkipFiniteCheck = config['SkipFiniteCheck'])
+                else:
+                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
+                self.data_lines.append(data_line)
+                if config['Screen'] != 1:
+                    self.ui.plt.removeItem(data_line)
+            elif config["Screen"] == 1:
+                self.ui.plt.addItem(self.data_lines[i]) 
+                self.channels[i] = deque([y_offset for i in self.x], maxlen=self.graphlength)
 
+            # Clear other screen Datalines
+            
+        
         #     # Create the label text
         #     text_item = pg.TextItem(config['label'], color=config['color'])
         #     text_item.setPos(config['pos'][1], y_offset)
@@ -334,7 +343,6 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.pressureValue_Label.setText(str(self.default_config[DIAPRESSURE]))
                 self.ui.FRValue_Label.setText(str(self.default_config[FR]))
                 self.ui.CO2Value_Label.setText(str(self.default_config[CO]))
-
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
                     self.initSignalGrahps()
@@ -346,7 +354,6 @@ class MainWindow(QtWidgets.QWidget):
                 if self.state != State.IdleDisconnected:
                     self.worker.encodeMesage(8,1)
                     self.worker.sendMessage()
-                
                 # Manejo de timer y time
                 self.timer.setInterval(5)
                 self.timer.timeout.connect(self.Update_Graph)
@@ -397,7 +404,7 @@ class MainWindow(QtWidgets.QWidget):
         self.signalIndex = 0
         self.ui.plt.clear()
         self.initSignalGrahps()
-        self.signalState = SignalState.Idle
+        self.signalState = SignalState.Reset
         self.workingState = WorkingState.Idle
     
     def resetDefib(self):
@@ -518,7 +525,6 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.setInterval(600)
             self.timer2.timeout.connect(self.defibDischarge)
             self.timer2.start()
-            print("start of second timer ")
 
     def defibDischarge(self):
         print("second timer is working")
