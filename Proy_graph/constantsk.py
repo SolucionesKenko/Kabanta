@@ -1,5 +1,8 @@
 from enum import Enum, auto, IntEnum
 
+class ChannelState(Enum):
+    Idle = auto()
+    Generated = auto()
 class SignalState (Enum):
     Playing = auto()
     Pause = auto()

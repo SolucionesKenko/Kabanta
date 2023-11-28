@@ -18,7 +18,7 @@ import serial.tools.list_ports as portList
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
 from connection import addPorts, generate_crc32_table, onScanReturnButtonClicked, onConnectConfirmButtonClicked
-from constantsk import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
+from constantsk import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, ChannelState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
 
 import spo
 import co2
@@ -47,6 +47,7 @@ class MainWindow(QtWidgets.QWidget):
         self.defibState = DEFIBState.Off
         self.workingState = WorkingState.Idle
         self.scenarioState = ScenarioState.Idle
+        self.channelState = ChannelState.Idle
 
         # Data Variables
         self.default_config = {HEART_RATE:60,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
@@ -137,6 +138,7 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
+        print("Enterd InitSignalGrahps")
         self.channel_configs = [
                             {'label': 'II', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
                             {'label': 'Pleth', 'color': (134,234,233), 'pos':(3.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':1},
@@ -168,16 +170,13 @@ class MainWindow(QtWidgets.QWidget):
         self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
         for i, config in enumerate(self.channel_configs):
             y_offset = config['pos'][0]
-            if self.signalState == SignalState.Idle:
-                
+            if self.channelState == ChannelState.Idle:
                 # Create the deque with initial values
                 #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
                 channel_deque = deque([y_offset for i in self.x], maxlen=self.graphlength)
                 self.channels.append(channel_deque)
             
                 # Create the plot line with an optional fillLevel
-            
-                print("Entering dataline create")
                 if config.get('fillLevel') is not None:
                     # Probar en la Raspberry sin la configuración de dynamicRangeLimit
                     brush = pg.mkBrush(config['color'] + (60,))
@@ -188,9 +187,11 @@ class MainWindow(QtWidgets.QWidget):
                 if config['Screen'] != 1:
                     self.ui.plt.removeItem(data_line)
             elif config["Screen"] == 1:
+                print("Reseting plots")
                 self.ui.plt.addItem(self.data_lines[i]) 
+                self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
                 self.channels[i] = deque([y_offset for i in self.x], maxlen=self.graphlength)
-
+        self.channelState = ChannelState.Generated
             # Clear other screen Datalines
             
         
@@ -277,8 +278,9 @@ class MainWindow(QtWidgets.QWidget):
         #     self.data_lines[i].setData(self.x, self.channels[i])    
         
         self.x.append(self.timestamp)
- 
-
+        self.setGraphData()
+        
+    def setGraphData(self):
         self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
         self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
         self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
@@ -400,11 +402,15 @@ class MainWindow(QtWidgets.QWidget):
         if self.timer2.isActive():
             self.timer2.stop()
             self.timer2.disconnect()
+        
         # Restablecer graficas
         self.signalIndex = 0
         self.ui.plt.clear()
+        print("Reset Kamsim Correct")
         self.initSignalGrahps()
-        self.signalState = SignalState.Reset
+        self.setGraphData()
+        print("Finish Kabsim Correct")
+        self.signalState = SignalState.Idle
         self.workingState = WorkingState.Idle
     
     def resetDefib(self):
