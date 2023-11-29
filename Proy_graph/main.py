@@ -17,11 +17,22 @@ import serial.tools.list_ports as portList
 #from Bluetooth Variables
 from ESPmsg import ParserState, WorkerThread, State
 from serialCoder import SerialCoder
+from connection import addPorts, generate_crc32_table, onScanReturnButtonClicked, onConnectConfirmButtonClicked
+from constantsk import SignalState, DEFIBState, WorkingState, ScenarioState, PageState, ChannelState, HEART_RATE, TEMPERATURE,SPO, SYSPRESSURE, DIAPRESSURE, FR, CO, SCENARIO,PACEMAKER_MA, PACEMAKER_PPM, DEFIB_SELECT, DEFIB_CHARGE, NUM_CHANNELS, CHANNEL_OFFSETS, CHANNEL_TEXT_POSITIONS
 
-from enum import Enum, auto, IntEnum
 import spo
 import co2
 import bp
+import rsp
+
+from time import time
+from datetime import timedelta
+
+
+# Manejo de arreglos en la senal 
+# todo, cambiar el manejo de datos con collections deque
+
+
 import subprocess 
 
 from time import time
@@ -36,64 +47,10 @@ if OS_RASPBERRY == 1:
 # Manejo de arreglos en la senal 
 # todo, cambiar el manejo de datos con collections deque
 
-class SignalState (Enum):
-    Playing = auto()
-    Pause = auto()
-    Stop = auto()
-    Idle = auto()
-
-class DEFIBState(Enum):
-    Off = auto()
-    Select = auto()
-    Charging = auto()
-    Charged = auto()
-    Shock = auto()
-
-class WorkingState(Enum):
-    Busy = auto()
-    Idle = auto()
-
-class ScenarioState(IntEnum):   #   Estado para simular
-    Idle = 0                    #   Listo
-    ParoCardiaco = 1            #   Listo
-    TaquicardiaSinusal = 2      #   Pendiente
-    BradicardiaSinusal = 3      #   Listo
-    FlutterAuricular = 4        #   Listo
-    FibrilacionAuricular = 5    #   Listo
-    TaquicardiaAuricular = 6    #   Pendiente
-    ArritmiaSinusal = 7         #   Listo
-    FibrilacionVentricular = 8  #   Listo
-    TaquicardiaVentricular = 9  #   Listo
-    Asistolia = 10
-
-
-HEART_RATE = "1"
-TEMPERATURE = "2"
-SPO = "3"
-SYSPRESSURE = "4"
-DIAPRESSURE = "5"
-FR = "6"
-CO = "7"
-SCENARIO = "9"
-
-PACEMAKER_MA = "1"
-PACEMAKER_PPM = "2"
-DEFIB_SELECT = "3"
-DEFIB_CHARGE = "4"
-
-class PageState (IntEnum):
-    OFFPAGE = 0
-    DEFAULTPAGE = 1
-    CPRPAGE = 2
-    DEFIBPAGE = 3
-    PACERPAGE = 4
-    LEADPAGE1 = 5 
-    LEADPAGE2 = 6
 
 if OS_RASPBERRY == 1:
     proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True,text=True)
     out = proc.stdout
-
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -101,7 +58,7 @@ class MainWindow(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.ui = Ui_window()
         self.ui.setupUi(self)
-        self.graphlength = 2000
+        self.graphlength = 1000
         
 
         #Session
@@ -111,55 +68,55 @@ class MainWindow(QtWidgets.QWidget):
         self.defibState = DEFIBState.Off
         self.workingState = WorkingState.Idle
         self.scenarioState = ScenarioState.Idle
+        self.channelState = ChannelState.Idle
 
         # Data Variables
-        self.mi_diccionario = {HEART_RATE:0,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
+        self.default_config = {HEART_RATE:60,TEMPERATURE:0,SPO:0,SYSPRESSURE:0,DIAPRESSURE:0,FR:0, CO:0}
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
         self.generateSig = 0
         self.ecg12 = 0
         self.parserState = ParserState.Type
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
-        self.bp =bp.BloodPressure()
-        self.zeros = 0
+
+        self.bp = bp.BloodPressure()
+        self.rsp = rsp.RSP()
         
         ## GPIO Config
         if OS_RASPBERRY == 1:
             self.gpios = gpios.GPIOS()
             self.gpios.init_Gpios()       
         
-        self.dataChannel1 = 0
-        self.dataChannel2 = 0
-        self.dataChannel3 = 0
-        self.dataChannel4 = 0
-        self.dataChannel5 = 0
-        self.dataChannel6 = 0
-        
-        self.adderChannel1 = 0
-        self.adderChannel2 = 0
-        self.adderChannel3 = 0
-        self.adderChannel4 = 0
-        self.adderChannel5 = 0
-        self.adderChannel6 = 0
         self.adderFlag = 0
+
+        self.init_time = 0.0
+
+        self.generateSig = obtainSignals()
+        self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
+        #self.rsp = list(self.generateSig.generate_rsp())
+
+        self.data = []
+        self.channels = [] #data to graph
+        self.data_lines = [] #plot data
+        self.text_items = []
+        self.signalIndex = 0
         
         # Manejo de tiempos
             # Timers 
         self.timer = QtCore.QTimer()
         self.timer2 = QtCore.QTimer()
-        self.time = QtCore.QTime()
-        self.elapsedTime = QtCore.QElapsedTimer()
-
 
         # Connections
         self.s = ""
         self.sCoder = SerialCoder()
+        self.worker = WorkerThread(self.s, self.sCoder)
         self.sPorts = list(portList.comports())
-        self.addPorts()
+        addPorts(self.ui, self.sPorts)
         self.sConnected = False
         self.custom_crc_table = {}
         self.poly = 0x04C11DB7
-        self.generate_crc32_table(self.poly)
+        generate_crc32_table(self.poly, self.custom_crc_table)
+
 
         # GPIOS signal Connects
         if OS_RASPBERRY == 1:
@@ -169,16 +126,19 @@ class MainWindow(QtWidgets.QWidget):
             self.gpios.Charge.sig.connect(self.onChargeButtonClicked)
         
         #Button Control
+        ## Unused Buttons
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
         self.ui.SYNC_pushButton.pressed.connect(self.displayHello)
-        # Confirm es connect y return es scan 
-        self.ui.confirmMenu_pushButton.pressed.connect(self.onConnectConfirmButtonClicked)
-        self.ui.returnMenu_pushButton.pressed.connect(self.onScanReturnButtonClicked)
-
         self.ui.alarmMenu_pushButton.pressed.connect(self.displayHello)
-        self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
         self.ui.sizeMenu_pushButton.pressed.connect(self.displayHello)
+        # Confirm es connect y return es scan 
+        self.ui.confirmMenu_pushButton.pressed.connect(lambda: onConnectConfirmButtonClicked(self.ui, self.ui.port_comboBox, self.s, self.worker, self.sCoder))
+        self.ui.returnMenu_pushButton.pressed.connect(lambda: onScanReturnButtonClicked(self.ui, self.sPorts))
+
+        # Menu Bar Buttons 
+        self.ui.CPRMenu_pushButton.pressed.connect(self.onCPRButtonClicked)
         self.ui.LEADMenu_pushButton.pressed.connect(self.onLeadMenuButtonClicked)
+        
         # Pacer 
         self.ui.DPO_pushButton.pressed.connect(self.onPacerOutputDownButtonClicked)
         self.ui.UPO_pushButton.pressed.connect(self.onPacerOutputUpButtonClicked)
@@ -212,153 +172,163 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
-        #Eje en x 
-        self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
-        # Senales Derivaciones cardiacas
-        self.channel1 = deque([130 for i in self.x],maxlen=self.graphlength)
-        self.channel2 = deque([110 for i in self.x],maxlen= self.graphlength)
-        self.channel3 = deque([90 for i in self.x],maxlen=self.graphlength)
-        self.channel4 = deque([70 for i in self.x], maxlen=self.graphlength)
-        self.channel5 = deque([50 for i in self.x], maxlen=self.graphlength)
-        self.channel6 = deque([30 for i in self.x], maxlen=self.graphlength)
 
-        self.data_line_channel1 = self.ui.plt.plot(self.x,self.channel1, pen = (162,249,161))
-        self.data_line_channel2 = self.ui.plt.plot(self.x,self.channel2, pen = (134,234,233))
-        self.data_line_channel3 = self.ui.plt.plot(self.x,self.channel3, pen = (136,51,64))
-        self.data_line_channel4 = self.ui.plt.plot(self.x,self.channel4, pen = (255,222,89))
-        self.data_line_channel5 = self.ui.plt.plot(self.x,self.channel5, pen = (171,171,171), fillLevel = -0.3, brush=(171,171,171, 60))
-        self.data_line_channel6 = self.ui.plt.plot(self.x, self.channel6, pen = (162,249,161))
-        self.ui.plt.removeItem(self.data_line_channel6)
-        
-        # getting plot item
-        self.ui.plt.getPlotItem().hideAxis('left')
-        self.plot_size = self.ui.plt.getPlotItem().height()
-        self.plot_x = self.ui.plt.getPlotItem().viewGeometry()
+        self.channel_configs = [
+                            {'label': 'II', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Pleth', 'color': (134,234,233), 'pos':(3.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':1},
+                            {'label': 'ABP', 'color': (136,51,64), 'pos': (2, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Resp', 'color': (255,222,89), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'CO2', 'color': (171,171,171), 'pos': (0, -0.3), 'fillLevel': -0.3, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
+                            {'label': 'Free', 'color': (162,249,161), 'pos': (-1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'I', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'II', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':2},
+                            {'label': 'III', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVL', 'color': (162,249,161), 'pos': (1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVR', 'color': (162,249,161), 'pos': (0, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'aVF', 'color': (162,249,161), 'pos': (-1, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':2},
+                            {'label': 'V1', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V2', 'color': (162,249,161), 'pos': (3.5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V3', 'color': (162,249,161), 'pos': (2, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V4', 'color': (162,249,161), 'pos': (1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V5', 'color': (162,249,161), 'pos': (0, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            {'label': 'V6', 'color': (162,249,161), 'pos': (-1, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':3},
+                            
+                            # Add or remove channel configs as needed
+                        ]
 
-        self.ui.plt.setYRange(40, 140)
-
-        self.channel1Text = pg.TextItem('II', color = (162,249,161))
-        self.channel1Text.setPos(-0.2, 130)
-        self.ui.plt.addItem(self.channel1Text)
-        self.channel2Text = pg.TextItem('Pleth', color = (134,234,233))
-        self.channel2Text.setPos(-0.3, 110)
-        self.ui.plt.addItem(self.channel2Text)
-        self.channel3Text = pg.TextItem('ABP', color= (136,51,64))
-        self.channel3Text.setPos(-0.3, 90)
-        self.ui.plt.addItem(self.channel3Text)
-        self.channel4Text = pg.TextItem('Resp', color = (255,222,89))
-        self.channel4Text.setPos(-0.3, 70)
-        self.ui.plt.addItem(self.channel4Text)
-        self.channel5Text = pg.TextItem('CO2', color = (171,171,171))
-        self.channel5Text.setPos(-0.3, 50)
-        self.ui.plt.addItem(self.channel5Text)
-        self.channel6Text = pg.TextItem('aFV', color = (162,249,161))
-        self.channel6Text.setPos(-0.2, 30)
-        self.ui.plt.addItem(self.channel6Text)
-        self.ui.plt.removeItem(self.channel6Text)
+        # Plot configuration
+        #self.ui.plt.getPlotItem().hideAxis('left')
+        self.ui.plt.setYRange(0, 5.5)
+        # #Eje en x 
+        self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
+        for i, config in enumerate(self.channel_configs):
+            y_offset = config['pos'][0]
             
+            if self.channelState == ChannelState.Idle:
+                # Create the deque with initial values
+                #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
+                channel_deque = deque([y_offset for i in self.x], maxlen=self.graphlength)
+                self.channels.append(channel_deque)
+            
+                # Create the plot line with an optional fillLevel
+                if config.get('fillLevel') is not None:
+                    # Probar en la Raspberry sin la configuración de dynamicRangeLimit
+                    brush = pg.mkBrush(config['color'] + (60,))
+                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush, clipToView = config['clipToView'], dynamicRangeLimit = config['dynamicRangeLimit'], SkipFiniteCheck = config['SkipFiniteCheck'])
+                else:
+                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
+                self.data_lines.append(data_line)
+
+                #Create the label text
+                text_item = pg.TextItem(config['label'], color=config['color'])
+                text_item.setPos(self.x[1], y_offset)
+                self.ui.plt.addItem(text_item)
+                self.text_items.append(text_item)
+
+                if config['Screen'] != 1:
+                    self.ui.plt.removeItem(data_line)
+                    self.ui.plt.removeItem(text_item)
+                
+
+            elif config["Screen"] == 1:
+                self.ui.plt.addItem(self.data_lines[i]) 
+                self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
+                self.channels[i] = deque([y_offset for i in self.x], maxlen=self.graphlength)
+            
+            
+            
+            
+        self.channelState = ChannelState.Generated
+            # Clear other screen Datalines
+            
+        
+            
+        
     def signalScenarioData(self):
         if self.scenarioState == ScenarioState.Idle:
-            self.dataChannel1 = (self.ecg12['II']*10)
-            self.dataChannel2 = list(self.spo.dataIR)
-            self.dataChannel3 = list(self.bp.data)
-            self.dataChannel4 = (self.rsp)
-            self.dataChannel5 = list(self.co2.data)
-            self.dataChannel6 = (self.ecg12["aVF"])
+            self.channels[0].append(self.ecg12['II'][self.signalIndex] + CHANNEL_OFFSETS[1])
+            self.channels[1].append(self.spo.sR + CHANNEL_OFFSETS[2])
+            self.channels[2].append(self.bp.p + CHANNEL_OFFSETS[3])
+            self.channels[3].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
+            self.channels[4].append(self.co2.co+ CHANNEL_OFFSETS[5])
+            self.channels[6].append(self.ecg12['aVF'][self.signalIndex] + CHANNEL_OFFSETS[5])
+            
+            self.channels[7].append(self.spo.sR + CHANNEL_OFFSETS[2])
+            self.channels[8].append(self.bp.p + CHANNEL_OFFSETS[3])
+            self.channels[9].append(self.rsp.rsp + CHANNEL_OFFSETS[4])
+            self.channels[10].append(self.co2.co+ CHANNEL_OFFSETS[5])
+
             
         elif self.scenarioState == ScenarioState.ParoCardiaco:
             self.dataChannel1 = ([0]*self.graphlength)
-            self.dataChannel2 = (list(self.spo.dataIR))
+            self.dataChannel2 = (list(self.spo.sR))
             self.dataChannel3 = ([0]*self.graphlength)
-            self.dataChannel4 = (self.rsp)
+            self.dataChannel4 = (self.rsp.rsp)
             self.dataChannel5 = list(self.co2.data)
-            self.dataChannel6 = (self.ecg12["aVF"])
-        elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
-            print(ScenarioState.TaquicardiaSinusal)
+            self.dataChannel6 = (self.ecg12["avF"])
+        # elif self.scenarioState == ScenarioState.TaquicardiaSinusal:
+        #     print(ScenarioState.TaquicardiaSinusal)
         elif self.scenarioState == ScenarioState.BradicardiaSinusal:
             self.dataChannel1 = list(pd.DataFrame(SBR)[0]*10)
-            print(ScenarioState.BradicardiaSinusal)
+            #print(ScenarioState.BradicardiaSinusal)
         elif self.scenarioState == ScenarioState.FlutterAuricular:
             self.dataChannel1 = list(pd.DataFrame(Atrialflutter)[0]*10)
             #print(ScenarioState.FlutterAuricular)
         elif self.scenarioState == ScenarioState.FibrilacionAuricular:
             self.dataChannel1 = list(pd.DataFrame(Atrialfibrillation)[0]*10)
             #print(ScenarioState.FibrilacionAuricular)
-        elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
-            print(ScenarioState.TaquicardiaAuricular)
-        elif self.scenarioState == ScenarioState.ArritmiaSinusal:
-            self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
-            print(ScenarioState.ArritmiaSinusal)
-        elif self.scenarioState == ScenarioState.FibrilacionVentricular:
-            self.dataChannel1 = list(pd.DataFrame(VF)[0]*10)
-            print(ScenarioState.FibrilacionVentricular)
-        elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
-            self.dataChannel1 = list(pd.DataFrame(VTHR)[0]*10)
-            print(ScenarioState.TaquicardiaVentricular)
-        elif self.scenarioState == ScenarioState.Asistolia:
-            print(ScenarioState.Asistolia)
+        # elif self.scenarioState == ScenarioState.TaquicardiaAuricular:
+        #     print(ScenarioState.TaquicardiaAuricular)
+        # elif self.scenarioState == ScenarioState.ArritmiaSinusal:
+        #     self.dataChannel1 = list(pd.DataFrame(Sinusarrhythmia)[0]*10)
+        #     print(ScenarioState.ArritmiaSinusal)
+        # elif self.scenarioState == ScenarioState.FibrilacionVentricular:
+        #     self.dataChannel1 = list(pd.DataFrame(VF)[0]*10)
+        #     print(ScenarioState.FibrilacionVentricular)
+        # elif self.scenarioState == ScenarioState.TaquicardiaVentricular:
+        #     self.dataChannel1 = list(pd.DataFrame(VTHR)[0]*10)
+        #     print(ScenarioState.TaquicardiaVentricular)
+        # elif self.scenarioState == ScenarioState.Asistolia:
+        #     print(ScenarioState.Asistolia)
             
 
-    def Update_Grahp(self):
+    def Update_Graph(self):
+        self.timestamp = time() - self.init_time
+        self.spo.update(self.default_config[HEART_RATE], self.timestamp)
+        self.bp.update_plot(self.default_config[HEART_RATE], self.timestamp)
+        self.co2.update_plot(self.default_config[FR], self.timestamp)
+        self.rsp.update_plot(self.default_config[FR], self.timestamp )
+
+        if(self.signalIndex >= (self.graphlength)-1):
+            self.adderFlag = 1
+            self.signalIndex = 0
+
+        self.signalIndex = self.signalIndex + 1
+
+        #Initialize data channels with zeros if not in the correct page state
         if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
             self.signalScenarioData()
         else:
-            self.dataChannel1 = (self.ecg12[self.leadConfig["text1"]]*10)
-            self.dataChannel2 = (self.ecg12[self.leadConfig["text2"]]*10)
-            self.dataChannel3 = (self.ecg12[self.leadConfig["text3"]]*10)
-            self.dataChannel4 = (self.ecg12[self.leadConfig["text4"]])
-            self.dataChannel5 = (self.ecg12[self.leadConfig["text5"]]*10)
-            self.dataChannel6 = (self.ecg12[self.leadConfig["text6"]]*10)
-        # Manejo de indices de la senal
-        if self.adderChannel1>1999:
-            self.adderFlag = 1
 
-        if(self.adderChannel1 >= len(self.dataChannel1)-1):
-            self.adderChannel1 = 0
-            self.zeros = self.adderChannel1
-        if (self.adderChannel2 >= len(self.dataChannel2)-1):
-            self.adderChannel2 = 0
-        if (self.adderChannel3 >= len(self.dataChannel3)-1):
-            self.adderChannel3 = 0
-        if (self.adderChannel4 >= len(self.dataChannel4)-1):
-            self.adderChannel4 = 0
-        if (self.adderChannel5 >= len(self.dataChannel5)-1):
-            self.adderChannel5 = 0 
-        if(self.adderChannel6 >= len(self.dataChannel6)-1):
-            self.adderChannel6 = 0
+            for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                self.channels[i].append(self.ecg12[config["label"]][self.signalIndex] + CHANNEL_OFFSETS[i])
+                # Update the data line for each channel with the new data
         
-        self.adderChannel1 = self.adderChannel1 + 1
-        self.adderChannel2 = self.adderChannel2 + 1
-        self.adderChannel3 = self.adderChannel3 + 1
-        self.adderChannel4 = self.adderChannel4 + 1
-        self.adderChannel5 = self.adderChannel5 + 1
-        self.adderChannel6 = self.adderChannel6 + 1
-        self.x.append(self.x[-1] + 0.002)  # Add a new value 1 higher than the last.
+        for i in range (NUM_CHANNELS):
+            self.text_items[i].setPos(self.x[1] - 0.8, CHANNEL_OFFSETS[i])
+        
+        self.x.append(self.timestamp)
+        self.setGraphData()
+        
+    def setGraphData(self):
+        self.data_lines[0].setData(x=list(self.x)[1:], y = list(self.channels[0])[1:])
+        self.data_lines[1].setData(x=list(self.x)[1:], y = list(self.channels[1])[1:])
+        self.data_lines[2].setData(x=list(self.x)[1:], y = list(self.channels[2])[1:])
+        self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
+        self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
+        self.data_lines[5].setData(x=list(self.x)[1:], y = list(self.channels[5])[1:])
 
-        # Add new values to the channels
-        self.channel1.append(self.dataChannel1[self.adderChannel1]+ 130)
-        self.channel2.append((self.dataChannel2[self.adderChannel2])+ 110)   
-        self.channel3.append(self.dataChannel3[self.adderChannel3]+ 90)
-        self.channel4.append(self.dataChannel4[self.adderChannel4]*10+ 70)
-        self.channel5.append(self.dataChannel5[self.adderChannel5]+ 50)
-        self.channel6.append(self.dataChannel6[self.adderChannel6] + 30)
-        
-        # Actualizacion posicion de labels
-        self.channel1Text.setPos(self.x[0]-0.2, 130)
-        self.channel2Text.setPos(self.x[0]-0.3, 110)
-        self.channel3Text.setPos(self.x[0]-0.3, 90)
-        self.channel4Text.setPos(self.x[0]-0.3, 70)
-        self.channel5Text.setPos(self.x[0]-0.3, 50)
-        self.channel6Text.setPos(self.x[0]-0.2, 30)
 
-        # Actualizacion de los datos
-        
-        self.data_line_channel1.setData(self.x, self.channel1)
-        self.data_line_channel2.setData(self.x, self.channel2)
-        self.data_line_channel3.setData(self.x, self.channel3)
-        self.data_line_channel4.setData(self.x, self.channel4)
-        self.data_line_channel5.setData(self.x, self.channel5)
-        self.data_line_channel6.setData(self.x, self.channel6)
 
     ##########################################################################################
     # Funciones Callbacks de botones
@@ -398,44 +368,37 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.enableDisableVitalSignalMenu(False)
-    
-    
+      
     def onPlayButtonClicked(self):
+        self.init_time = time()
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
-                self.generateSig = obtainSignals()
-                self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
-                self.rsp = list(self.generateSig.generate_rsp())
-        
-                self.time.__init__(0,0,0,0)
+                self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
             
             if(self.signalState != SignalState.Playing):
-                self.ui.heartRateValue_Label.setText(str(self.mi_diccionario[HEART_RATE]))
-                self.ui.tempValue_Label.setText(str(self.mi_diccionario[TEMPERATURE]))
-                self.ui.SpO2Value_Label.setText(str(self.mi_diccionario[SPO]))
-                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[SYSPRESSURE]))
-                self.ui.pressureValue_Label.setText(str(self.mi_diccionario[DIAPRESSURE]))
-                self.ui.FRValue_Label.setText(str(self.mi_diccionario[FR]))
-                self.ui.CO2Value_Label.setText(str(self.mi_diccionario[CO]))
-
+                self.ui.heartRateValue_Label.setText(str(self.default_config[HEART_RATE]))
+                self.ui.tempValue_Label.setText(str(self.default_config[TEMPERATURE]))
+                self.ui.SpO2Value_Label.setText(str(self.default_config[SPO]))
+                self.ui.pressureValue_Label.setText(str(self.default_config[SYSPRESSURE]))
+                self.ui.pressureValue_Label.setText(str(self.default_config[DIAPRESSURE]))
+                self.ui.FRValue_Label.setText(str(self.default_config[FR]))
+                self.ui.CO2Value_Label.setText(str(self.default_config[CO]))
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
                     self.initSignalGrahps()
-                    if self.pageState != PageState.DEFAULTPAGE:
-                       self.ui.plt.removeItem(self.data_line_channel4)
+                    print(self.pageState)
+                    if self.pageState != PageState.DEFAULTPAGE and self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
+                       self.ui.plt.removeItem(self.data_lines[3])
                 
                 self.signalState = SignalState.Playing
-                print(self.signalState)
                 # Envio de estado por serial 
                 if self.state != State.IdleDisconnected:
                     self.worker.encodeMesage(8,1)
                     self.worker.sendMessage()
-                
                 # Manejo de timer y time
-                self.elapsedTime.start()
-                self.timer.setInterval(2)
-                self.timer.timeout.connect(self.Update_Grahp)
+                self.timer.setInterval(5)
+                self.timer.timeout.connect(self.Update_Graph)
                 self.timer.timeout.connect(self.Update_Time)
                 self.timer.start()
 
@@ -443,7 +406,6 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE) and (self.signalState == SignalState.Playing) :
             self.timer.stop()
             self.signalState = SignalState.Pause
-            print(self.signalState)
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
                 self.worker.encodeMesage(8,2)
@@ -451,17 +413,16 @@ class MainWindow(QtWidgets.QWidget):
         
     def onStopButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.signalState != SignalState.Idle):
+            self.signalState = SignalState.Stop
+            self.pageState = PageState.DEFAULTPAGE
+            self.workingState = WorkingState.Idle
+            self.resetDefib()
+            self.resetPacerPage()
+            self.resetCPRPage()
             self.timer.stop()
             self.setDefaultValues()
-            self.ui.plt.clear()
-            self.adderChannel1 = 0
-            self.adderChannel2 = 0
-            self.adderChannel3 = 0
-            self.adderChannel4 = 0
-            self.adderChannel5 = 0
-            self.adderChannel6 = 0
-            self.signalState = SignalState.Stop
-            print(self.signalState)
+            self.resetGraphs()
+            
 
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
@@ -485,60 +446,73 @@ class MainWindow(QtWidgets.QWidget):
         if self.timer2.isActive():
             self.timer2.stop()
             self.timer2.disconnect()
+        
         # Restablecer graficas
-        self.adderChannel1 = 0
-        self.adderChannel4 = 0
-        self.adderChannel5 = 0
-        self.adderChannel6 = 0
-        self.ui.plt.clear()
+        self.resetGraphs()
         self.initSignalGrahps()
+        self.setGraphData()
+
         self.signalState = SignalState.Idle
         self.workingState = WorkingState.Idle
+    
+    def resetGraphs(self):
+        self.signalIndex = 0
+        self.ui.plt.clear()
+        self.ui.plt.setYRange(0, 5.5)
+        for i, config in enumerate(self.channel_configs[0:6]):
+                    self.data_lines[i].setPen(config["color"])
+
     
     def resetDefib(self):
         self.ui.Shock_pushButton.setStyleSheet(Stylesheet)
         self.ui.DEFIB_pushButton.setStyleSheet(Stylesheet)
         self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
         self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
+        self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
 
     def resetCPRPage(self):
         self.ui.CPRMenu_pushButton.setStyleSheet(Stylesheet)
+        self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+  
     def onCPRButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.CPRPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.CPRPAGE
-            self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
-            self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetPacerPage()
-            self.ui.plt.removeItem(self.data_line_channel4)
+            self.ui.stackedWidget.setCurrentIndex(PageState.CPRPAGE)
+            self.ui.CPRMenu_pushButton.setStyleSheet(PressedStylesheet)
+            self.ui.plt.removeItem(self.data_lines[3]) # todo
             print(PageState.CPRPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
-            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
-            self.ui.plt.addItem(self.data_line_channel4)
+            self.ui.plt.addItem(self.data_lines[3])
+
     
     def onDEFIBButtonClicked(self):
+        print(self.pageState)
+        print(self.workingState)
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.DEFIBPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.DEFIBPAGE
             self.defibState = DEFIBState.Select
-            self.ui.plt.removeItem(self.data_line_channel4)
+            self.ui.plt.removeItem(self.data_lines[3])
             self.resetPacerPage()
-            self.resetCPRPage
+            self.resetCPRPage()
             self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
             self.ui.stackedWidget.setCurrentIndex(PageState.DEFIBPAGE)
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
             self.ui.DEFIB_pushButton.setStyleSheet(PressedStylesheet)
             print(PageState.DEFIBPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
-            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+            self.resetDefib()
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
+
             if self.signalState != SignalState.Stop:
-                self.ui.plt.addItem(self.data_line_channel4)
-            self.resetDefib()
+                self.ui.plt.addItem(self.data_lines[3])
     
     def onUpEnergySelectButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
@@ -553,7 +527,6 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             else: 
                 self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
-
 
     def onDownEnergySelectButtonClicked(self):
        if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
@@ -616,7 +589,6 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.setInterval(600)
             self.timer2.timeout.connect(self.defibDischarge)
             self.timer2.start()
-            print("start of second timer ")
 
     def defibDischarge(self):
         print("second timer is working")
@@ -639,7 +611,6 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
             print(" second timer is stoped")
 
-    
     def onShockButtonClicked(self):
         if(self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Charged):
             self.defibState = DEFIBState.Shock
@@ -672,24 +643,24 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.pacerValuemA_Label.setText(f"{self.mi_pagevariables[PACEMAKER_MA]} mA")
         self.ui.pacerValueppm_Label.setText(f"{self.mi_pagevariables[PACEMAKER_PPM]} ppm")
         self.ui.pacerLabel_pushButton.setStyleSheet(Stylesheet)
+        self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
+        
 
     def onPacerButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState != PageState.PACERPAGE) and (self.workingState != WorkingState.Busy):
             self.pageState = PageState.PACERPAGE
-            self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
-            self.ui.plt.removeItem(self.data_line_channel4)
-            self.ui.pacerLabel_pushButton.setStyleSheet(PressedStylesheet)
             self.resetDefib()
             self.resetCPRPage()
+            self.ui.stackedWidget.setCurrentIndex(PageState.PACERPAGE)
+            self.ui.plt.removeItem(self.data_lines[3])
+            self.ui.pacerLabel_pushButton.setStyleSheet(PressedStylesheet)
             print(PageState.PACERPAGE)
         elif (self.pageState != PageState.OFFPAGE) and (self.workingState != WorkingState.Busy):
-            self.ui.stackedWidget.setCurrentIndex(PageState.DEFAULTPAGE)
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.resetPacerPage()
-            self.ui.plt.addItem(self.data_line_channel4)
-        
-    
+            self.ui.plt.addItem(self.data_lines[3])
+
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
             self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]+1
@@ -719,145 +690,78 @@ class MainWindow(QtWidgets.QWidget):
                 self.resetDefib()
                 self.resetCPRPage()
                 self.resetPacerPage()
-                self.ui.plt.setYRange(20, 140)
-                self.ui.plt.addItem(self.channel6Text)
-                self.leadConfig = {"text1":"I", "text2":"II","text3":"III","text4":"aVL","text5":"aVR", "text6":"aVF","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
-                self.ui.plt.addItem(self.data_line_channel6)
-                self.data_line_channel5.setBrush(171,171,171, 0)
-                
-                if self.adderFlag == 0:
-                    self.adderChannel2 = self.adderChannel1 
-                    self.adderChannel3 = self.adderChannel1 
-                    self.adderChannel4 = self.adderChannel1 
-                    self.adderChannel5 = self.adderChannel1 
-                    self.adderChannel6 = self.adderChannel1 
-                
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
-                
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
+                self.ui.plt.setYRange(-1, 5)
+                self.ui.plt.addItem(self.data_lines[5])
+                self.data_lines[5].setBrush(171,171,171, 0)
+                self.qwer, self.asdf = [6, 12]
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
+                self.qwer, self.asdf = [12, None]
                 
-                self.leadConfig = {"text1":"V1", "text2":"V2","text3":"V3","text4":"V4","text5":"V5", "text6":"V6","ch1":(162,249,161),"ch2":(162,249,161),"ch3":(162,249,161), "ch4":(162,249,161),"ch5":(162,249,161),"ch6":(162,249,161)}
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
-            
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list((self.ecg12[self.leadConfig["text2"]]*10)+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list((self.ecg12[self.leadConfig["text3"]]*10)+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list((self.ecg12[self.leadConfig["text4"]]*10)+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list((self.ecg12[self.leadConfig["text5"]]*10)+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
             elif self.pageState == PageState.LEADPAGE2:
-                self.data_line_channel5.setBrush(171,171,171, 60)
                 self.pageState = PageState.DEFAULTPAGE
                 self.workingState = WorkingState.Idle
-                self.leadConfig = {"text1":"II", "text2":"Pleth","text3":"ABP","text4":"Resp","text5":"CO2", "text6":"aVF","ch1":(162,249,161),"ch2":(134,234,233),"ch3":(136,51,64), "ch4":(255,222,89),"ch5":(171,171,171),"ch6":(162,249,161)}
-                self.ui.plt.removeItem(self.data_line_channel6)
-                self.ui.plt.removeItem(self.channel6Text)
-                self.ui.plt.setYRange(40, 140)
-
-                startChannel1 = [130]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:2000]
-                startChannel2 = [110]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:2000]
-                startChannel3 = [90]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.bp.data))[0]+90)[:2000]
-                startChannel4 = [70]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.rsp))[0]+70)[:2000]
-                startChannel5 = [50]*2000 if self.adderFlag == 0 else list(pd.DataFrame(list(self.co2.data))[0]+50)[:2000]
-                startChannel6 = [30]*2000 if self.adderFlag == 0 else list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:2000]
+                self.ui.plt.removeItem(self.data_lines[5])
+                self.qwer, self.asdf = [0, 7]
+                self.ui.plt.setYRange(0, 5.5)
+                self.data_lines[5].setBrush(171,171,171, 60)
                 
-                self.channel1 = deque(startChannel1 + list((self.ecg12[self.leadConfig["text1"]]*10)+130)[:self.adderChannel1],maxlen = 2000)
-                self.channel2 = deque(startChannel2 + list(pd.DataFrame(list(self.spo.dataIR))[0]+110)[:self.adderChannel2],maxlen = 2000)
-                self.channel3 = deque(startChannel3 + list(pd.DataFrame(list(self.bp.data))[0]+90)[:self.adderChannel3],maxlen = 2000)
-                self.channel4 = deque(startChannel4 + list(pd.DataFrame(list(self.rsp))[0]*10+70)[:self.adderChannel4],maxlen = 2000)
-                self.channel5 = deque(startChannel5 + list(pd.DataFrame(list(self.co2.data))[0]+50)[:self.adderChannel5],maxlen = 2000)
-                self.channel6 = deque(startChannel6 + list((self.ecg12[self.leadConfig["text6"]]*10)+30)[:self.adderChannel6],maxlen = 2000)
+            if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
                 
-            self.channel1Text.setText(self.leadConfig["text1"])
-            self.channel2Text.setText(self.leadConfig["text2"])
-            self.channel3Text.setText(self.leadConfig["text3"])
-            self.channel4Text.setText(self.leadConfig["text4"])
-            self.channel5Text.setText(self.leadConfig["text5"])
-            self.channel6Text.setText(self.leadConfig["text6"])
+                channel_list0 = [self.channel_configs[0]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12["II"])+self.channel_configs[0]["pos"][0])[:self.graphlength]
+                channel_list1 = [self.channel_configs[1]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[1]))[0] +self.channel_configs[1]["pos"][0])[:self.graphlength]
+                channel_list2 = [self.channel_configs[2]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[2]))[0]+self.channel_configs[2]["pos"][0])[:self.graphlength]
+                channel_list3 = [self.channel_configs[3]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[3]))[0]+self.channel_configs[3]["pos"][0])[:self.graphlength]
+                channel_list4 = [self.channel_configs[4]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list(pd.DataFrame(list(self.channels[4]))[0]+self.channel_configs[4]["pos"][0])[:self.graphlength]
+                channel_list5 = [self.channel_configs[5]["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12["aVF"])+self.channel_configs[5]["pos"][0])[:self.graphlength]
 
-            self.channel1Text.setColor(self.leadConfig["ch1"])
-            self.channel2Text.setColor(self.leadConfig["ch2"])
-            self.channel3Text.setColor(self.leadConfig["ch3"])
-            self.channel4Text.setColor(self.leadConfig["ch4"])
-            self.channel5Text.setColor(self.leadConfig["ch5"])
-            self.channel6Text.setColor(self.leadConfig["ch6"])
+                self.channels[0] = deque(channel_list0 + list((self.ecg12["II"])+self.channel_configs[0]["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                self.channels[1] = deque(channel_list1 + list(self.channels[7]),maxlen = self.graphlength) 
+                self.channels[2] = deque(channel_list2 + list(self.channels[8]),maxlen = self.graphlength) 
+                self.channels[3] = deque(channel_list3 + list(self.channels[9]),maxlen = self.graphlength) 
+                self.channels[4] = deque(channel_list4 + list(self.channels[10]),maxlen = self.graphlength) 
+                self.channels[5] = deque(channel_list5 + list((self.ecg12["aVF"])+self.channel_configs[5]["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                    self.data_lines[i].setPen(config["color"])
+                    self.text_items[i].setText(config["label"])
+                    self.text_items[i].setColor(config["color"])
+            else:
+                for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
+                    channel_list = [config["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12[config["label"]])+config["pos"][0])[:self.graphlength]
+                    self.channels[i] = deque(channel_list + list((self.ecg12[config["label"]])+config["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
+                    self.data_lines[i].setPen(config["color"])
+                    self.text_items[i].setText(config["label"])
+                    self.text_items[i].setColor(config["color"])
 
-            self.data_line_channel1.setPen(self.leadConfig["ch1"])
-            self.data_line_channel2.setPen(self.leadConfig["ch2"])
-            self.data_line_channel3.setPen(self.leadConfig["ch3"])
-            self.data_line_channel4.setPen(self.leadConfig["ch4"])
-            self.data_line_channel5.setPen(self.leadConfig["ch5"])
-            self.data_line_channel6.setPen(self.leadConfig["ch6"])
+            # self.channel1Text.setText(self.leadConfig["text1"])
+            # self.channel2Text.setText(self.leadConfig["text2"])
+            # self.channel3Text.setText(self.leadConfig["text3"])
+            # self.channel4Text.setText(self.leadConfig["text4"])
+            # self.channel5Text.setText(self.leadConfig["text5"])
+            # self.channel6Text.setText(self.leadConfig["text6"])
+
+            # self.channel1Text.setColor(self.leadConfig["ch1"])
+            # self.channel2Text.setColor(self.leadConfig["ch2"])
+            # self.channel3Text.setColor(self.leadConfig["ch3"])
+            # self.channel4Text.setColor(self.leadConfig["ch4"])
+            # self.channel5Text.setColor(self.leadConfig["ch5"])
+            # self.channel6Text.setColor(self.leadConfig["ch6"])
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
 
     def Update_Time(self):
         self.updateElapsedTime()
-        self.ui.simulationTimeValue_pushButton.setText(str(self.elapsed_time))
+        self.ui.simulationTimeValue_pushButton.setText(str(self.elapsed_time).split(".")[0])
     
     def updateElapsedTime(self):
-        self.elapsed_time = self.time.addMSecs(self.elapsedTime.elapsed()).toString("hh:mm:ss")
+        self.elapsed_time = timedelta(seconds = self.timestamp )
 
     def displayHello(self):
         print("hello")
-
-    ##########################################################################################
-    # Funciones serial
-    
-    def addPorts(self):
-        for p in self.sPorts:
-            print(p[0])
-            self.ui.port_comboBox.addItem(p[0])
-        print("New ports added")
-    
-    def generate_crc32_table(self, _poly):
-        for i in range(256):
-            c = i << 24
-            for j in range(8):
-                c = (c << 1) ^ _poly if (c & 0x80000000) else c << 1
-            self.custom_crc_table[i] = c & 0xffffffff
-
-    def onScanReturnButtonClicked(self):
-        print("Scan On")
-        self.sPorts.clear()
-        self.sPorts = list(portList.comports())
-        self.ui.port_comboBox.clear()
-        self.addPorts()
-
-    def onConnectConfirmButtonClicked(self):
-        self.s = serial.Serial(
-            self.ui.port_comboBox.currentText(), baudrate=115200, timeout=500)
-
-        self.sConnected = self.s.is_open
-        if(self.sConnected):
-            print("Conectado")
-            self.state = (State.IdleConnected)
-            self.worker = WorkerThread(self.s, self.sCoder)
-            self.worker.exiting = False
-            self.state = State.IdleConnected # Es correcto que el state sea conectado
-            self.worker.signal.sig.connect(self.testWorker)
-            self.worker.start()
     
     def setDefaultValues(self):
-        self.mi_diccionario = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
+        self.default_config = {HEART_RATE:60,TEMPERATURE:36,SPO:98,SYSPRESSURE:60,DIAPRESSURE:80,FR:25, CO:25}
 
     def updateUI(self, id, data):
         if(id == HEART_RATE):
@@ -874,13 +778,13 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.SpO2Value_Label.setText(str(data))
             self.scenarioState = ScenarioState.Idle
             # Actualizacion de Spo2
-            self.spo.spo2sl_change(self.mi_diccionario[SPO])
+            self.spo.spo2sl_change(self.default_config[SPO])
             self.spo.init_timer()
         elif(id == SYSPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
             self.scenarioState = ScenarioState.Idle
             # Actualizacion de Blood Pressure
-            self.bp.P_in = self.mi_diccionario[SYSPRESSURE]
+            self.bp.P_in = self.default_config[SYSPRESSURE]
         elif(id == DIAPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
             self.scenarioState = ScenarioState.Idle
@@ -891,7 +795,7 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.CO2Value_Label.setText(str(data))
             self.scenarioState = ScenarioState.Idle
             # Actualizacion de CO2
-            #self.co2.loc = self.mi_diccionario[CO]
+            #self.co2.loc = self.default_config[CO]
             #self.co2.init_timer()
         elif (id == SCENARIO):
             if (data == ScenarioState.Idle):
@@ -924,6 +828,7 @@ class MainWindow(QtWidgets.QWidget):
     def testWorker(self, id, data):
         # Cambiar diccionario
         s_id = str(id)
+
         self.mi_diccionario[s_id] = data
         print("UiUpdate Values" + str(self.mi_diccionario))
         self.updateUI(s_id, data)

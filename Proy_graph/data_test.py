@@ -36,7 +36,7 @@ save = list(save)
 class obtainSignals():
     @staticmethod
     def generateSignals(id_1):
-        ecg12 = nk.ecg_simulate(duration=10, method="multileads",sampling_rate=500,heart_rate=id_1)
+        ecg12 = nk.ecg_simulate(duration=10, length=5000, sampling_rate=150, heart_rate= 60, method="multileads")
         return ecg12
     
     @staticmethod
