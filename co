@@ -1,0 +1,65 @@
+import sys
+from typing import Any, Union, List
+from time import time
+
+import numpy as np
+from scipy.stats import exponnorm
+
+from collections import deque
+from multiprocessing import Queue
+
+# @brief Buffer size for the data (number of points in the plot)
+N_SAMPLES = 500
+# @brief Update time of the plot, in ms
+PLOT_UPDATE_TIME = 1
+# @brief Point to update in each redraw
+PLOT_UPDATE_POINTS = -1
+
+class CO2():
+    def __init__(self):
+        self.data = deque([], maxlen = N_SAMPLES)
+        self.time = deque([], maxlen = N_SAMPLES)
+
+        self.timestamp = 0.0
+        # define the parameters
+        self.p_A = 40  # alveolar partial pressure of carbon dioxide, in mmHg
+        self.alpha = 0.5  # inverse of the dead space fraction
+        self.tau = 2  # pulmonary time constant, in seconds
+        self.noise_std_dev = 0.1  # standard deviation of the Gaussian noise
+        self.rr = 15
+
+    def init_values(self, respiratory_rate):
+        # define the time range for one cycle
+        t_one_cycle = np.linspace(0, round(60/respiratory_rate), N_SAMPLES)  # from 0 to 10 seconds, with 500 points in between
+
+        # define the function for capnogram for one cycle
+        p_D_one_cycle = self.p_A * (1 - np.exp(-self.alpha) * np.exp(self.alpha * np.exp(-t_one_cycle / self.tau)))
+
+        # add Gaussian noise to the capnogram
+        p_D_one_cycle += np.random.normal(0, self.noise_std_dev, size=p_D_one_cycle.shape)
+
+        return p_D_one_cycle
+    
+    def co2_change(self, respiratory_rate):
+
+        # define the time range for one cycle
+        t_one_cycle = np.linspace(0, round(60/respiratory_rate), N_SAMPLES)  # from 0 to 10 seconds, with 500 points in between
+
+        # define the function for capnogram for one cycle
+        p_D_one_cycle = self.p_A * (1 - np.exp(-self.alpha) * np.exp(self.alpha * np.exp(-t_one_cycle / self.tau)))
+
+        # add Gaussian noise to the capnogram
+        p_D_one_cycle += np.random.normal(0, self.noise_std_dev, size=p_D_one_cycle.shape)
+
+        return p_D_one_cycle
+    
+    def update_plot(self):
+        self.capnogram = self.init_values(self.rr)
+        self.data = self.capnogram + 10
+        # self.data.append(self.capnogram)
+        # print(self.data)
+        # print(f'size : {len(self.data)}')
+    def reset_buffers(self):
+        self.data.clear()
+
+

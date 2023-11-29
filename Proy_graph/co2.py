@@ -10,52 +10,35 @@ class CO2():
     def __init__(self):
         self.timer = QtCore.QTimer()
         # Define parameters for the EMG distribution
-        self.K = 4  # This is lambda in the EMG equation
-        self.loc = 4  # This is mu in the EMG equation
-        self.scale = 0.5  # This is sigma in the EMG equation
-        self.N_SAMPLES = 2000
+        self.K = 8  # This is lambda in the EMG equation, influences the skewness of the distribution, A higher value of self.K might make the onset of the plateau more abrupt
+        self.loc = .5  # This is mu in the EMG equation, can shift the peak left or right, helping to position the plateau where it's most physiologically realistic
+        self.scale = 1  # This is sigma in the EMG equation
+        self.co = 0
 
-        # Define deque to hold data with a maximum length of N_SAMPLES
-        self.data = deque([], maxlen=self.N_SAMPLES)
-        self.databuffer = deque([], maxlen=self.N_SAMPLES)
-        self.time = deque([], maxlen=self.N_SAMPLES)
-
-        # Initialize timestamp to the current time
-        self.timestamp = time()
-        self.init_timer()
-
-    def init_timer(self):
-        self.timestamp = time()
-        self.databuffer.clear()
-        self.timer.setInterval(10)
-        self.timer.timeout.connect(self.init_signal)
-        self.timer.start()
-
-    def init_signal(self):
-        if (np.size(self.databuffer)>=400):
-            self.timer.stop()
-            size = np.size(self.databuffer)
-            for i in range (self.N_SAMPLES-size):
-                self.databuffer.append(self.databuffer[i])
-            self.data = self.databuffer
-            print(" CO2 Signal Created")
-        else:
-            self.update_plot()
-
-    def capno_parameters(self, t_mod):
+    def capno_parameters(self, rf, t):
+        # Adjust time 't' based on respiratory frequency
+        cycle_length = 60 / rf # Length of one respiratory cycle in seconds
+        t_mod = t % cycle_length  # Modulate time with respiratory cycle
         y = exponnorm.pdf(t_mod, self.K, self.loc, self.scale)
-
         # Add noise
-        noise = np.random.normal(0, 0.02, len(t_mod))  # Noise with a standard deviation of 0.02
-        y = y + noise
+        noise = np.random.normal(0, 0.005)  # Noise with a standard deviation of 0.02
+        y = y * 3 + noise
         return y
 
-    def update_plot(self):
-        # Get the current time since the start of the simulation
-        self.tCapno = (time() - self.timestamp) % 5
-        # Generate new capnogram signal based on the current time
-        self.s = self.capno_parameters(np.array([self.tCapno]))
-        # Add the new signals to the data buffers
-        self.time.append(self.tCapno)
-        self.databuffer.append(self.s[0]*10)
+    def update_plot(self, rf, t):
+        cycle_length = 60 / rf  # Length of one respiratory cycle in seconds
+        phase_length = cycle_length / 3  # Length of one phase in the cycle
+        inhalation_length = cycle_length / 3  # Length of inhalation phase
+        exhalation_length = 2 * inhalation_length  # Length of exhalation phase
+        # Determine the current phase in the cycle
+        current_phase_time = t % cycle_length
+        if current_phase_time <= inhalation_length:
+            # Inhalation phase - return baseline value
+            self.co =  0 + np.random.normal(0, 0.005)  # Set an appropriate baseline value
+        else:
+            # Exhalation phase - return the CO2 waveform
+            # Adjust the time for the EMG function
+            adjusted_time = (current_phase_time - inhalation_length) % exhalation_length
+            self.co = self.capno_parameters(rf, adjusted_time)
+        
 
