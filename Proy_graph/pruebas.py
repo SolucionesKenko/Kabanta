@@ -22,16 +22,41 @@ spo = spo.SPO()
 co2 = co2.CO2()
 bp =bp.BloodPressure()
 from time import time
+import gpios
 
 
-generateSig = obtainSignals()
-ecg12 = generateSig.generateSignals(60)
 
-rsp = list(generateSig.generate_rsp())
-pokemon = [1,2,3,4,5,6,7,8]
-pokemon2 = pd.DataFrame(pokemon)[0]
-print(pokemon[:2000])
-print(deque(pokemon + list(pokemon2+10)[-3:],maxlen=12))
+# generateSig = obtainSignals()
+# ecg12 = generateSig.generateSignals(60)
 
+# rsp = list(generateSig.generate_rsp())
+# pokemon = [1,2,3,4,5,6,7,8]
+# pokemon2 = pd.DataFrame(pokemon)[0]
+# print(pokemon[:2000])
+# print(deque(pokemon + list(pokemon2+10)[-3:],maxlen=12))
+
+class mainPokemon():
+    def __init__(self):
+        self.texto = "Hola"
+    def onDownEnergyButtonPressed(self):
+        print(self.texto +" onDownEnergyButtonPressed")
+
+    def onUpEnergyButtonPressed(self):
+        print(self.texto +" onUpEnergyButtonPressed")
+
+    def onShockButttonPressed(self):
+        print(self.texto +" onShockButttonPressed")
+
+    def onChargeButtonPressed(self):
+        print(self.texto +" onChargeButtonPressed")
+
+    def LEDOn(self):
+        print(self.texto +" LEDOn")
+
+    def LEDOff(self):
+        print(self.texto +" LEDOff")
+
+    def LEDToggle(self):
+        print(self.texto +" LEDToggle")
 
 
