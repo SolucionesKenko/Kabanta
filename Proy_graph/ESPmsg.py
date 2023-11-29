@@ -129,7 +129,7 @@ class WorkerThread(qtc.QThread):
                 try:
                     if(self.rxstate == RxState.Sync1):
                         dataRead = self.sCoder.read_u08(self.s)
-                        #print(f"sync1 : {hex(dataRead)}")
+                        print(f"sync1 : {hex(dataRead)}")
                         if(dataRead == 0xA5):
                             self.rxstate = RxState.Sync2
                             self.message.append(dataRead)
@@ -137,7 +137,7 @@ class WorkerThread(qtc.QThread):
                             self.rxstate = RxState.Sync1
                     elif(self.rxstate == RxState.Sync2):
                         dataRead = self.sCoder.read_u08(self.s)
-                        #print(f"sync2 : {hex(dataRead)}")
+                        print(f"sync2 : {hex(dataRead)}")
                         if(dataRead == 0x5A):
                             self.rxstate = RxState.PacketType1
                             self.message.append(dataRead)
@@ -146,23 +146,23 @@ class WorkerThread(qtc.QThread):
                     elif(self.rxstate == RxState.PacketType1):
                         dataRead = self.sCoder.read_u08(self.s)
                         if(dataRead != 0):
-                            #print(f"type : {hex(dataRead)}")
+                            print(f"type : {hex(dataRead)}")
                             self.rxstate = RxState.Payload
                             self.type = dataRead
                             self.message.append(dataRead)
                        
                     elif(self.rxstate == RxState.Payload):
                         dataRead = self.sCoder.read_u08(self.s)
-                        #print(f"payload : {hex(dataRead)}")
+                        print(f"payload : {hex(dataRead)}")
                         self.payload = dataRead
                         self.message.append(dataRead)
                         self.rxstate = RxState.CRC  
                     elif(self.rxstate == RxState.CRC):
                         dataRead = self.sCoder.read_u08(self.s)
-                        #print(f"crc arrives: {hex(dataRead)}")
-                        #print(self.message)
+                        print(f"crc arrives: {hex(dataRead)}")
+                        print(self.message)
                         self.crc = self.calculateCRC8(self.message, len(self.message))
-                        #print(f"crc calculated: {self.crc}")
+                        print(f"crc calculated: {self.crc}")
                         if(dataRead == self.crc):
                             self.signal.sig.emit(self.type, self.payload)    
                         self.message.clear()

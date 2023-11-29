@@ -33,6 +33,26 @@ from datetime import timedelta
 # todo, cambiar el manejo de datos con collections deque
 
 
+import subprocess 
+
+from time import time
+try:
+    import RPi.GPIO as GPIO
+    OS_RASPBERRY = 1
+except ModuleNotFoundError or RuntimeError:
+    print("Error importing RPi.GPIO!  This is probably because you need superuser privileges or you'r not on a Raspberry device.  You can achieve superuser privileges by using 'sudo' to run your script; ")
+    OS_RASPBERRY = 0
+if OS_RASPBERRY == 1:
+    import gpios
+# Manejo de arreglos en la senal 
+# todo, cambiar el manejo de datos con collections deque
+
+
+if OS_RASPBERRY == 1:
+    proc = subprocess.run(['/usr/share/dispsetup.sh'],check=True,capture_output=True,text=True)
+    out = proc.stdout
+
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,6 +60,7 @@ class MainWindow(QtWidgets.QWidget):
         self.ui.setupUi(self)
         self.graphlength = 1000
         
+
         #Session
         self.signalState = SignalState.Idle
         self.state = State.IdleDisconnected
@@ -57,8 +78,15 @@ class MainWindow(QtWidgets.QWidget):
         self.parserState = ParserState.Type
         self.spo = spo.SPO()
         self.co2 = co2.CO2()
+
         self.bp = bp.BloodPressure()
         self.rsp = rsp.RSP()
+        
+        ## GPIO Config
+        if OS_RASPBERRY == 1:
+            self.gpios = gpios.GPIOS()
+            self.gpios.init_Gpios()       
+        
         self.adderFlag = 0
 
         self.init_time = 0.0
@@ -90,6 +118,13 @@ class MainWindow(QtWidgets.QWidget):
         generate_crc32_table(self.poly, self.custom_crc_table)
 
 
+        # GPIOS signal Connects
+        if OS_RASPBERRY == 1:
+            self.gpios.DownEnergy.sig.connect(self.onDownEnergySelectButtonClicked)
+            self.gpios.UpEnergy.sig.connect(self.onUpEnergySelectButtonClicked)
+            self.gpios.Shock.sig.connect(self.onShockButtonClicked)
+            self.gpios.Charge.sig.connect(self.onChargeButtonClicked)
+        
         #Button Control
         ## Unused Buttons
         self.ui.DEA_pushButton.pressed.connect(self.displayHello)
@@ -453,6 +488,7 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
             self.ui.plt.addItem(self.data_lines[3])
+
     
     def onDEFIBButtonClicked(self):
         print(self.pageState)
@@ -474,8 +510,9 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.mi_pagevariables[DEFIB_SELECT] = 0
             self.mi_pagevariables[DEFIB_CHARGE] = 0
-            self.ui.plt.addItem(self.data_lines[3])
-            
+
+            if self.signalState != SignalState.Stop:
+                self.ui.plt.addItem(self.data_lines[3])
     
     def onUpEnergySelectButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.DEFIBPAGE) and (self.defibState == DEFIBState.Select):
@@ -535,6 +572,8 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.timeout.disconnect(self.defibCharging)
             self.ui.Charge_pushButton.setStyleSheet(Stylesheet)
             self.ui.Shock_pushButton.setStyleSheet(PressedStylesheet)
+            if OS_RASPBERRY == 1:
+                self.gpios.LEDOn()
             print("first timer is stoped")
 
     def onDischargeButtonClicked(self):
@@ -570,7 +609,6 @@ class MainWindow(QtWidgets.QWidget):
             self.timer2.stop()
             self.timer2.timeout.disconnect(self.defibDischarge)
             self.ui.DISCHARGE_pushButton.setStyleSheet(Stylesheet)
-            
             print(" second timer is stoped")
 
     def onShockButtonClicked(self):
@@ -593,9 +631,12 @@ class MainWindow(QtWidgets.QWidget):
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_CHARGE]} J SHK\nBIFASICO")
         else:
             self.ui.defibLabel_pushButton.setText(f"DEFIB {self.mi_pagevariables[DEFIB_SELECT]} J SEL\nBIFASICO")
+            self.mi_pagevariables[DEFIB_CHARGE] = 0
             self.ui.Charge_pushButton.setStyleSheet(PressedStylesheet)
             self.timer2.stop()
-            self.timer2.timeout.disconnect(self.defibShock)  
+            self.timer2.timeout.disconnect(self.defibShock)
+            if OS_RASPBERRY == 1:
+                self.gpios.LEDOff()
 
     def resetPacerPage(self):
         self.mi_pagevariables = {PACEMAKER_MA:18, PACEMAKER_PPM:70,DEFIB_SELECT:0,DEFIB_CHARGE:0}
@@ -619,7 +660,7 @@ class MainWindow(QtWidgets.QWidget):
             # reset page variables
             self.resetPacerPage()
             self.ui.plt.addItem(self.data_lines[3])
-          
+
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
             self.mi_pagevariables[PACEMAKER_MA] = self.mi_pagevariables[PACEMAKER_MA]+1
@@ -725,27 +766,34 @@ class MainWindow(QtWidgets.QWidget):
     def updateUI(self, id, data):
         if(id == HEART_RATE):
             self.ui.heartRateValue_Label.setText(str(data))
-            self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
+            self.ecg12 = self.generateSig.generateSignals(self.mi_diccionario[HEART_RATE])
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de BP
             self.bp.HR = HEART_RATE
 
         elif(id == TEMPERATURE):
             self.ui.tempValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == SPO):
             self.ui.SpO2Value_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de Spo2
             self.spo.spo2sl_change(self.default_config[SPO])
             self.spo.init_timer()
         elif(id == SYSPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de Blood Pressure
             self.bp.P_in = self.default_config[SYSPRESSURE]
         elif(id == DIAPRESSURE):
             self.ui.pressureValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == FR):
             self.ui.FRValue_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
         elif(id == CO):
             self.ui.CO2Value_Label.setText(str(data))
+            self.scenarioState = ScenarioState.Idle
             # Actualizacion de CO2
             #self.co2.loc = self.default_config[CO]
             #self.co2.init_timer()
@@ -780,7 +828,9 @@ class MainWindow(QtWidgets.QWidget):
     def testWorker(self, id, data):
         # Cambiar diccionario
         s_id = str(id)
-        self.default_config[s_id] = data
+
+        self.mi_diccionario[s_id] = data
+        print("UiUpdate Values" + str(self.mi_diccionario))
         self.updateUI(s_id, data)
 
     ##########################################################################################
@@ -789,7 +839,6 @@ class MainWindow(QtWidgets.QWidget):
         self.scenarioState = ScenarioState.ArritmiaSinusal
     def scenDefalt(self):
         self.scenarioState = ScenarioState.Idle
-        
 
 
 main_Stylesheet = """
