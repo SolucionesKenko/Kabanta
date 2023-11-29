@@ -138,6 +138,7 @@ class MainWindow(QtWidgets.QWidget):
     ##########################################################################################
     # Funtiones del Ploteo Grafica (PUI)
     def initSignalGrahps(self):
+
         self.channel_configs = [
                             {'label': 'II', 'color': (162,249,161), 'pos': (5, -0.2), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True, 'Screen':1},
                             {'label': 'Pleth', 'color': (134,234,233), 'pos':(3.5, -0.3), 'fillLevel': None, 'clipToView': True, 'dynamicRangeLimit': None, 'SkipFiniteCheck': True,'Screen':1},
@@ -271,9 +272,9 @@ class MainWindow(QtWidgets.QWidget):
         # for i in range (NUM_CHANNELS):
         #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
         #     # Update the position of each channel's text label
-        #     self.text_items[i].setPos(self.x[0] - 0.2, CHANNEL_OFFSETS[i])
+        #     self.text_items[i].setPos(self.x[0] - 0.8, CHANNEL_OFFSETS[i])
         #     # Update the data line for each channel with the new data
-        #     self.data_lines[i].setData(self.x, self.channels[i])    
+         
         
         self.x.append(self.timestamp)
         self.setGraphData()
@@ -285,6 +286,7 @@ class MainWindow(QtWidgets.QWidget):
         self.data_lines[3].setData(x=list(self.x)[1:], y = list(self.channels[3])[1:])
         self.data_lines[4].setData(x=list(self.x)[1:], y = list(self.channels[4])[1:])
         self.data_lines[5].setData(x=list(self.x)[1:], y = list(self.channels[5])[1:])
+
 
 
     ##########################################################################################
@@ -332,7 +334,6 @@ class MainWindow(QtWidgets.QWidget):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
                 self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
-        
                 self.time.__init__(0,0,0,0)
             
             if(self.signalState != SignalState.Playing):
