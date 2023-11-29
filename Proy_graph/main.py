@@ -77,7 +77,6 @@ class MainWindow(QtWidgets.QWidget):
             # Timers 
         self.timer = QtCore.QTimer()
         self.timer2 = QtCore.QTimer()
-        self.time = QtCore.QTime()
 
         # Connections
         self.s = ""
@@ -166,10 +165,10 @@ class MainWindow(QtWidgets.QWidget):
         #self.ui.plt.getPlotItem().hideAxis('left')
         self.ui.plt.setYRange(0, 5.5)
         # #Eje en x 
-        # self.x = deque(np.linspace(0,4,self.graphlength),maxlen=self.graphlength)
         self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
         for i, config in enumerate(self.channel_configs):
             y_offset = config['pos'][0]
+            
             if self.channelState == ChannelState.Idle:
                 # Create the deque with initial values
                 #channel_deque = deque([y_offset for _ in range(self.graphlength)], maxlen=self.graphlength)
@@ -184,21 +183,31 @@ class MainWindow(QtWidgets.QWidget):
                 else:
                     data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
                 self.data_lines.append(data_line)
+
+                #Create the label text
+                text_item = pg.TextItem(config['label'], color=config['color'])
+                text_item.setPos(self.x[1], y_offset)
+                self.ui.plt.addItem(text_item)
+                self.text_items.append(text_item)
+
                 if config['Screen'] != 1:
                     self.ui.plt.removeItem(data_line)
+                    self.ui.plt.removeItem(text_item)
+                
+
             elif config["Screen"] == 1:
                 self.ui.plt.addItem(self.data_lines[i]) 
                 self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
                 self.channels[i] = deque([y_offset for i in self.x], maxlen=self.graphlength)
+            
+            
+            
+            
         self.channelState = ChannelState.Generated
             # Clear other screen Datalines
             
         
-        #     # Create the label text
-        #     text_item = pg.TextItem(config['label'], color=config['color'])
-        #     text_item.setPos(config['pos'][1], y_offset)
-        #     self.ui.plt.addItem(text_item)
-        #     self.text_items.append(text_item)
+            
         
     def signalScenarioData(self):
         if self.scenarioState == ScenarioState.Idle:
@@ -268,13 +277,10 @@ class MainWindow(QtWidgets.QWidget):
 
             for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
                 self.channels[i].append(self.ecg12[config["label"]][self.signalIndex] + CHANNEL_OFFSETS[i])
+                # Update the data line for each channel with the new data
         
-        # for i in range (NUM_CHANNELS):
-        #     self.channels[i].append(self.data[i][self.signalIndex] + CHANNEL_OFFSETS[i])
-        #     # Update the position of each channel's text label
-        #     self.text_items[i].setPos(self.x[0] - 0.8, CHANNEL_OFFSETS[i])
-        #     # Update the data line for each channel with the new data
-         
+        for i in range (NUM_CHANNELS):
+            self.text_items[i].setPos(self.x[1] - 0.8, CHANNEL_OFFSETS[i])
         
         self.x.append(self.timestamp)
         self.setGraphData()
@@ -334,7 +340,6 @@ class MainWindow(QtWidgets.QWidget):
             if(self.signalState == SignalState.Idle):
                 self.setDefaultValues()
                 self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
-                self.time.__init__(0,0,0,0)
             
             if(self.signalState != SignalState.Playing):
                 self.ui.heartRateValue_Label.setText(str(self.default_config[HEART_RATE]))
@@ -677,11 +682,16 @@ class MainWindow(QtWidgets.QWidget):
                 self.channels[5] = deque(channel_list5 + list((self.ecg12["aVF"])+self.channel_configs[5]["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
                 for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
                     self.data_lines[i].setPen(config["color"])
+                    self.text_items[i].setText(config["label"])
+                    self.text_items[i].setColor(config["color"])
             else:
                 for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
                     channel_list = [config["pos"][0]]*self.graphlength if self.adderFlag == 0 else list((self.ecg12[config["label"]])+config["pos"][0])[:self.graphlength]
                     self.channels[i] = deque(channel_list + list((self.ecg12[config["label"]])+config["pos"][0])[:self.signalIndex],maxlen = self.graphlength) 
                     self.data_lines[i].setPen(config["color"])
+                    self.text_items[i].setText(config["label"])
+                    self.text_items[i].setColor(config["color"])
+
             # self.channel1Text.setText(self.leadConfig["text1"])
             # self.channel2Text.setText(self.leadConfig["text2"])
             # self.channel3Text.setText(self.leadConfig["text3"])
