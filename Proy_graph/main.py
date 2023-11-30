@@ -89,7 +89,7 @@ class MainWindow(QtWidgets.QWidget):
         
         self.adderFlag = 0
 
-        self.init_time = 0.0
+        
 
         self.generateSig = obtainSignals()
         self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
@@ -105,6 +105,9 @@ class MainWindow(QtWidgets.QWidget):
             # Timers 
         self.timer = QtCore.QTimer()
         self.timer2 = QtCore.QTimer()
+        self.pause_time = 0.0
+        self.init_time = 0.0
+        self.init_pause_time = 0.0
 
         # Connections
         self.s = ""
@@ -293,7 +296,7 @@ class MainWindow(QtWidgets.QWidget):
             
 
     def Update_Graph(self):
-        self.timestamp = time() - self.init_time
+        self.timestamp = time() - self.init_time + self.pause_time
         self.spo.update(self.default_config[HEART_RATE], self.timestamp)
         self.bp.update_plot(self.default_config[HEART_RATE], self.timestamp)
         self.co2.update_plot(self.default_config[FR], self.timestamp)
@@ -370,9 +373,9 @@ class MainWindow(QtWidgets.QWidget):
             self.enableDisableVitalSignalMenu(False)
       
     def onPlayButtonClicked(self):
-        self.init_time = time()
         if (self.pageState != PageState.OFFPAGE):
             if(self.signalState == SignalState.Idle):
+                self.init_time = time()
                 self.setDefaultValues()
                 self.ecg12 = self.generateSig.generateSignals(self.default_config[HEART_RATE])
             
@@ -386,11 +389,16 @@ class MainWindow(QtWidgets.QWidget):
                 self.ui.CO2Value_Label.setText(str(self.default_config[CO]))
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
+                    self.init_time = time()
+                    print(self.init_time)
                     self.initSignalGrahps()
                     print(self.pageState)
                     if self.pageState != PageState.DEFAULTPAGE and self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
                        self.ui.plt.removeItem(self.data_lines[3])
                 
+                if(self.signalState == SignalState.Pause):
+                    self.pause_time = self.init_pause_time - time() + self.pause_time
+                    print(self.pause_time)
                 self.signalState = SignalState.Playing
                 # Envio de estado por serial 
                 if self.state != State.IdleDisconnected:
@@ -406,6 +414,7 @@ class MainWindow(QtWidgets.QWidget):
         if (self.pageState != PageState.OFFPAGE) and (self.signalState == SignalState.Playing) :
             self.timer.stop()
             self.signalState = SignalState.Pause
+            self.init_pause_time = time()
             # Envio de estado por serial 
             if self.state != State.IdleDisconnected:
                 self.worker.encodeMesage(8,2)
