@@ -214,7 +214,7 @@ class MainWindow(QtWidgets.QWidget):
                 if config.get('fillLevel') is not None:
                     # Probar en la Raspberry sin la configuración de dynamicRangeLimit
                     brush = pg.mkBrush(config['color'] + (60,))
-                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush, clipToView = config['clipToView'], dynamicRangeLimit = config['dynamicRangeLimit'], SkipFiniteCheck = config['SkipFiniteCheck'])
+                    data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'], fillLevel=config['fillLevel'], brush=brush, dynamicRangeLimit = config['dynamicRangeLimit'], SkipFiniteCheck = config['SkipFiniteCheck'])
                 else:
                     data_line = self.ui.plt.plot(self.x, channel_deque, pen=config['color'])
                 self.data_lines.append(data_line)
