@@ -197,7 +197,7 @@ class MainWindow(QtWidgets.QWidget):
                         ]
 
         # Plot configuration
-        #self.ui.plt.getPlotItem().hideAxis('left')
+        self.ui.plt.getPlotItem().hideAxis('left')
         self.ui.plt.setYRange(0, 5.5)
         # #Eje en x 
         self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
