@@ -198,7 +198,7 @@ class MainWindow(QtWidgets.QWidget):
 
         # Plot configuration
         self.ui.plt.getPlotItem().hideAxis('left')
-        self.ui.plt.setYRange(0, 5.5)
+        self.ui.plt.setYRange(0, 5.6)
         # #Eje en x 
         self.x = deque(np.linspace(-17,0,self.graphlength), maxlen=self.graphlength)
         for i, config in enumerate(self.channel_configs):
@@ -311,11 +311,11 @@ class MainWindow(QtWidgets.QWidget):
         else:
 
             for i, config in enumerate(self.channel_configs[self.qwer:self.asdf]):
-                self.channels[i].append(self.ecg12[config["label"]][self.signalIndex] + CHANNEL_OFFSETS[i])
+                self.channels[i].append(self.ecg12[config["label"]][self.signalIndex] + self.channel_configs[i]["pos"][0])
                 # Update the data line for each channel with the new data
         
         for i in range (NUM_CHANNELS):
-            self.text_items[i].setPos(self.x[1] - 0.8, CHANNEL_OFFSETS[i])
+            self.text_items[i].setPos(self.x[1] - 0.8, self.channel_configs[i]["pos"][0])
         
         self.x.append(self.timestamp)
         self.setGraphData()
@@ -458,7 +458,7 @@ class MainWindow(QtWidgets.QWidget):
     def resetGraphs(self):
         self.signalIndex = 0
         self.ui.plt.clear()
-        self.ui.plt.setYRange(0, 5.5)
+        self.ui.plt.setYRange(0, 5.6)
         for i, config in enumerate(self.channel_configs[0:6]):
                     self.data_lines[i].setPen(config["color"])
 
@@ -690,9 +690,10 @@ class MainWindow(QtWidgets.QWidget):
                 self.resetDefib()
                 self.resetCPRPage()
                 self.resetPacerPage()
-                self.ui.plt.setYRange(-1, 5)
+                self.ui.plt.setYRange(-1.3, 5.9)
                 self.ui.plt.addItem(self.data_lines[5])
-                self.data_lines[5].setBrush(171,171,171, 0)
+                self.ui.plt.addItem(self.text_items[5])
+                self.data_lines[4].setBrush(171,171,171,0)
                 self.qwer, self.asdf = [6, 12]
             elif self.pageState == PageState.LEADPAGE1:
                 self.pageState = PageState.LEADPAGE2
@@ -702,9 +703,10 @@ class MainWindow(QtWidgets.QWidget):
                 self.pageState = PageState.DEFAULTPAGE
                 self.workingState = WorkingState.Idle
                 self.ui.plt.removeItem(self.data_lines[5])
+                self.ui.plt.removeItem(self.text_items[5])
                 self.qwer, self.asdf = [0, 7]
-                self.ui.plt.setYRange(0, 5.5)
-                self.data_lines[5].setBrush(171,171,171, 60)
+                self.ui.plt.setYRange(0, 5.6)
+                self.data_lines[4].setBrush(171,171,171, 60)
                 
             if  self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
                 
@@ -732,20 +734,6 @@ class MainWindow(QtWidgets.QWidget):
                     self.data_lines[i].setPen(config["color"])
                     self.text_items[i].setText(config["label"])
                     self.text_items[i].setColor(config["color"])
-
-            # self.channel1Text.setText(self.leadConfig["text1"])
-            # self.channel2Text.setText(self.leadConfig["text2"])
-            # self.channel3Text.setText(self.leadConfig["text3"])
-            # self.channel4Text.setText(self.leadConfig["text4"])
-            # self.channel5Text.setText(self.leadConfig["text5"])
-            # self.channel6Text.setText(self.leadConfig["text6"])
-
-            # self.channel1Text.setColor(self.leadConfig["ch1"])
-            # self.channel2Text.setColor(self.leadConfig["ch2"])
-            # self.channel3Text.setColor(self.leadConfig["ch3"])
-            # self.channel4Text.setColor(self.leadConfig["ch4"])
-            # self.channel5Text.setColor(self.leadConfig["ch5"])
-            # self.channel6Text.setColor(self.leadConfig["ch6"])
 
     ##########################################################################################
     # Funciones Para el manejo del tiempo  
