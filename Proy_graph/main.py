@@ -390,7 +390,7 @@ class MainWindow(QtWidgets.QWidget):
                 # ReInicializacion de la senal posterior a SignalState.Stop
                 if(self.signalState == SignalState.Stop):
                     self.init_time = time()
-                    print(self.init_time)
+                    self.pause_time = 0.0
                     self.initSignalGrahps()
                     print(self.pageState)
                     if self.pageState != PageState.DEFAULTPAGE and self.pageState != PageState.LEADPAGE1 and self.pageState != PageState.LEADPAGE2:
@@ -455,7 +455,7 @@ class MainWindow(QtWidgets.QWidget):
         if self.timer2.isActive():
             self.timer2.stop()
             self.timer2.disconnect()
-        
+        self.pause_time = 0.0
         # Restablecer graficas
         self.resetGraphs()
         self.initSignalGrahps()
@@ -496,8 +496,8 @@ class MainWindow(QtWidgets.QWidget):
             
             self.pageState = PageState.DEFAULTPAGE
             self.resetCPRPage()
-            self.ui.plt.addItem(self.data_lines[3])
-
+            if self.signalState != SignalState.Stop:
+                self.ui.plt.addItem(self.data_lines[3])
     
     def onDEFIBButtonClicked(self):
         print(self.pageState)
@@ -668,7 +668,9 @@ class MainWindow(QtWidgets.QWidget):
             self.pageState = PageState.DEFAULTPAGE
             # reset page variables
             self.resetPacerPage()
-            self.ui.plt.addItem(self.data_lines[3])
+            if self.signalState != SignalState.Stop:
+                self.ui.plt.addItem(self.data_lines[3])
+        
 
     def onPacerOutputUpButtonClicked(self):
         if (self.pageState != PageState.OFFPAGE) and (self.pageState==PageState.PACERPAGE):
